@@ -5,7 +5,7 @@ using UnityEngine.Video;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class BoxClickHandler : MonoBehaviour, IPointerClickHandler
+public class BoxClickHandler : MonoBehaviour
 {
     public RawImage videoDisplay;
     public VideoPlayer videoPlayer;
@@ -17,7 +17,7 @@ public class BoxClickHandler : MonoBehaviour, IPointerClickHandler
         { "Sample/Bad_004", "Bad" },
         { "Sample/Careful_001", "Careful" },
         { "Sample/Cold_001", "Cold" }
-    }; // Video paths with corresponding names
+    };
 
     public static Dictionary<GameObject, string> boxVideoAssignments;
 
@@ -64,9 +64,30 @@ public class BoxClickHandler : MonoBehaviour, IPointerClickHandler
         }
     }
 
-    public void OnPointerClick(PointerEventData eventData)
+    void Update()
+{
+    if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
     {
-        Debug.Log($"Box clicked: {gameObject.name}");
+        Vector2 touchPos = Input.GetTouch(0).position;
+        
+        // Convert the touch position to the local space of the UI element
+        RectTransform rectTransform = GetComponent<RectTransform>();
+        Vector2 localPoint;
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(rectTransform, touchPos, null, out localPoint);
+
+        // Check if the touch is within the bounds of the UI element
+        if (rectTransform.rect.Contains(localPoint))
+        {
+            HandleClick();
+        }
+    }
+}
+
+
+
+    private void HandleClick()
+    {
+        Debug.Log($"Box touched: {gameObject.name}");
 
         ClearCacheAndReset();
         MoveVideoRendererToBox();
