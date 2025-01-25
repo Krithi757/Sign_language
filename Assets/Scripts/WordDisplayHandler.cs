@@ -40,9 +40,6 @@ public class WordDisplayHandler : MonoBehaviour
         }
     }
 
-
-
-
     void HandleTouch()
     {
         if (isWordDisplayed)
@@ -69,7 +66,6 @@ public class WordDisplayHandler : MonoBehaviour
         }));
     }
 
-
     void UpdateVideoNames()
     {
         if (BoxClickHandler.boxVideoAssignments == null || !BoxClickHandler.boxVideoAssignments.ContainsKey(box))
@@ -80,19 +76,21 @@ public class WordDisplayHandler : MonoBehaviour
 
         availableWords.Clear();
 
+        // Instead of BoxClickHandler.availableVideoPaths, we use VideoPathManager
         foreach (var boxAssignment in BoxClickHandler.boxVideoAssignments)
         {
             GameObject currentBox = boxAssignment.Key;
             string assignedVideoPath = boxAssignment.Value;
 
-            if (BoxClickHandler.availableVideoPaths.TryGetValue(assignedVideoPath, out string videoName))
+            // Get the video name using VideoPathManager based on the assigned video path
+            if (VideoPathManager.GetVideoPaths().TryGetValue(assignedVideoPath, out string videoName))
             {
                 availableWords.Add(videoName);
                 Debug.Log($"Added video name: {videoName} to available words list");
             }
             else
             {
-                Debug.LogError($"Video path {assignedVideoPath} not found in availableVideoPaths!");
+                Debug.LogError($"Video path {assignedVideoPath} not found in VideoPathManager!");
             }
         }
 
@@ -173,7 +171,7 @@ public class WordDisplayHandler : MonoBehaviour
         Quaternion startRotation = transform.rotation;
         Quaternion endRotation = Quaternion.Euler(0, 0, 0);
 
-        float duration = 1.0f;
+        float duration = 0.5f;
         float timeElapsed = 0f;
 
         while (timeElapsed < duration)

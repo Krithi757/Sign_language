@@ -11,20 +11,14 @@ public class BoxClickHandler : MonoBehaviour
     public VideoPlayer videoPlayer;
     public RenderTexture renderTexture;
 
-    public static Dictionary<string, string> availableVideoPaths = new Dictionary<string, string>
-    {
-        { "Sample/Beautiful_002", "Beautiful" },
-        { "Sample/Bad_004", "Bad" },
-        { "Sample/Careful_001", "Careful" },
-        { "Sample/Cold_001", "Cold" }
-    };
-
+    // Removed the availableVideoPaths dictionary
     public static Dictionary<GameObject, string> boxVideoAssignments;
 
     private static readonly string VideoPathsKey = "AvailableVideoPaths";
 
     void Awake()
     {
+        // Load video paths from the manager instead of local storage
         LoadVideoPaths();
 
         if (boxVideoAssignments == null)
@@ -65,25 +59,23 @@ public class BoxClickHandler : MonoBehaviour
     }
 
     void Update()
-{
-    if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
     {
-        Vector2 touchPos = Input.GetTouch(0).position;
-        
-        // Convert the touch position to the local space of the UI element
-        RectTransform rectTransform = GetComponent<RectTransform>();
-        Vector2 localPoint;
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(rectTransform, touchPos, null, out localPoint);
-
-        // Check if the touch is within the bounds of the UI element
-        if (rectTransform.rect.Contains(localPoint))
+        if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
         {
-            HandleClick();
+            Vector2 touchPos = Input.GetTouch(0).position;
+
+            // Convert the touch position to the local space of the UI element
+            RectTransform rectTransform = GetComponent<RectTransform>();
+            Vector2 localPoint;
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(rectTransform, touchPos, null, out localPoint);
+
+            // Check if the touch is within the bounds of the UI element
+            if (rectTransform.rect.Contains(localPoint))
+            {
+                HandleClick();
+            }
         }
     }
-}
-
-
 
     private void HandleClick()
     {
@@ -200,7 +192,9 @@ public class BoxClickHandler : MonoBehaviour
 
     void RandomizeAndAssignVideos()
     {
-        var shuffledPaths = new List<KeyValuePair<string, string>>(availableVideoPaths);
+        // Get video paths from VideoPathManager instead of local availableVideoPaths dictionary
+        var shuffledPaths = new List<KeyValuePair<string, string>>(VideoPathManager.GetVideoPaths());
+
         for (int i = 0; i < shuffledPaths.Count; i++)
         {
             var temp = shuffledPaths[i];
@@ -224,7 +218,7 @@ public class BoxClickHandler : MonoBehaviour
     void SaveVideoPaths()
     {
         List<string> serializedPaths = new List<string>();
-        foreach (var pair in availableVideoPaths)
+        foreach (var pair in VideoPathManager.GetVideoPaths())
         {
             serializedPaths.Add($"{pair.Key}|{pair.Value}");
         }
@@ -237,19 +231,19 @@ public class BoxClickHandler : MonoBehaviour
 
     void LoadVideoPaths()
     {
-        if (availableVideoPaths != null && availableVideoPaths.Count > 0) return;
+        if (VideoPathManager.GetVideoPaths() != null && VideoPathManager.GetVideoPaths().Count > 0) return;
 
         string savedPaths = PlayerPrefs.GetString(VideoPathsKey, null);
 
         if (!string.IsNullOrEmpty(savedPaths))
         {
-            availableVideoPaths = new Dictionary<string, string>();
+            var videoPaths = new Dictionary<string, string>();
             foreach (string entry in savedPaths.Split(','))
             {
                 string[] pair = entry.Split('|');
                 if (pair.Length == 2)
                 {
-                    availableVideoPaths[pair[0]] = pair[1];
+                    videoPaths[pair[0]] = pair[1];
                 }
             }
 
