@@ -42,29 +42,53 @@ public class WordDisplayHandler : MonoBehaviour
 
     void HandleTouch()
     {
-        if (isWordDisplayed)
+        // Ensure the `box` is updated dynamically based on the user's click.
+        if (box == null)
         {
-            Debug.Log("A word is already displayed. Please wait until it disappears.");
+            Debug.LogError("Box is null. Ensure the correct box is assigned.");
             return;
         }
 
-        isWordDisplayed = true;
+        Debug.Log($"Box clicked: {box.name}");
 
+        // Start rotating the box and display the word
         StartCoroutine(RotateBox(() =>
         {
+            // Check if the word exists for the current box
             if (boxWords.ContainsKey(box))
             {
-                wordDisplayText.text = boxWords[box];
+                string wordToDisplay = boxWords[box];
+                wordDisplayText.text = wordToDisplay;
                 wordDisplayText.gameObject.SetActive(true);
-                Debug.Log($"Displayed word: {wordDisplayText.text} for box: {box.name}");
+                Debug.Log($"Displayed word: {wordToDisplay} for box: {box.name}");
 
+                // Ensure we're getting the correct `BoxClickHandler` for the current box
+                var boxClickHandler = box.GetComponent<BoxClickHandler>();
+                if (boxClickHandler != null)
+                {
+                    Debug.Log($"Checking match for word: {wordToDisplay} and box: {box.name}");
+                    boxClickHandler.CheckMatchWithWord(wordToDisplay);  // Always check the match
+                }
+                else
+                {
+                    Debug.LogWarning($"No BoxClickHandler found for box: {box.name}");
+                }
+
+                // After displaying the word, set a delay to hide it
                 StartCoroutine(DisappearWordAfterDelay(2.0f, () =>
                 {
-                    StartCoroutine(RotateBackAfterDelay(0f));
+                    wordDisplayText.gameObject.SetActive(false); // Hide the word
+                    StartCoroutine(RotateBackAfterDelay(0f));     // Optionally rotate back
                 }));
+            }
+            else
+            {
+                Debug.LogWarning($"No word found for box: {box.name}");
             }
         }));
     }
+
+
 
     void UpdateVideoNames()
     {
@@ -155,15 +179,26 @@ public class WordDisplayHandler : MonoBehaviour
     IEnumerator DisappearWordAfterDelay(float delay, System.Action onDisappearComplete)
     {
         yield return new WaitForSeconds(delay);
-        wordDisplayText.gameObject.SetActive(false);
         onDisappearComplete?.Invoke();
-        isWordDisplayed = false;
     }
 
     IEnumerator RotateBackAfterDelay(float delay)
     {
         yield return new WaitForSeconds(delay);
-        yield return StartCoroutine(RotateBoxBack());
+        Quaternion startRotation = transform.rotation;
+        Quaternion endRotation = Quaternion.identity;
+
+        float duration = 0.5f;
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            transform.rotation = Quaternion.Lerp(startRotation, endRotation, elapsed / duration);
+            yield return null;
+        }
+
+        transform.rotation = endRotation;
     }
 
     IEnumerator RotateBoxBack()
@@ -182,5 +217,6 @@ public class WordDisplayHandler : MonoBehaviour
         }
 
         transform.rotation = endRotation;
+
     }
 }

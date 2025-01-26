@@ -6,6 +6,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class BoxClickHandler : MonoBehaviour
+
 {
     public RawImage videoDisplay;
     public VideoPlayer videoPlayer;
@@ -15,6 +16,9 @@ public class BoxClickHandler : MonoBehaviour
     public static Dictionary<GameObject, string> boxVideoAssignments;
 
     private static readonly string VideoPathsKey = "AvailableVideoPaths";
+    private static string selectedWord = "";
+
+    private bool isClickedOnce = false;
 
     void Awake()
     {
@@ -88,11 +92,17 @@ public class BoxClickHandler : MonoBehaviour
         videoPlayer.clip = Resources.Load<VideoClip>(assignedVideoPath);
         videoPlayer.Prepare();
 
+        // Trigger the rotation and video play
         StartCoroutine(RotateBox(() =>
         {
             PlayVideo(assignedVideoPath);
             videoDisplay.enabled = true;
+            // After playing the video, check for match every time the box is clicked
+            CheckMatchWithWord(selectedWord);
         }));
+
+        // Toggle click state if needed
+        isClickedOnce = !isClickedOnce;
     }
 
     void ClearCacheAndReset()
@@ -250,4 +260,35 @@ public class BoxClickHandler : MonoBehaviour
             Debug.Log("Loaded video paths from PlayerPrefs.");
         }
     }
+
+    public void CheckMatchWithWord(string selectedWord)
+    {
+        if (boxVideoAssignments.ContainsKey(gameObject))
+        {
+            string videoKey = boxVideoAssignments[gameObject]; // Get the video key (e.g., "Sample/Beautiful_002")
+
+            // Check if the key exists in the dictionary and retrieve its value
+            if (VideoPathManager.GetVideoPaths().TryGetValue(videoKey, out string correctWord)) // Value (e.g., "Beautiful")
+            {
+                if (selectedWord == correctWord) // Compare the selected word with the value
+                {
+                    Debug.Log($"Match! Word '{selectedWord}' matches the assigned word '{correctWord}'.");
+                    // Perform any additional actions for a correct match
+                }
+                else
+                {
+                    Debug.Log($"No match. Word '{selectedWord}' does not match the assigned word '{correctWord}'.");
+                }
+            }
+            else
+            {
+                Debug.LogWarning($"The video key '{videoKey}' does not exist in the dictionary.");
+            }
+        }
+        else
+        {
+            Debug.LogWarning("No video assigned to this box.");
+        }
+    }
+
 }
