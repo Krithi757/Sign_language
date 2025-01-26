@@ -16,7 +16,8 @@ public class BoxClickHandler : MonoBehaviour
     public static Dictionary<GameObject, string> boxVideoAssignments;
 
     private static readonly string VideoPathsKey = "AvailableVideoPaths";
-    private static string selectedWord = "";
+    public static string selectedWord = "";
+    private static string clicked = "";
 
     private bool isClickedOnce = false;
 
@@ -81,7 +82,7 @@ public class BoxClickHandler : MonoBehaviour
         }
     }
 
-    private void HandleClick()
+    public void HandleClick()
     {
         Debug.Log($"Box touched: {gameObject.name}");
 
@@ -95,10 +96,12 @@ public class BoxClickHandler : MonoBehaviour
         // Trigger the rotation and video play
         StartCoroutine(RotateBox(() =>
         {
+            Debug.Log("Playing " + assignedVideoPath);
             PlayVideo(assignedVideoPath);
             videoDisplay.enabled = true;
-            // After playing the video, check for match every time the box is clicked
-            CheckMatchWithWord(selectedWord);
+
+
+            clicked = assignedVideoPath;
         }));
 
         // Toggle click state if needed
@@ -261,33 +264,30 @@ public class BoxClickHandler : MonoBehaviour
         }
     }
 
+
+
+
     public void CheckMatchWithWord(string selectedWord)
     {
-        if (boxVideoAssignments.ContainsKey(gameObject))
-        {
-            string videoKey = boxVideoAssignments[gameObject]; // Get the video key (e.g., "Sample/Beautiful_002")
+        // Assuming clicked is a string that holds the video key (e.g., "Sample/Beautiful_002")
+        // Get the video key (e.g., "Sample/Beautiful_002")
 
-            // Check if the key exists in the dictionary and retrieve its value
-            if (VideoPathManager.GetVideoPaths().TryGetValue(videoKey, out string correctWord)) // Value (e.g., "Beautiful")
+        // Check if the key exists in the dictionary and retrieve its value
+        if (VideoPathManager.GetVideoPaths().TryGetValue(clicked, out string correctWord)) // Value (e.g., "Beautiful")
+        {
+            if (selectedWord == correctWord) // Compare the selected word with the value
             {
-                if (selectedWord == correctWord) // Compare the selected word with the value
-                {
-                    Debug.Log($"Match! Word '{selectedWord}' matches the assigned word '{correctWord}'.");
-                    // Perform any additional actions for a correct match
-                }
-                else
-                {
-                    Debug.Log($"No match. Word '{selectedWord}' does not match the assigned word '{correctWord}'.");
-                }
+                Debug.Log($"Match! Word '{selectedWord}' matches the assigned word '{correctWord}'.");
+                // Perform any additional actions for a correct match
             }
             else
             {
-                Debug.LogWarning($"The video key '{videoKey}' does not exist in the dictionary.");
+                Debug.Log($"No match. Word '{selectedWord}' does not match the assigned word '{correctWord}'.");
             }
         }
         else
         {
-            Debug.LogWarning("No video assigned to this box.");
+            Debug.LogWarning($"The video key '{clicked}' does not exist in the dictionary.");
         }
     }
 

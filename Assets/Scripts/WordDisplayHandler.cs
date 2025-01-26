@@ -67,6 +67,8 @@ public class WordDisplayHandler : MonoBehaviour
                 if (boxClickHandler != null)
                 {
                     Debug.Log($"Checking match for word: {wordToDisplay} and box: {box.name}");
+                    // Set selected word in BoxClickHandler
+                    BoxClickHandler.selectedWord = wordToDisplay;  // Assign word to the BoxClickHandler (static access) // Assign word to the BoxClickHandler
                     boxClickHandler.CheckMatchWithWord(wordToDisplay);  // Always check the match
                 }
                 else
