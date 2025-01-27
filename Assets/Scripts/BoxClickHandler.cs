@@ -185,6 +185,35 @@ public class BoxClickHandler : MonoBehaviour
         StartCoroutine(RotateBoxBack());
     }
 
+    public void HandleMatch(GameObject matchedBox1, GameObject matchedBox2)
+    {
+        StartCoroutine(FlyAwayAndDisable(matchedBox1));
+        StartCoroutine(FlyAwayAndDisable(matchedBox2));
+    }
+
+    IEnumerator FlyAwayAndDisable(GameObject box)
+    {
+        // Fly-away animation parameters
+        Vector3 startPosition = box.transform.position;
+        Vector3 endPosition = startPosition + new Vector3(Random.Range(-5f, 5f), Random.Range(5f, 10f), 0); // Move off-screen
+        float duration = 1.0f;
+        float elapsedTime = 0f;
+
+        // Smoothly move the box to the end position
+        while (elapsedTime < duration)
+        {
+            box.transform.position = Vector3.Lerp(startPosition, endPosition, elapsedTime / duration);
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        box.transform.position = endPosition;
+
+        // Disable the box after it flies away
+        box.SetActive(false);
+    }
+
+
     IEnumerator RotateBoxBack()
     {
         Quaternion startRotation = transform.rotation;
@@ -269,16 +298,48 @@ public class BoxClickHandler : MonoBehaviour
 
     public void CheckMatchWithWord(string selectedWord)
     {
-        // Assuming clicked is a string that holds the video key (e.g., "Sample/Beautiful_002")
-        // Get the video key (e.g., "Sample/Beautiful_002")
-
-        // Check if the key exists in the dictionary and retrieve its value
-        if (VideoPathManager.GetVideoPaths().TryGetValue(clicked, out string correctWord)) // Value (e.g., "Beautiful")
+        if (VideoPathManager.GetVideoPaths().TryGetValue(clicked, out string correctWord))
         {
-            if (selectedWord == correctWord) // Compare the selected word with the value
+            if (selectedWord == correctWord)
             {
                 Debug.Log($"Match! Word '{selectedWord}' matches the assigned word '{correctWord}'.");
-                // Perform any additional actions for a correct match
+
+                // Find the matched box for `clicked`
+                GameObject clickedBox = null;
+                foreach (var pair in boxVideoAssignments)
+                {
+                    if (pair.Value == clicked)
+                    {
+                        clickedBox = pair.Key;
+                        break;
+                    }
+                }
+
+                // Find the matched box for `selectedWord`
+                GameObject selectedWordBox = null;
+                foreach (var pair in WordDisplayHandler.boxWords)
+                {
+                    if (pair.Value == selectedWord)
+                    {
+                        selectedWordBox = pair.Key;
+                        break;
+                    }
+                }
+
+                // Ensure both boxes are found
+
+                if (clickedBox != null && selectedWordBox != null)
+                {
+                    Debug.Log("Video box is " + clickedBox);
+                    Debug.Log("Word box is " + selectedWordBox);
+                    HandleMatch(clickedBox, selectedWordBox); // Pass both boxes
+                }
+                else
+                {
+                    if (clickedBox == null) Debug.LogError("Clicked box could not be found!");
+                    if (selectedWordBox == null) Debug.LogError("Selected word box could not be found!");
+                }
+
             }
             else
             {
@@ -290,5 +351,6 @@ public class BoxClickHandler : MonoBehaviour
             Debug.LogWarning($"The video key '{clicked}' does not exist in the dictionary.");
         }
     }
+
 
 }

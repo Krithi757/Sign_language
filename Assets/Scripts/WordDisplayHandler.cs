@@ -11,7 +11,7 @@ public class WordDisplayHandler : MonoBehaviour
     public GameObject box;                  // Reference to the corresponding box GameObject
 
     private List<string> videoNames = new List<string>();
-    private static Dictionary<GameObject, string> boxWords = new Dictionary<GameObject, string>();
+    public static Dictionary<GameObject, string> boxWords = new Dictionary<GameObject, string>();
     private static List<string> availableWords = new List<string>();
     private static bool isWordDisplayed = false;
 
@@ -49,31 +49,31 @@ public class WordDisplayHandler : MonoBehaviour
             return;
         }
 
-        Debug.Log($"Box clicked: {box.name}");
+        Debug.Log($"Word Box clicked: {gameObject.name}");
 
         // Start rotating the box and display the word
         StartCoroutine(RotateBox(() =>
         {
             // Check if the word exists for the current box
-            if (boxWords.ContainsKey(box))
+            if (boxWords.ContainsKey(gameObject))
             {
-                string wordToDisplay = boxWords[box];
+                string wordToDisplay = boxWords[gameObject];
                 wordDisplayText.text = wordToDisplay;
                 wordDisplayText.gameObject.SetActive(true);
-                Debug.Log($"Displayed word: {wordToDisplay} for box: {box.name}");
+                Debug.Log($"Displayed word: {wordToDisplay} for box: {gameObject.name}");
 
                 // Ensure we're getting the correct `BoxClickHandler` for the current box
                 var boxClickHandler = box.GetComponent<BoxClickHandler>();
                 if (boxClickHandler != null)
                 {
-                    Debug.Log($"Checking match for word: {wordToDisplay} and box: {box.name}");
+                    Debug.Log($"Checking match for word: {wordToDisplay} and box: {gameObject.name}");
                     // Set selected word in BoxClickHandler
                     BoxClickHandler.selectedWord = wordToDisplay;  // Assign word to the BoxClickHandler (static access) // Assign word to the BoxClickHandler
                     boxClickHandler.CheckMatchWithWord(wordToDisplay);  // Always check the match
                 }
                 else
                 {
-                    Debug.LogWarning($"No BoxClickHandler found for box: {box.name}");
+                    Debug.LogWarning($"No BoxClickHandler found for box: {gameObject.name}");
                 }
 
                 // After displaying the word, set a delay to hide it
@@ -85,7 +85,7 @@ public class WordDisplayHandler : MonoBehaviour
             }
             else
             {
-                Debug.LogWarning($"No word found for box: {box.name}");
+                Debug.LogWarning($"No word found for box: {gameObject.name}");
             }
         }));
     }
@@ -137,17 +137,51 @@ public class WordDisplayHandler : MonoBehaviour
 
     void AssignWordsToBoxes()
     {
-        foreach (var currentBox in BoxClickHandler.boxVideoAssignments.Keys)
+        // Iterate over all the keys in the boxVideoAssignments
+        foreach (var videoPath in BoxClickHandler.boxVideoAssignments.Values)
         {
-            if (!boxWords.ContainsKey(currentBox) && availableWords.Count > 0)
+            // Now iterate over the available words and find a corresponding word
+            foreach (var currentBox in BoxClickHandler.boxVideoAssignments.Keys)
             {
-                string assignedWord = availableWords[0];
-                boxWords[currentBox] = assignedWord;
-                availableWords.RemoveAt(0);
-                Debug.Log($"Assigned word: {assignedWord} to box: {currentBox.name}");
+                // Find the corresponding "WordBox" GameObject based on the naming convention
+                string boxName = currentBox.name.Replace("Video", "Word");  // Replace "Video" with "Word" to match the "WordBox" name
+                GameObject wordBox = GameObject.Find(boxName); // Find the "WordBox" GameObject by name
+
+                // If we found the word box and it's not already assigned in boxWords, and there's an available word
+                if (wordBox != null && !boxWords.ContainsKey(wordBox) && availableWords.Count > 0)
+                {
+                    string assignedWord = availableWords[0];
+
+                    // Ensure the videoPath is not already assigned in boxVideoAssignments
+                    if (!BoxClickHandler.boxVideoAssignments.ContainsValue(assignedWord))
+                    {
+                        // Assign the word to the UI WordBox
+                        boxWords[wordBox] = assignedWord;
+                        availableWords.RemoveAt(0); // Remove the word from availableWords list
+
+                        // Log the assignment
+                        Debug.Log($"Assigned word: {assignedWord} to box: {boxName}");
+                    }
+                }
             }
         }
+
+        // Log all boxWords to check the assignments
+        foreach (KeyValuePair<GameObject, string> pair in boxWords)
+        {
+            Debug.Log($"WordBox Name: {pair.Key.name}, Word: {pair.Value}");
+        }
+
+        // Optionally log the video assignments to see which words are already assigned to video paths
+        foreach (KeyValuePair<GameObject, string> pair in BoxClickHandler.boxVideoAssignments)
+        {
+            Debug.Log($"Video Box Name: {pair.Key.name}, Word: {pair.Value}");
+        }
     }
+
+
+
+
 
     IEnumerator RotateBox(System.Action onRotationComplete)
     {
