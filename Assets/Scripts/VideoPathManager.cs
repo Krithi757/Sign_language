@@ -10,7 +10,8 @@ public static class VideoPathManager
         { "Sample/Beautiful_002", "Beautiful" },
         { "Sample/Bad_004", "Bad" },
         { "Sample/Careful_001", "Careful" },
-        { "Sample/Cold_001", "Cold" }
+        { "Sample/Cold_001", "Cold" },
+        {"Sample/Deaf_011", "Deaf"}
     };
 
     public static Dictionary<string, string> level2 = new Dictionary<string, string>
@@ -18,7 +19,8 @@ public static class VideoPathManager
         { "Sample/Beautiful_002", "Beautiful" },
         { "Sample/Bad_004", "Bad" },
         { "Sample/Careful_001", "Careful" },
-        { "Sample/Cold_001", "Cold" }
+        { "Sample/Cold_001", "Cold" },
+        {"Sample/Deaf_011", "Deaf"}
     };
     public static Dictionary<string, string> GetVideoPaths()
     {

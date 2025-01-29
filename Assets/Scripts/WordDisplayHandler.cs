@@ -1,8 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.EventSystems;
 using TMPro;
 
 public class WordDisplayHandler : MonoBehaviour
@@ -11,14 +9,15 @@ public class WordDisplayHandler : MonoBehaviour
     public GameObject box;                  // Reference to the corresponding box GameObject
 
     private List<string> videoNames = new List<string>();
-    private static Dictionary<GameObject, string> boxWords = new Dictionary<GameObject, string>();
+    public static Dictionary<GameObject, string> boxWords = new Dictionary<GameObject, string>();
     private static List<string> availableWords = new List<string>();
-    private static bool isWordDisplayed = false;
 
     void Start()
     {
-        wordDisplayText.gameObject.SetActive(false);
+        wordDisplayText.gameObject.SetActive(true); // Ensure all TextMeshProUGUI components are active
         UpdateVideoNames();
+        AssignWordsToBoxes();
+        UpdateWordDisplays();
     }
 
     void Update()
@@ -27,13 +26,9 @@ public class WordDisplayHandler : MonoBehaviour
         {
             Vector2 touchPos = Input.GetTouch(0).position;
 
-            // Convert the touch position to the local space of the UI element
             RectTransform rectTransform = GetComponent<RectTransform>();
-            Vector2 localPoint;
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(rectTransform, touchPos, null, out localPoint);
-
-            // Check if the touch is within the bounds of the UI element
-            if (rectTransform.rect.Contains(localPoint))
+            if (RectTransformUtility.ScreenPointToLocalPointInRectangle(rectTransform, touchPos, null, out Vector2 localPoint) &&
+                rectTransform.rect.Contains(localPoint))
             {
                 HandleTouch();
             }
@@ -42,28 +37,39 @@ public class WordDisplayHandler : MonoBehaviour
 
     void HandleTouch()
     {
-        if (isWordDisplayed)
+        if (box == null)
         {
-            Debug.Log("A word is already displayed. Please wait until it disappears.");
+            Debug.LogError("Box is null. Ensure the correct box is assigned.");
             return;
         }
 
-        isWordDisplayed = true;
+        Debug.Log($"Word Box clicked: {gameObject.name}");
 
-        StartCoroutine(RotateBox(() =>
+        if (boxWords.ContainsKey(gameObject))
         {
-            if (boxWords.ContainsKey(box))
-            {
-                wordDisplayText.text = boxWords[box];
-                wordDisplayText.gameObject.SetActive(true);
-                Debug.Log($"Displayed word: {wordDisplayText.text} for box: {box.name}");
+            string wordToDisplay = boxWords[gameObject];
+            wordDisplayText.text = wordToDisplay;
+            wordDisplayText.gameObject.SetActive(true);
+            Debug.Log($"Displayed word: {wordToDisplay} for box: {gameObject.name}");
 
-                StartCoroutine(DisappearWordAfterDelay(2.0f, () =>
-                {
-                    StartCoroutine(RotateBackAfterDelay(0f));
-                }));
+            var boxClickHandler = box.GetComponent<BoxClickHandler>();
+            if (boxClickHandler != null)
+            {
+                Debug.Log($"Checking match for word: {wordToDisplay} and box: {gameObject.name}");
+                BoxClickHandler.selectedWord = wordToDisplay;
+                boxClickHandler.CheckMatchWithWord(wordToDisplay);
             }
-        }));
+            else
+            {
+                Debug.LogWarning($"No BoxClickHandler found for box: {gameObject.name}");
+            }
+
+
+        }
+        else
+        {
+            Debug.LogWarning($"No word found for box: {gameObject.name}");
+        }
     }
 
     void UpdateVideoNames()
@@ -76,13 +82,10 @@ public class WordDisplayHandler : MonoBehaviour
 
         availableWords.Clear();
 
-        // Instead of BoxClickHandler.availableVideoPaths, we use VideoPathManager
         foreach (var boxAssignment in BoxClickHandler.boxVideoAssignments)
         {
-            GameObject currentBox = boxAssignment.Key;
             string assignedVideoPath = boxAssignment.Value;
 
-            // Get the video name using VideoPathManager based on the assigned video path
             if (VideoPathManager.GetVideoPaths().TryGetValue(assignedVideoPath, out string videoName))
             {
                 availableWords.Add(videoName);
@@ -95,7 +98,6 @@ public class WordDisplayHandler : MonoBehaviour
         }
 
         ShuffleWords();
-        AssignWordsToBoxes();
     }
 
     void ShuffleWords()
@@ -111,76 +113,43 @@ public class WordDisplayHandler : MonoBehaviour
 
     void AssignWordsToBoxes()
     {
-        foreach (var currentBox in BoxClickHandler.boxVideoAssignments.Keys)
+        foreach (var videoPath in BoxClickHandler.boxVideoAssignments.Values)
         {
-            if (!boxWords.ContainsKey(currentBox) && availableWords.Count > 0)
+            foreach (var currentBox in BoxClickHandler.boxVideoAssignments.Keys)
             {
-                string assignedWord = availableWords[0];
-                boxWords[currentBox] = assignedWord;
-                availableWords.RemoveAt(0);
-                Debug.Log($"Assigned word: {assignedWord} to box: {currentBox.name}");
+                string boxName = currentBox.name.Replace("Video", "Word");
+                GameObject wordBox = GameObject.Find(boxName);
+
+                if (wordBox != null && !boxWords.ContainsKey(wordBox) && availableWords.Count > 0)
+                {
+                    string assignedWord = availableWords[0];
+                    boxWords[wordBox] = assignedWord;
+                    availableWords.RemoveAt(0);
+
+                    Debug.Log($"Assigned word: {assignedWord} to box: {boxName}");
+                }
             }
         }
     }
 
-    IEnumerator RotateBox(System.Action onRotationComplete)
+    void UpdateWordDisplays()
     {
-        Quaternion startRotation = transform.rotation;
-        Quaternion endRotation = Quaternion.Euler(0, 180, 0);
-
-        float duration = 0.5f;
-        float timeElapsed = 0f;
-
-        while (timeElapsed < duration)
+        foreach (KeyValuePair<GameObject, string> pair in boxWords)
         {
-            transform.rotation = Quaternion.Lerp(startRotation, endRotation, timeElapsed / duration);
-            timeElapsed += Time.deltaTime;
-            yield return null;
+            GameObject wordBox = pair.Key;
+            string assignedWord = pair.Value;
+
+            TextMeshProUGUI textComponent = wordBox.GetComponentInChildren<TextMeshProUGUI>();
+            if (textComponent != null)
+            {
+                textComponent.text = assignedWord;
+                Debug.Log($"Updated TextMeshProUGUI for box: {wordBox.name} with word: {assignedWord}");
+            }
+            else
+            {
+                Debug.LogError($"TextMeshProUGUI not found in box: {wordBox.name}");
+            }
         }
-
-        transform.rotation = endRotation;
-        MoveWordToBoxBackside(gameObject);
-        onRotationComplete?.Invoke();
     }
 
-    void MoveWordToBoxBackside(GameObject clickedBox)
-    {
-        wordDisplayText.rectTransform.SetParent(clickedBox.transform);
-        wordDisplayText.rectTransform.localPosition = new Vector3(-50f, 0, -0.5f);
-        wordDisplayText.rectTransform.localRotation = Quaternion.Euler(0, 180, 0);
-        wordDisplayText.gameObject.SetActive(true);
-        Debug.Log($"Word moved to backside of clicked box: {clickedBox.name}");
-    }
-
-    IEnumerator DisappearWordAfterDelay(float delay, System.Action onDisappearComplete)
-    {
-        yield return new WaitForSeconds(delay);
-        wordDisplayText.gameObject.SetActive(false);
-        onDisappearComplete?.Invoke();
-        isWordDisplayed = false;
-    }
-
-    IEnumerator RotateBackAfterDelay(float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        yield return StartCoroutine(RotateBoxBack());
-    }
-
-    IEnumerator RotateBoxBack()
-    {
-        Quaternion startRotation = transform.rotation;
-        Quaternion endRotation = Quaternion.Euler(0, 0, 0);
-
-        float duration = 0.5f;
-        float timeElapsed = 0f;
-
-        while (timeElapsed < duration)
-        {
-            transform.rotation = Quaternion.Lerp(startRotation, endRotation, timeElapsed / duration);
-            timeElapsed += Time.deltaTime;
-            yield return null;
-        }
-
-        transform.rotation = endRotation;
-    }
 }

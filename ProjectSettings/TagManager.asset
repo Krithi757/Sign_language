@@ -6,6 +6,8 @@ TagManager:
   tags:
   - Box
   - VideoBox
+  - WordTag
+  - WordBox
   layers:
   - Default
   - TransparentFX
