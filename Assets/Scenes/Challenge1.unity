@@ -256,12 +256,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2404138}
   m_CullTransparentMesh: 1
+<<<<<<< Updated upstream
 --- !u!1 &34053025
 GameObject:
+=======
+--- !u!21 &33584723
+Material:
+  serializedVersion: 8
+>>>>>>> Stashed changes
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
+<<<<<<< Updated upstream
   serializedVersion: 6
   m_Component:
   - component: {fileID: 34053026}
@@ -378,6 +385,40 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 34053025}
   m_CullTransparentMesh: 1
+=======
+  m_Name: UI/RoundedCorners/RoundedCorners
+  m_Shader: {fileID: 4800000, guid: 0bd2ec5d73751e34a814274a454bec41, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _ColorMask: 15
+    - _Stencil: 0
+    - _StencilComp: 8
+    - _StencilOp: 0
+    - _StencilReadMask: 255
+    - _StencilWriteMask: 255
+    - _UseUIAlphaClip: 0
+    m_Colors:
+    - _WidthHeightRadius: {r: 196.5668, g: 208.6044, b: 80, a: 0}
+  m_BuildTextureStacks: []
+>>>>>>> Stashed changes
 --- !u!1 &111570504
 GameObject:
   m_ObjectHideFlags: 0
@@ -716,9 +757,15 @@ RectTransform:
   m_Father: {fileID: 284745870}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
+<<<<<<< Updated upstream
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
+=======
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 119, y: -442}
+  m_SizeDelta: {x: 196.5668, y: 208.6044}
+>>>>>>> Stashed changes
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &212188067
 MonoBehaviour:
@@ -761,7 +808,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+<<<<<<< Updated upstream
   m_Material: {fileID: 856901689}
+=======
+  m_Material: {fileID: 1072186213}
+>>>>>>> Stashed changes
   m_Color: {r: 0.50808215, g: 0.4704806, b: 0.83396226, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -838,9 +889,9 @@ RectTransform:
   m_Father: {fileID: 1783449635}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 114.2785, y: -147}
+  m_SizeDelta: {x: 196.5668, y: 208.6044}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &261753626
 MonoBehaviour:
@@ -883,7 +934,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+<<<<<<< Updated upstream
   m_Material: {fileID: 766188511}
+=======
+  m_Material: {fileID: 33584723}
+>>>>>>> Stashed changes
   m_Color: {r: 0.50808215, g: 0.4704806, b: 0.83396226, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -1002,6 +1057,7 @@ RectTransform:
   - {fileID: 991374102}
   - {fileID: 212188065}
   - {fileID: 594269810}
+<<<<<<< Updated upstream
   - {fileID: 1327276927}
   - {fileID: 944184866}
   - {fileID: 1503572435}
@@ -1038,6 +1094,11 @@ MonoBehaviour:
   m_Constraint: 1
   m_ConstraintCount: 4
 --- !u!21 &309258026
+=======
+  m_Father: {fileID: 963336447}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!21 &332779542
+>>>>>>> Stashed changes
 Material:
   serializedVersion: 8
   m_ObjectHideFlags: 0
@@ -1074,7 +1135,89 @@ Material:
     - _StencilWriteMask: 255
     - _UseUIAlphaClip: 0
     m_Colors:
+<<<<<<< Updated upstream
     - _WidthHeightRadius: {r: 175.9, g: 189.5, b: 80, a: 0}
+=======
+    - _WidthHeightRadius: {r: 195.8662, g: 210.6368, b: 80, a: 0}
+  m_BuildTextureStacks: []
+--- !u!21 &382597931
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: UI/RoundedCorners/RoundedCorners
+  m_Shader: {fileID: 4800000, guid: 0bd2ec5d73751e34a814274a454bec41, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _ColorMask: 15
+    - _Stencil: 0
+    - _StencilComp: 8
+    - _StencilOp: 0
+    - _StencilReadMask: 255
+    - _StencilWriteMask: 255
+    - _UseUIAlphaClip: 0
+    m_Colors:
+    - _WidthHeightRadius: {r: 196.5668, g: 208.6044, b: 80, a: 0}
+  m_BuildTextureStacks: []
+--- !u!21 &433019812
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: UI/RoundedCorners/RoundedCorners
+  m_Shader: {fileID: 4800000, guid: 0bd2ec5d73751e34a814274a454bec41, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _ColorMask: 15
+    - _Stencil: 0
+    - _StencilComp: 8
+    - _StencilOp: 0
+    - _StencilReadMask: 255
+    - _StencilWriteMask: 255
+    - _UseUIAlphaClip: 0
+    m_Colors:
+    - _WidthHeightRadius: {r: 196.5668, g: 208.6044, b: 80, a: 0}
+>>>>>>> Stashed changes
   m_BuildTextureStacks: []
 --- !u!21 &324059421
 Material:
@@ -1359,9 +1502,9 @@ RectTransform:
   m_Father: {fileID: 1783449635}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: -350, y: -147}
+  m_SizeDelta: {x: 196.5668, y: 208.6044}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &571919829
 MonoBehaviour:
@@ -1404,7 +1547,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+<<<<<<< Updated upstream
   m_Material: {fileID: 2021777413}
+=======
+  m_Material: {fileID: 1690427186}
+>>>>>>> Stashed changes
   m_Color: {r: 0.50808215, g: 0.4704806, b: 0.83396226, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -1527,9 +1674,15 @@ RectTransform:
   m_Father: {fileID: 284745870}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
+<<<<<<< Updated upstream
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
+=======
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 350, y: -442}
+  m_SizeDelta: {x: 196.5668, y: 208.6044}
+>>>>>>> Stashed changes
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &594269812
 MonoBehaviour:
@@ -1572,7 +1725,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+<<<<<<< Updated upstream
   m_Material: {fileID: 1983644415}
+=======
+  m_Material: {fileID: 744219385}
+>>>>>>> Stashed changes
   m_Color: {r: 0.50808215, g: 0.4704806, b: 0.83396226, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -1824,7 +1981,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 640772258}
   m_CullTransparentMesh: 1
+<<<<<<< Updated upstream
 --- !u!21 &647112064
+=======
+--- !u!21 &744219385
+>>>>>>> Stashed changes
 Material:
   serializedVersion: 8
   m_ObjectHideFlags: 0
@@ -1861,14 +2022,23 @@ Material:
     - _StencilWriteMask: 255
     - _UseUIAlphaClip: 0
     m_Colors:
+<<<<<<< Updated upstream
     - _WidthHeightRadius: {r: 184.3, g: 206.4, b: 80, a: 0}
   m_BuildTextureStacks: []
 --- !u!1 &714380646
 GameObject:
+=======
+    - _WidthHeightRadius: {r: 196.5668, g: 208.6044, b: 80, a: 0}
+  m_BuildTextureStacks: []
+--- !u!21 &747676560
+Material:
+  serializedVersion: 8
+>>>>>>> Stashed changes
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
+<<<<<<< Updated upstream
   serializedVersion: 6
   m_Component:
   - component: {fileID: 714380647}
@@ -2172,6 +2342,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
+=======
+>>>>>>> Stashed changes
   m_Name: UI/RoundedCorners/RoundedCorners
   m_Shader: {fileID: 4800000, guid: 0bd2ec5d73751e34a814274a454bec41, type: 3}
   m_Parent: {fileID: 0}
@@ -2202,7 +2374,11 @@ Material:
     - _StencilWriteMask: 255
     - _UseUIAlphaClip: 0
     m_Colors:
+<<<<<<< Updated upstream
     - _WidthHeightRadius: {r: 175.9, g: 189.5, b: 80, a: 0}
+=======
+    - _WidthHeightRadius: {r: 196.5668, g: 208.6044, b: 80, a: 0}
+>>>>>>> Stashed changes
   m_BuildTextureStacks: []
 --- !u!1 &786827717
 GameObject:
@@ -2279,6 +2455,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 786827717}
   m_CullTransparentMesh: 1
+<<<<<<< Updated upstream
 --- !u!21 &856901689
 Material:
   serializedVersion: 8
@@ -2396,6 +2573,8 @@ Material:
     m_Colors:
     - _WidthHeightRadius: {r: 175.9, g: 189.5, b: 80, a: 0}
   m_BuildTextureStacks: []
+=======
+>>>>>>> Stashed changes
 --- !u!1 &935601517
 GameObject:
   m_ObjectHideFlags: 0
@@ -2756,9 +2935,15 @@ RectTransform:
   m_Father: {fileID: 284745870}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
+<<<<<<< Updated upstream
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
+=======
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: -119, y: -442}
+  m_SizeDelta: {x: 196.5668, y: 208.6044}
+>>>>>>> Stashed changes
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &991374104
 MonoBehaviour:
@@ -2801,7 +2986,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+<<<<<<< Updated upstream
   m_Material: {fileID: 1075606791}
+=======
+  m_Material: {fileID: 1702010657}
+>>>>>>> Stashed changes
   m_Color: {r: 0.50808215, g: 0.4704806, b: 0.83396226, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -2841,7 +3030,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   wordDisplayText: {fileID: 2404140}
   box: {fileID: 1187266680}
+<<<<<<< Updated upstream
 --- !u!21 &1075606791
+=======
+--- !u!21 &1072186213
+>>>>>>> Stashed changes
 Material:
   serializedVersion: 8
   m_ObjectHideFlags: 0
@@ -2878,7 +3071,11 @@ Material:
     - _StencilWriteMask: 255
     - _UseUIAlphaClip: 0
     m_Colors:
+<<<<<<< Updated upstream
     - _WidthHeightRadius: {r: 184.3, g: 206.4, b: 80, a: 0}
+=======
+    - _WidthHeightRadius: {r: 196.5668, g: 208.6044, b: 80, a: 0}
+>>>>>>> Stashed changes
   m_BuildTextureStacks: []
 --- !u!1 &1115246802
 GameObject:
@@ -2916,8 +3113,13 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
+<<<<<<< Updated upstream
   m_AnchoredPosition: {x: -388, y: 465}
   m_SizeDelta: {x: 191.5365, y: 211.9233}
+=======
+  m_AnchoredPosition: {x: -373.271, y: 522.6411}
+  m_SizeDelta: {x: 195.8662, y: 210.6368}
+>>>>>>> Stashed changes
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!328 &1115246804
 VideoPlayer:
@@ -2967,7 +3169,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1344c3c82d62a2a41a3576d8abb8e3ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+<<<<<<< Updated upstream
   m_Material: {fileID: 2140221891}
+=======
+  m_Material: {fileID: 332779542}
+>>>>>>> Stashed changes
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -3175,9 +3381,9 @@ RectTransform:
   m_Father: {fileID: 1783449635}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: -122.23535, y: -147}
+  m_SizeDelta: {x: 196.5668, y: 208.6044}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1187266683
 MonoBehaviour:
@@ -3220,7 +3426,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+<<<<<<< Updated upstream
   m_Material: {fileID: 1445052102}
+=======
+  m_Material: {fileID: 382597931}
+>>>>>>> Stashed changes
   m_Color: {r: 0.50808215, g: 0.4704806, b: 0.83396226, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -3306,6 +3516,7 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+<<<<<<< Updated upstream
 --- !u!21 &1198224870
 Material:
   serializedVersion: 8
@@ -3345,6 +3556,8 @@ Material:
     m_Colors:
     - _WidthHeightRadius: {r: 175.9, g: 189.5, b: 80, a: 0}
   m_BuildTextureStacks: []
+=======
+>>>>>>> Stashed changes
 --- !u!1 &1209072772
 GameObject:
   m_ObjectHideFlags: 0
@@ -3426,7 +3639,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+<<<<<<< Updated upstream
   m_Material: {fileID: 324059421}
+=======
+  m_Material: {fileID: 1621290773}
+>>>>>>> Stashed changes
   m_Color: {r: 0.26891416, g: 0.79622644, b: 0.35911235, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -3709,6 +3926,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1344189600}
   m_CullTransparentMesh: 1
+<<<<<<< Updated upstream
 --- !u!1 &1359247471
 GameObject:
   m_ObjectHideFlags: 0
@@ -3878,6 +4096,9 @@ CanvasRenderer:
   m_GameObject: {fileID: 1359247471}
   m_CullTransparentMesh: 1
 --- !u!21 &1376857004
+=======
+--- !u!21 &1621290773
+>>>>>>> Stashed changes
 Material:
   serializedVersion: 8
   m_ObjectHideFlags: 0
@@ -3914,6 +4135,7 @@ Material:
     - _StencilWriteMask: 255
     - _UseUIAlphaClip: 0
     m_Colors:
+<<<<<<< Updated upstream
     - _WidthHeightRadius: {r: 184.3, g: 206.4, b: 80, a: 0}
   m_BuildTextureStacks: []
 --- !u!21 &1445052102
@@ -4221,6 +4443,10 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1525996787}
   m_CullTransparentMesh: 1
+=======
+    - _WidthHeightRadius: {r: 929.01, g: 226.931, b: 246, a: 0}
+  m_BuildTextureStacks: []
+>>>>>>> Stashed changes
 --- !u!1 &1631236148
 GameObject:
   m_ObjectHideFlags: 0
@@ -4287,7 +4513,11 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+<<<<<<< Updated upstream
 --- !u!21 &1694270529
+=======
+--- !u!21 &1690427186
+>>>>>>> Stashed changes
 Material:
   serializedVersion: 8
   m_ObjectHideFlags: 0
@@ -4324,7 +4554,11 @@ Material:
     - _StencilWriteMask: 255
     - _UseUIAlphaClip: 0
     m_Colors:
+<<<<<<< Updated upstream
     - _WidthHeightRadius: {r: 175.9, g: 189.5, b: 80, a: 0}
+=======
+    - _WidthHeightRadius: {r: 196.5668, g: 208.6044, b: 80, a: 0}
+>>>>>>> Stashed changes
   m_BuildTextureStacks: []
 --- !u!1 &1698517101
 GameObject:
@@ -4528,6 +4762,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+<<<<<<< Updated upstream
 --- !u!1 &1744499743
 GameObject:
   m_ObjectHideFlags: 0
@@ -4664,6 +4899,55 @@ CanvasRenderer:
   m_CullTransparentMesh: 1
 --- !u!1 &1783449634
 GameObject:
+=======
+--- !u!21 &1702010657
+Material:
+  serializedVersion: 8
+>>>>>>> Stashed changes
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+<<<<<<< Updated upstream
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1783449635}
+  - component: {fileID: 1783449636}
+=======
+  m_Name: UI/RoundedCorners/RoundedCorners
+  m_Shader: {fileID: 4800000, guid: 0bd2ec5d73751e34a814274a454bec41, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _ColorMask: 15
+    - _Stencil: 0
+    - _StencilComp: 8
+    - _StencilOp: 0
+    - _StencilReadMask: 255
+    - _StencilWriteMask: 255
+    - _UseUIAlphaClip: 0
+    m_Colors:
+    - _WidthHeightRadius: {r: 196.5668, g: 208.6044, b: 80, a: 0}
+  m_BuildTextureStacks: []
+--- !u!1 &1783449634
+GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -4671,7 +4955,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1783449635}
-  - component: {fileID: 1783449636}
+>>>>>>> Stashed changes
   m_Layer: 0
   m_Name: Videos
   m_TagString: Box
@@ -4679,22 +4963,35 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+<<<<<<< Updated upstream
 --- !u!224 &1783449635
 RectTransform:
+=======
+--- !u!4 &1783449635
+Transform:
+>>>>>>> Stashed changes
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1783449634}
+<<<<<<< Updated upstream
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 8.288123}
   m_LocalScale: {x: 1.0935358, y: 1.1240547, z: 1}
+=======
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -23.840027, y: 669.9785, z: 8.288123}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+>>>>>>> Stashed changes
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 571919827}
   - {fileID: 1187266681}
   - {fileID: 261753624}
   - {fileID: 2143718314}
+<<<<<<< Updated upstream
   - {fileID: 1359247472}
   - {fileID: 514477499}
   - {fileID: 714380647}
@@ -4730,6 +5027,10 @@ MonoBehaviour:
   m_Spacing: {x: 48.34, y: 56.8}
   m_Constraint: 1
   m_ConstraintCount: 4
+=======
+  m_Father: {fileID: 963336447}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+>>>>>>> Stashed changes
 --- !u!1 &1870031698
 GameObject:
   m_ObjectHideFlags: 0
@@ -4864,6 +5165,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1870031698}
   m_CullTransparentMesh: 1
+<<<<<<< Updated upstream
 --- !u!21 &1983644415
 Material:
   serializedVersion: 8
@@ -4942,6 +5244,8 @@ Material:
     m_Colors:
     - _WidthHeightRadius: {r: 175.9, g: 189.5, b: 80, a: 0}
   m_BuildTextureStacks: []
+=======
+>>>>>>> Stashed changes
 --- !u!1 &2120270150
 GameObject:
   m_ObjectHideFlags: 0
@@ -4979,9 +5283,15 @@ RectTransform:
   m_Father: {fileID: 284745870}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
+<<<<<<< Updated upstream
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
+=======
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: -343, y: -442}
+  m_SizeDelta: {x: 196.5668, y: 208.6044}
+>>>>>>> Stashed changes
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2120270153
 MonoBehaviour:
@@ -5024,7 +5334,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+<<<<<<< Updated upstream
   m_Material: {fileID: 891091768}
+=======
+  m_Material: {fileID: 433019812}
+>>>>>>> Stashed changes
   m_Color: {r: 0.50808215, g: 0.4704806, b: 0.83396226, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -5064,6 +5378,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   wordDisplayText: {fileID: 640772260}
   box: {fileID: 571919826}
+<<<<<<< Updated upstream
 --- !u!21 &2140221891
 Material:
   serializedVersion: 8
@@ -5103,6 +5418,8 @@ Material:
     m_Colors:
     - _WidthHeightRadius: {r: 191.5365, g: 211.9233, b: 80, a: 0}
   m_BuildTextureStacks: []
+=======
+>>>>>>> Stashed changes
 --- !u!1 &2143718313
 GameObject:
   m_ObjectHideFlags: 0
@@ -5140,9 +5457,9 @@ RectTransform:
   m_Father: {fileID: 1783449635}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 343.6792, y: -143.49194}
+  m_SizeDelta: {x: 196.5668, y: 208.6044}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2143718316
 MonoBehaviour:
@@ -5185,7 +5502,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+<<<<<<< Updated upstream
   m_Material: {fileID: 309258026}
+=======
+  m_Material: {fileID: 747676560}
+>>>>>>> Stashed changes
   m_Color: {r: 0.50808215, g: 0.4704806, b: 0.83396226, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
