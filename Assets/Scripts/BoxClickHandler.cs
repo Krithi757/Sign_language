@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.Video;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using TMPro;
 
 public class BoxClickHandler : MonoBehaviour
 
@@ -11,6 +12,7 @@ public class BoxClickHandler : MonoBehaviour
     public RawImage videoDisplay;
     public VideoPlayer videoPlayer;
     public RenderTexture renderTexture;
+    private static bool isBoxClicked = false;
 
     // Removed the availableVideoPaths dictionary
     public static Dictionary<GameObject, string> boxVideoAssignments;
@@ -34,6 +36,11 @@ public class BoxClickHandler : MonoBehaviour
 
     private Vector3 flyAwayEndPos2;
     private Vector3 flyAwayEndPos;
+
+    public TextMeshProUGUI coinText; // Reference to the coin UI text
+
+
+    private static int coins = 0;
 
 
     void Awake()
@@ -64,6 +71,8 @@ public class BoxClickHandler : MonoBehaviour
 
         videoDisplay.enabled = false;
         videoPlayer.loopPointReached += OnVideoEnd;
+
+        coinText.text = "Coins: 0";
 
         Debug.Log($"Script initialized for box: {gameObject.name}");
     }
@@ -106,6 +115,12 @@ public class BoxClickHandler : MonoBehaviour
 
     public void HandleClick()
     {
+
+        if (isBoxClicked) return; // Prevent interaction if a box is already clicked
+
+        // Set the flag to true as soon as a box is clicked
+        isBoxClicked = true;
+
         Debug.Log($"Box touched: {gameObject.name}");
 
         ClearCacheAndReset();
@@ -204,6 +219,8 @@ public class BoxClickHandler : MonoBehaviour
         videoDisplay.enabled = false;
         vp.loopPointReached -= OnVideoEnd;
 
+        isBoxClicked = false;
+
         StartCoroutine(RotateBoxBack());
     }
 
@@ -231,6 +248,9 @@ public class BoxClickHandler : MonoBehaviour
                 Random.Range(1106.077f, 1200f),  // Farther away on the X-axis (screen width + extra)
                 Random.Range(2356.097f, 2400f),  // Farther away on the Y-axis (screen height + extra)
                 0); // Keep the Z-axis unchanged
+
+            coins += 2;
+            coinText.text = "Coins: " + coins;
         }
         else
         {
@@ -410,6 +430,8 @@ public class BoxClickHandler : MonoBehaviour
             else
             {
                 Debug.Log($"No match. Word '{selectedWord}' does not match the assigned word '{correctWord}'.");
+                coins -= 2;
+                coinText.text = "Coins: " + coins;
             }
         }
         else
