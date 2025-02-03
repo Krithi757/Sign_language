@@ -161,6 +161,7 @@ MonoBehaviour:
   tileLength: 45.4
   numberOfTiles: 5
   playerTransform: {fileID: 543450651652142407}
+  videoPlayer: {fileID: 1452748806}
 --- !u!4 &81296046
 Transform:
   m_ObjectHideFlags: 0
@@ -307,7 +308,7 @@ VideoPlayer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1452748805}
   m_Enabled: 1
-  m_VideoClip: {fileID: 32900000, guid: 371db5be78c3342479590f58b81161b2, type: 3}
+  m_VideoClip: {fileID: 0}
   m_TargetCameraAlpha: 1
   m_TargetCamera3DLayout: 0
   m_TargetCamera: {fileID: 0}
@@ -709,7 +710,7 @@ MonoBehaviour:
   forwardSpeed: 15
   laneDistance: 3
   laneChangeSpeed: 10
-  jumpForce: 10
+  jumpForce: 9
   gravity: -20
   videoObject: {fileID: 1297233805}
   videoOffset: {x: 126.1, y: 16.75, z: -0.733}

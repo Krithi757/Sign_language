@@ -26,6 +26,9 @@ public class Running_challenge : MonoBehaviour
 
     private float lerpSpeed = 0.1f; // Speed of the interpolation for video movement
 
+    public float jumpCooldown = 0.5f;  // Cooldown time between jumps
+    private float lastJumpTime = -1f;
+
     void Start()
     {
         controller = GetComponent<CharacterController>();
@@ -63,10 +66,11 @@ public class Running_challenge : MonoBehaviour
             // Reset vertical velocity when grounded
             direction.y = 0;
 
-            // Handle jump input only when grounded
-            if (Input.GetKeyDown(KeyCode.UpArrow))
+            // Handle jump input only when grounded and after cooldown
+            if (Input.GetKey(KeyCode.UpArrow) && Time.time - lastJumpTime >= jumpCooldown)
             {
                 Jump();
+                lastJumpTime = Time.time;  // Update last jump time
             }
         }
         else
@@ -101,7 +105,6 @@ public class Running_challenge : MonoBehaviour
             videoObject.transform.position = new Vector3(videoPosX, videoPosY, videoPosZ);
         }
     }
-
     void FixedUpdate()
     {
         controller.Move(direction * Time.fixedDeltaTime); // Move forward smoothly
