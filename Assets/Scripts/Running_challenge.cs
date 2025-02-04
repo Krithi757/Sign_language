@@ -21,13 +21,20 @@ public class Running_challenge : MonoBehaviour
     public Vector3 videoOffset = new Vector3(0, 5, -10); // Optional offset for video position
 
     private float videoPosX = 126.1f;  // Constant X position for the video
-    private float videoPosY = 16.75f;  // Constant Y position for the video
+    private float videoPosY = 15.7f;  // Constant Y position for the video
     private float videoPosZ;  // Store the Z position of the video
 
     private float lerpSpeed = 0.1f; // Speed of the interpolation for video movement
 
     public float jumpCooldown = 0.5f;  // Cooldown time between jumps
     private float lastJumpTime = -1f;
+
+    public Camera mainCamera;  // Reference to the Camera
+    public Vector3 cameraOffset = new Vector3(0, 5, -10); // Optional offset for camera positioning
+    public float cameraFollowDelay = 0.5f;  // Time delay before camera starts following (in seconds)
+
+    private Vector3 cameraVelocity = Vector3.zero;  // Used for smooth dampening
+    private float followTimer = 0f;  // Timer to trac
 
     void Start()
     {
@@ -96,16 +103,40 @@ public class Running_challenge : MonoBehaviour
         Vector3 moveDirection = new Vector3(targetX - transform.position.x, 0, 0);
         controller.Move(moveDirection * laneChangeSpeed * Time.deltaTime);
 
-        // Update the position of the video object along the Z-axis based on the player's forward speed
+        // Update the position of the video object along the X and Z-axis based on the player's forward speed and position
         if (videoObject != null)
         {
             videoPosZ += forwardSpeed * Time.deltaTime;
+            // Set the video object's X position to match the character's X position
+            videoPosX = transform.position.x;
             videoObject.transform.position = new Vector3(videoPosX, videoPosY, videoPosZ);
         }
 
-        controller.center = new Vector3(0, controller.height / 2, 0.1f); // Shifted slightly forward
+        // Track the timer for the camera follow delay
+        followTimer += Time.deltaTime;
 
+        // If enough time has passed, start the camera following
+        if (followTimer >= cameraFollowDelay)
+        {
+            // Move the camera to follow the character’s position (both X and Z) with a delay
+            if (mainCamera != null)
+            {
+                // Adjust the target camera position to follow the character with a lower y position
+                Vector3 targetCameraPosition = new Vector3(transform.position.x, transform.position.y + 2f, transform.position.z - 10f);
+
+                // Smoothly move the camera to the target position using SmoothDamp for smooth damping
+                mainCamera.transform.position = Vector3.SmoothDamp(mainCamera.transform.position, targetCameraPosition, ref cameraVelocity, lerpSpeed);
+
+                // Optional: Make the camera always face the character
+                mainCamera.transform.LookAt(transform);
+            }
+        }
+
+        controller.center = new Vector3(0, controller.height / 2, 0.1f); // Shifted slightly forward
     }
+
+
+
 
     void FixedUpdate()
     {
@@ -127,6 +158,4 @@ public class Running_challenge : MonoBehaviour
             Debug.Log("Collided with: " + hit.collider.gameObject.name);
         }
     }
-
-
 }

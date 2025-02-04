@@ -277,8 +277,8 @@ Transform:
   m_GameObject: {fileID: 1297233805}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 126.1, y: 17.81, z: -0.733}
-  m_LocalScale: {x: 2.5028913, y: 2.5028913, z: 2.5028913}
+  m_LocalPosition: {x: 126.1, y: 17.64, z: -0.733}
+  m_LocalScale: {x: 1.8126689, y: 1.8126689, z: 1.8126689}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -716,6 +716,8 @@ MonoBehaviour:
   videoOffset: {x: 126.1, y: 16.75, z: -0.733}
   jumpCooldown: 0.5
   mainCamera: {fileID: 1486348449}
+  cameraOffset: {x: 0, y: 5, z: -10}
+  cameraFollowDelay: 0.5
 --- !u!65 &2048086707
 BoxCollider:
   m_ObjectHideFlags: 0
