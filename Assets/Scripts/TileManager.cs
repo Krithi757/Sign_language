@@ -160,8 +160,13 @@ public class TileManager : MonoBehaviour
         }
         else
         {
-            Debug.Log("🎉 All videos played!");
+            // Once all videos are played, reshuffle and start over
+            Debug.Log("🎉 All videos played! Reshuffling and playing again.");
+            ShuffleAndResetVideoNames();
+            currentVideoIndex = 0; // Reset index to start from the first video
+            PlayRandomVideo(); // Play the next random video after reshuffling
         }
     }
+
 
 }

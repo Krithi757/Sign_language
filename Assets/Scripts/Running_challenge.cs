@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Video;  // Import Video namespace
+using UnityEngine.Video;
 using TMPro;
 
 public class Running_challenge : MonoBehaviour
@@ -10,32 +10,33 @@ public class Running_challenge : MonoBehaviour
     private Vector3 direction;
 
     public float forwardSpeed;
-    private int desiredLane = 1; // 0: left, 1: middle, 2: right
-    public float laneDistance = 7; // Distance between lanes
-    private float targetX; // Store the target x position
-    public float laneChangeSpeed = 10f; // Speed of lane switching
-    private float startX = 125.87f; // Fixed starting position
+    private int desiredLane = 1;
+    public float laneDistance = 7;
+    private float targetX;
+    public float laneChangeSpeed = 10f;
+    private float startX = 125.87f;
     public float jumpForce;
-    public float gravity = -20;
+    public float gravity = -70f;
 
-    public GameObject videoObject; // Reference to the GameObject holding the Quad for the VideoPlayer
-    public Vector3 videoOffset = new Vector3(0, 5, -10); // Optional offset for video position
+    public GameObject videoObject;
+    public Vector3 videoOffset = new Vector3(0, 5, -10);
 
-    private float videoPosX = 126.1f;  // Constant X position for the video
-    private float videoPosY = 15.7f;  // Constant Y position for the video
-    private float videoPosZ;  // Store the Z position of the video
+    private float videoPosX = 126.1f;
+    private float videoPosY = 15.7f;
+    private float videoPosZ;
 
-    private float lerpSpeed = 0.1f; // Speed of the interpolation for video movement
+    private float lerpSpeed = 0.1f;
 
-    public float jumpCooldown = 0.5f;  // Cooldown time between jumps
+    public float jumpCooldown = 0.1f;
     private float lastJumpTime = -1f;
+    private bool jumpRequested = false; // For jump buffering
 
-    public Camera mainCamera;  // Reference to the Camera
-    public Vector3 cameraOffset = new Vector3(0, 5, -10); // Optional offset for camera positioning
-    public float cameraFollowDelay = 0.5f;  // Time delay before camera starts following (in seconds)
+    public Camera mainCamera;
+    public Vector3 cameraOffset = new Vector3(0, 5, -10);
+    public float cameraFollowDelay = 0.5f;
 
-    private Vector3 cameraVelocity = Vector3.zero;  // Used for smooth dampening
-    private float followTimer = 0f;  // Timer to trac
+    private Vector3 cameraVelocity = Vector3.zero;
+    private float followTimer = 0f;
     private TileManager tileManager;
     private string currentVideoName;
 
@@ -43,30 +44,22 @@ public class Running_challenge : MonoBehaviour
     {
         controller = GetComponent<CharacterController>();
 
-        // Ensure the character starts at x = 126.1 and y = 8.96
         Vector3 startPosition = transform.position;
         startPosition.x = startX;
         startPosition.y = 8.96f;
         transform.position = startPosition;
 
         targetX = startX;
-
-        // Get TileManager instance
         tileManager = FindObjectOfType<TileManager>();
 
         if (tileManager != null && tileManager.videoPlayer != null)
         {
             currentVideoName = tileManager.videoPlayer.clip.name;
         }
-        else
-        {
-            Debug.LogWarning("TileManager or VideoPlayer not found.");
-        }
 
         if (videoObject != null)
         {
             videoPosZ = videoObject.transform.position.z;
-
             VideoPlayer videoPlayer = videoObject.GetComponent<VideoPlayer>();
             if (videoPlayer != null)
             {
@@ -78,19 +71,22 @@ public class Running_challenge : MonoBehaviour
 
     void Update()
     {
-        // Ensure the forward speed is positive for movement in the correct direction
-        direction.z = forwardSpeed; // Player moves forward automatically
+        direction.z = forwardSpeed;
+
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            jumpRequested = true; // Buffer the jump request
+        }
 
         if (controller.isGrounded)
         {
-            // Reset vertical velocity when grounded
             direction.y = 0;
 
-            // Handle jump input only when grounded and after cooldown
-            if (Input.GetKey(KeyCode.UpArrow) && Time.time - lastJumpTime >= jumpCooldown)
+            if (jumpRequested && Time.time - lastJumpTime >= jumpCooldown)
             {
                 Jump();
-                lastJumpTime = Time.time;  // Update last jump time
+                lastJumpTime = Time.time;
+                jumpRequested = false; // Reset the jump buffer
             }
         }
         else
@@ -98,110 +94,70 @@ public class Running_challenge : MonoBehaviour
             direction.y += gravity * Time.deltaTime;
         }
 
-        // Detect lane switch input
         if (Input.GetKeyDown(KeyCode.RightArrow))
         {
-            desiredLane = Mathf.Min(desiredLane + 1, 2); // Ensure max lane is 2
+            desiredLane = Mathf.Min(desiredLane + 1, 2);
         }
         if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
-            desiredLane = Mathf.Max(desiredLane - 1, 0); // Ensure min lane is 0
+            desiredLane = Mathf.Max(desiredLane - 1, 0);
         }
 
-        // Calculate new X position based on lane selection
         targetX = startX + (desiredLane - 1) * laneDistance;
-
-        // Move character smoothly towards the new lane position
         Vector3 moveDirection = new Vector3(targetX - transform.position.x, 0, 0);
         controller.Move(moveDirection * laneChangeSpeed * Time.deltaTime);
 
-        // Update the position of the video object along the X and Z-axis based on the player's forward speed and position
         if (videoObject != null)
         {
             videoPosZ += forwardSpeed * Time.deltaTime;
-            // Set the video object's X position to match the character's X position
             videoPosX = transform.position.x;
             videoObject.transform.position = new Vector3(videoPosX, videoPosY, videoPosZ);
         }
 
-        // Track the timer for the camera follow delay
         followTimer += Time.deltaTime;
 
-        // If enough time has passed, start the camera following
         if (followTimer >= cameraFollowDelay)
         {
-            // Move the camera to follow the character’s position (both X and Z) with a delay
             if (mainCamera != null)
             {
-                // Adjust the target camera position to follow the character with a lower y position
                 Vector3 targetCameraPosition = new Vector3(transform.position.x, transform.position.y + 2f, transform.position.z - 10f);
-
-                // Smoothly move the camera to the target position using SmoothDamp for smooth damping
                 mainCamera.transform.position = Vector3.SmoothDamp(mainCamera.transform.position, targetCameraPosition, ref cameraVelocity, lerpSpeed);
-
-                // Optional: Make the camera always face the character
                 mainCamera.transform.LookAt(transform);
             }
         }
 
-        controller.center = new Vector3(0, controller.height / 2, 0.1f); // Shifted slightly forward
+        controller.center = new Vector3(0, controller.height / 2, 0.1f);
     }
-
-
-
 
     void FixedUpdate()
     {
-        controller.Move(direction * Time.fixedDeltaTime); // Move forward smoothly
+        controller.Move(direction * Time.fixedDeltaTime);
     }
 
     private void Jump()
     {
-        // Apply upward force for jump
         direction.y = jumpForce;
     }
 
-    // Collision Handling
     void OnControllerColliderHit(ControllerColliderHit hit)
     {
         if (hit.collider.CompareTag("Obstacle"))
         {
-            //forwardSpeed = 0;  // Stop the player immediately
             Debug.Log("Collided with: " + hit.collider.gameObject.name);
         }
     }
 
-    // Detect Trigger Collision
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log("The current video name is " + currentVideoName);
         TextMeshPro textMeshPro = other.GetComponent<TextMeshPro>();
 
         if (textMeshPro != null && tileManager != null)
         {
-            Debug.Log("Collided with TextMeshPro: " + textMeshPro.text);
-
-            // Get the current video value from TileManager
             string currentVideoValue = tileManager.GetCurrentVideoValue();
 
-            if (currentVideoValue != null)
+            if (currentVideoValue != null && textMeshPro.text == currentVideoValue)
             {
-                Debug.Log("Current Video Value from TileManager: " + currentVideoValue);
-
-                // Compare the video value with TextMeshPro.text
-                if (textMeshPro.text == currentVideoValue)
-                {
-                    Debug.Log("🎉 YAY SUCCESS! 🎉 collided with video name " + currentVideoValue + " and text " + textMeshPro.text);
-                    tileManager.PlayNextVideo();
-                }
-                else
-                {
-                    Debug.Log("❌ Mismatch! Text does not match the video value.");
-                }
-            }
-            else
-            {
-                Debug.LogWarning("Current video value is null.");
+                tileManager.PlayNextVideo();
             }
         }
     }
