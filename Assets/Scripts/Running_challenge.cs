@@ -33,9 +33,10 @@ public class Running_challenge : MonoBehaviour
     {
         controller = GetComponent<CharacterController>();
 
-        // Ensure the character starts exactly at x = 126.1
+        // Ensure the character starts at x = 126.1 and y = 8.96
         Vector3 startPosition = transform.position;
-        startPosition.x = startX;
+        startPosition.x = startX;  // Setting fixed X position
+        startPosition.y = 8.96f;   // Setting fixed Y position
         transform.position = startPosition;
 
         // Set the initial target X position to match starting X
@@ -98,13 +99,14 @@ public class Running_challenge : MonoBehaviour
         // Update the position of the video object along the Z-axis based on the player's forward speed
         if (videoObject != null)
         {
-            // Simply add the player's forward speed to the video object's Z position
             videoPosZ += forwardSpeed * Time.deltaTime;
-
-            // Update the video's position with no changes to X or Y
             videoObject.transform.position = new Vector3(videoPosX, videoPosY, videoPosZ);
         }
+
+        controller.center = new Vector3(0, controller.height / 2, 0.1f); // Shifted slightly forward
+
     }
+
     void FixedUpdate()
     {
         controller.Move(direction * Time.fixedDeltaTime); // Move forward smoothly
@@ -115,4 +117,16 @@ public class Running_challenge : MonoBehaviour
         // Apply upward force for jump
         direction.y = jumpForce;
     }
+
+    // Collision Handling
+    void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+        if (hit.collider.CompareTag("Obstacle"))
+        {
+            //forwardSpeed = 0;  // Stop the player immediately
+            Debug.Log("Collided with: " + hit.collider.gameObject.name);
+        }
+    }
+
+
 }

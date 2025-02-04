@@ -9,6 +9,7 @@ TagManager:
   - WordTag
   - WordBox
   - Ground
+  - Obstacle
   layers:
   - Default
   - TransparentFX

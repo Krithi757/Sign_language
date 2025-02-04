@@ -11,9 +11,10 @@ GameObject:
   - component: {fileID: 9038725725702243263}
   - component: {fileID: 1160809316788454176}
   - component: {fileID: 2209005916215339133}
+  - component: {fileID: 1499214101951199091}
   m_Layer: 0
   m_Name: Text (TMP) (2)
-  m_TagString: Untagged
+  m_TagString: Obstacle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -34,7 +35,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 3.61, y: -5.87}
+  m_AnchoredPosition: {x: 3.61, y: -3.68}
   m_SizeDelta: {x: 23.3476, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!23 &1160809316788454176
@@ -172,6 +173,27 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_renderer: {fileID: 1160809316788454176}
   m_maskType: 0
+--- !u!65 &1499214101951199091
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 978255767592153159}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 8.63, y: 3.7724152, z: 1.2}
+  m_Center: {x: -4.98, y: 2.31, z: 0}
 --- !u!1 &1008862578975204642
 GameObject:
   m_ObjectHideFlags: 0
@@ -430,9 +452,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4200366084912408669}
+  - component: {fileID: 276780764978007684}
   m_Layer: 0
   m_Name: yellow-black barriers
-  m_TagString: Untagged
+  m_TagString: Obstacle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -454,6 +477,27 @@ Transform:
   - {fileID: 2906850320790127315}
   m_Father: {fileID: 982631033506117052}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &276780764978007684
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3631927149539211612}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 2.3, y: 0.84, z: 0.4}
+  m_Center: {x: 0, y: 2.31, z: -0.24}
 --- !u!1 &4393999886427078045
 GameObject:
   m_ObjectHideFlags: 0
@@ -465,9 +509,10 @@ GameObject:
   - component: {fileID: 3392949542474949185}
   - component: {fileID: 3775503211275120750}
   - component: {fileID: 5945656847894515293}
+  - component: {fileID: 2070199646570107234}
   m_Layer: 0
   m_Name: Text (TMP)
-  m_TagString: Untagged
+  m_TagString: Obstacle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -488,7 +533,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.48, y: -5.61}
+  m_AnchoredPosition: {x: 0.48, y: -3.68}
   m_SizeDelta: {x: 23.3476, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!23 &3775503211275120750
@@ -626,6 +671,27 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_renderer: {fileID: 3775503211275120750}
   m_maskType: 0
+--- !u!65 &2070199646570107234
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4393999886427078045}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 8.63, y: 3.7724152, z: 1.2}
+  m_Center: {x: 0.48, y: 2.31, z: 0}
 --- !u!1 &4477087907373430930
 GameObject:
   m_ObjectHideFlags: 0
@@ -908,9 +974,10 @@ GameObject:
   - component: {fileID: 9064881150095161698}
   - component: {fileID: 3607324992961655060}
   - component: {fileID: 6981534634979312853}
+  - component: {fileID: 3912979615075649479}
   m_Layer: 0
   m_Name: Text (TMP) (1)
-  m_TagString: Untagged
+  m_TagString: Obstacle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1069,6 +1136,27 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_renderer: {fileID: 3607324992961655060}
   m_maskType: 0
+--- !u!65 &3912979615075649479
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5306692320752551126}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 5.2, y: 3.7724152, z: 2.6}
+  m_Center: {x: 0.26, y: 4.6, z: 0}
 --- !u!1 &7165537764705447904
 GameObject:
   m_ObjectHideFlags: 0
@@ -1161,9 +1249,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8631616925168421153}
+  - component: {fileID: 6845618109181350447}
   m_Layer: 0
   m_Name: yellow-black barriers (1)
-  m_TagString: Untagged
+  m_TagString: Obstacle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1185,6 +1274,27 @@ Transform:
   - {fileID: 5641981729587403639}
   m_Father: {fileID: 982631033506117052}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &6845618109181350447
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7907021972531336645}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 2.3, y: 0.84, z: 0.4}
+  m_Center: {x: -1.18, y: 2.31, z: -0.24}
 --- !u!1 &8162424101242439906
 GameObject:
   m_ObjectHideFlags: 0
@@ -1232,9 +1342,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4898599779207457909}
+  - component: {fileID: 3911930411967443483}
   m_Layer: 0
   m_Name: yellow-black barriers (2)
-  m_TagString: Untagged
+  m_TagString: Obstacle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1256,3 +1367,24 @@ Transform:
   - {fileID: 6886245845905133749}
   m_Father: {fileID: 982631033506117052}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &3911930411967443483
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8524194505025760927}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 2.3, y: 84, z: 0.4}
+  m_Center: {x: 0, y: 2.31, z: -0.24}
