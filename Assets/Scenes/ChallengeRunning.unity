@@ -277,8 +277,8 @@ Transform:
   m_GameObject: {fileID: 1297233805}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 126.1, y: 16.75, z: -0.733}
-  m_LocalScale: {x: 2.5028913, y: 2.5028913, z: 2.5028913}
+  m_LocalPosition: {x: 126.1, y: 17.64, z: -0.733}
+  m_LocalScale: {x: 1.8126689, y: 1.8126689, z: 1.8126689}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -688,13 +688,13 @@ CharacterController:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Height: 2
+  m_Height: 6.09
   m_Radius: 0.5
   m_SlopeLimit: 45
   m_StepOffset: 0.3
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Center: {x: 0, y: -0.34, z: 0}
 --- !u!114 &2048086706
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -708,12 +708,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   forwardSpeed: 15
-  laneDistance: 3
+  laneDistance: 3.5
   laneChangeSpeed: 10
   jumpForce: 9
   gravity: -20
   videoObject: {fileID: 1297233805}
   videoOffset: {x: 126.1, y: 16.75, z: -0.733}
+  jumpCooldown: 0.5
+  mainCamera: {fileID: 1486348449}
+  cameraOffset: {x: 0, y: 5, z: -10}
+  cameraFollowDelay: 0.5
 --- !u!65 &2048086707
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -733,8 +737,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 2.21, y: 6.08, z: 1.2}
-  m_Center: {x: 0.0000000013974294, y: 0, z: -0.49999943}
+  m_Size: {x: 2.21, y: 8.17, z: 1.4}
+  m_Center: {x: 0.0000000013974294, y: 0.44, z: -0.49999943}
 --- !u!4 &543450651652142407 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 4d9f83a107cf449489701204052ff451,
