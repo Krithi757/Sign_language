@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Video;  // Import Video namespace
+using TMPro;
 
 public class Running_challenge : MonoBehaviour
 {
@@ -35,6 +36,8 @@ public class Running_challenge : MonoBehaviour
 
     private Vector3 cameraVelocity = Vector3.zero;  // Used for smooth dampening
     private float followTimer = 0f;  // Timer to trac
+    private TileManager tileManager;
+    private string currentVideoName;
 
     void Start()
     {
@@ -42,19 +45,28 @@ public class Running_challenge : MonoBehaviour
 
         // Ensure the character starts at x = 126.1 and y = 8.96
         Vector3 startPosition = transform.position;
-        startPosition.x = startX;  // Setting fixed X position
-        startPosition.y = 8.96f;   // Setting fixed Y position
+        startPosition.x = startX;
+        startPosition.y = 8.96f;
         transform.position = startPosition;
 
-        // Set the initial target X position to match starting X
         targetX = startX;
 
-        // Ensure the video object starts at a fixed position
+        // Get TileManager instance
+        tileManager = FindObjectOfType<TileManager>();
+
+        if (tileManager != null && tileManager.videoPlayer != null)
+        {
+            currentVideoName = tileManager.videoPlayer.clip.name;
+        }
+        else
+        {
+            Debug.LogWarning("TileManager or VideoPlayer not found.");
+        }
+
         if (videoObject != null)
         {
             videoPosZ = videoObject.transform.position.z;
 
-            // Start the video
             VideoPlayer videoPlayer = videoObject.GetComponent<VideoPlayer>();
             if (videoPlayer != null)
             {
@@ -156,6 +168,41 @@ public class Running_challenge : MonoBehaviour
         {
             //forwardSpeed = 0;  // Stop the player immediately
             Debug.Log("Collided with: " + hit.collider.gameObject.name);
+        }
+    }
+
+    // Detect Trigger Collision
+    private void OnTriggerEnter(Collider other)
+    {
+        Debug.Log("The current video name is " + currentVideoName);
+        TextMeshPro textMeshPro = other.GetComponent<TextMeshPro>();
+
+        if (textMeshPro != null && tileManager != null)
+        {
+            Debug.Log("Collided with TextMeshPro: " + textMeshPro.text);
+
+            // Get the current video value from TileManager
+            string currentVideoValue = tileManager.GetCurrentVideoValue();
+
+            if (currentVideoValue != null)
+            {
+                Debug.Log("Current Video Value from TileManager: " + currentVideoValue);
+
+                // Compare the video value with TextMeshPro.text
+                if (textMeshPro.text == currentVideoValue)
+                {
+                    Debug.Log("🎉 YAY SUCCESS! 🎉 collided with video name " + currentVideoValue + " and text " + textMeshPro.text);
+                    tileManager.PlayNextVideo();
+                }
+                else
+                {
+                    Debug.Log("❌ Mismatch! Text does not match the video value.");
+                }
+            }
+            else
+            {
+                Debug.LogWarning("Current video value is null.");
+            }
         }
     }
 }

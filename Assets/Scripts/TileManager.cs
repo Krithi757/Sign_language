@@ -18,7 +18,9 @@ public class TileManager : MonoBehaviour
     private List<string> availableVideoNames = new List<string>(); // Names available for assignment
     private List<string> videoPaths = new List<string>(); // Store video paths for playback
 
-    public VideoPlayer videoPlayer; // Attach VideoPlayer in the Inspector
+    public VideoPlayer videoPlayer; // Attach VideoPlayer in the Inspector 
+    private string currentVideoName;
+    private int currentVideoIndex = 0;
 
     void Start()
     {
@@ -98,6 +100,8 @@ public class TileManager : MonoBehaviour
 
         // Select a random video name (with file extension)
         string randomVideoName = videoPaths[Random.Range(0, originalVideoNames.Count)];
+        Debug.Log("Playing video name " + currentVideoName);
+        currentVideoName = randomVideoName;
 
         // Load the video from the Resources folder using the full path from the dictionary
         VideoClip videoClip = Resources.Load<VideoClip>(randomVideoName);
@@ -105,10 +109,7 @@ public class TileManager : MonoBehaviour
         if (videoClip != null)
         {
             videoPlayer.clip = videoClip;
-
-            // Subscribe to the event when the video finishes
-            videoPlayer.loopPointReached -= OnVideoFinished; // Avoid multiple subscriptions
-            videoPlayer.loopPointReached += OnVideoFinished;
+            videoPlayer.isLooping = true;
 
             videoPlayer.Play();
         }
@@ -119,8 +120,48 @@ public class TileManager : MonoBehaviour
     }
 
 
+
+
     private void OnVideoFinished(VideoPlayer vp)
     {
         PlayRandomVideo(); // Play the next random video
     }
+
+
+
+    public string GetCurrentVideoName()
+    {
+        return currentVideoName;
+    }
+
+    public string GetCurrentVideoValue()
+    {
+        Dictionary<string, string> videoData = VideoPathManager.GetVideoPaths();
+
+        if (videoData.ContainsKey(currentVideoName))
+        {
+            Debug.Log("Video Value: " + videoData[currentVideoName]);
+            return videoData[currentVideoName];
+        }
+        else
+        {
+            Debug.LogWarning("Key not found: " + currentVideoName);
+            return null;
+        }
+    }
+
+    public void PlayNextVideo()
+    {
+        currentVideoIndex++;
+        if (currentVideoIndex < videoPaths.Count)
+        {
+            PlayRandomVideo();
+            Debug.Log("Changed video due to yay " + GetCurrentVideoName());
+        }
+        else
+        {
+            Debug.Log("🎉 All videos played!");
+        }
+    }
+
 }
