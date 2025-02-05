@@ -9,6 +9,9 @@ public class Running_challenge : MonoBehaviour
     private CharacterController controller;
     private Vector3 direction;
     public TextMeshProUGUI coins;
+    public TextMeshProUGUI score;
+
+    private int scoreNumber;
     public float forwardSpeed;
     private int desiredLane = 1;
     public float laneDistance = 7;
@@ -161,7 +164,18 @@ public class Running_challenge : MonoBehaviour
 
             if (currentVideoValue != null && textMeshPro.text == currentVideoValue)
             {
+                scoreNumber += 1;
+                score.text = "Score: " + scoreNumber.ToString();
                 tileManager.PlayNextVideo();
+            }
+            else
+            {
+                if (scoreNumber > 0)
+                {
+                    scoreNumber -= 1;
+                    score.text = "Score: " + scoreNumber.ToString();
+                }
+
             }
         }
 
