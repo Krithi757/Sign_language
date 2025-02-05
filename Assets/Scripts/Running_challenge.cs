@@ -17,6 +17,7 @@ public class Running_challenge : MonoBehaviour
     private float startX = 125.87f;
     public float jumpForce;
     public float gravity = -70f;
+    public static int numberOfCoins;
 
     public GameObject videoObject;
     public Vector3 videoOffset = new Vector3(0, 5, -10);
@@ -43,6 +44,7 @@ public class Running_challenge : MonoBehaviour
     void Start()
     {
         controller = GetComponent<CharacterController>();
+        numberOfCoins = 0;
 
         Vector3 startPosition = transform.position;
         startPosition.x = startX;
@@ -139,6 +141,7 @@ public class Running_challenge : MonoBehaviour
         direction.y = jumpForce;
     }
 
+
     void OnControllerColliderHit(ControllerColliderHit hit)
     {
         if (hit.collider.CompareTag("Obstacle"))
@@ -159,6 +162,18 @@ public class Running_challenge : MonoBehaviour
             {
                 tileManager.PlayNextVideo();
             }
+        }
+
+        // Handling coin collision
+        if (other.CompareTag("Coin"))
+        {
+            numberOfCoins += 1;
+            Debug.Log("Collected coin: " + numberOfCoins);
+
+            // Optionally deactivate the coin after collection
+            other.gameObject.SetActive(false);
+
+            // You can add more logic here, like updating score
         }
     }
 }

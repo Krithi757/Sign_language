@@ -10,6 +10,7 @@ TagManager:
   - WordBox
   - Ground
   - Obstacle
+  - Coin
   layers:
   - Default
   - TransparentFX
