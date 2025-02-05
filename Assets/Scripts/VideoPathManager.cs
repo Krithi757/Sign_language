@@ -41,7 +41,8 @@ public static class VideoPathManager
                 return level2;
                 break;
             default:
-                return new Dictionary<string, string>(); // Return an empty dictionary if level is not found
+                return level1;
+                break;
         }
     }
 }
