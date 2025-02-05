@@ -8,7 +8,7 @@ public class Running_challenge : MonoBehaviour
 {
     private CharacterController controller;
     private Vector3 direction;
-
+    public TextMeshProUGUI coins;
     public float forwardSpeed;
     private int desiredLane = 1;
     public float laneDistance = 7;
@@ -40,6 +40,7 @@ public class Running_challenge : MonoBehaviour
     private float followTimer = 0f;
     private TileManager tileManager;
     private string currentVideoName;
+
 
     void Start()
     {
@@ -168,6 +169,7 @@ public class Running_challenge : MonoBehaviour
         if (other.CompareTag("Coin"))
         {
             numberOfCoins += 1;
+            coins.text = "Coins: " + numberOfCoins.ToString();
             Debug.Log("Collected coin: " + numberOfCoins);
 
             // Optionally deactivate the coin after collection
