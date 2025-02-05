@@ -10,7 +10,11 @@ public static class VideoPathManager
         { "Sample/Beautiful_002", "Beautiful" },
         { "Sample/Bad_004", "Bad" },
         { "Sample/Careful_001", "Careful" },
-        { "Sample/Cold_001", "Cold" }
+        { "Sample/Cold_001", "Cold" },
+        {"Sample/Deaf_011", "Deaf"},
+        {"Sample/Happy_001", "Happy"},
+        {"Sample/Fat_001", "Fat"},
+        {"Sample/Different_004", "Different"}
     };
 
     public static Dictionary<string, string> level2 = new Dictionary<string, string>
@@ -18,7 +22,11 @@ public static class VideoPathManager
         { "Sample/Beautiful_002", "Beautiful" },
         { "Sample/Bad_004", "Bad" },
         { "Sample/Careful_001", "Careful" },
-        { "Sample/Cold_001", "Cold" }
+        { "Sample/Cold_001", "Cold" },
+        {"Sample/Deaf_011", "Deaf"},
+        {"Sample/Happy_001", "Happy"},
+        {"Sample/Fat_001", "Fat"},
+        {"Sample/Different_004", "Different"}
     };
     public static Dictionary<string, string> GetVideoPaths()
     {
@@ -33,7 +41,8 @@ public static class VideoPathManager
                 return level2;
                 break;
             default:
-                return new Dictionary<string, string>(); // Return an empty dictionary if level is not found
+                return level1;
+                break;
         }
     }
 }

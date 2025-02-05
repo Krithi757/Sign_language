@@ -4,17 +4,44 @@ using UnityEngine;
 using UnityEngine.Video;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using TMPro;
 
 public class BoxClickHandler : MonoBehaviour
+
 {
     public RawImage videoDisplay;
     public VideoPlayer videoPlayer;
     public RenderTexture renderTexture;
+    private static bool isBoxClicked = false;
 
     // Removed the availableVideoPaths dictionary
     public static Dictionary<GameObject, string> boxVideoAssignments;
 
     private static readonly string VideoPathsKey = "AvailableVideoPaths";
+    public static string selectedWord = "";
+    private static string clicked = "";
+
+    private bool isClickedOnce = false;
+
+    private bool isFlyingAway = false;
+    private GameObject currentBoxToFlyAway;
+
+    private GameObject matchedBox2ToFlyAway;
+    private float flyAwayDuration = 1.0f;
+    private float flyAwayTimeElapsed = 0f;
+
+
+    private Vector3 flyAwayStartPos;
+    private Vector3 flyAwayStartPos2;
+
+    private Vector3 flyAwayEndPos2;
+    private Vector3 flyAwayEndPos;
+
+    public TextMeshProUGUI coinText; // Reference to the coin UI text
+
+
+    private static int coins = 0;
+
 
     void Awake()
     {
@@ -35,6 +62,7 @@ public class BoxClickHandler : MonoBehaviour
             return;
         }
 
+
         ClearCacheAndReset();
         ClearRenderTexture();
 
@@ -43,6 +71,8 @@ public class BoxClickHandler : MonoBehaviour
 
         videoDisplay.enabled = false;
         videoPlayer.loopPointReached += OnVideoEnd;
+
+        coinText.text = "Coins: 0";
 
         Debug.Log($"Script initialized for box: {gameObject.name}");
     }
@@ -75,10 +105,22 @@ public class BoxClickHandler : MonoBehaviour
                 HandleClick();
             }
         }
+
+        if (isFlyingAway)
+        {
+            // Handle flying animation for the box
+            FlyAwayAndDisableUpdate();
+        }
     }
 
-    private void HandleClick()
+    public void HandleClick()
     {
+
+        if (isBoxClicked) return; // Prevent interaction if a box is already clicked
+
+        // Set the flag to true as soon as a box is clicked
+        isBoxClicked = true;
+
         Debug.Log($"Box touched: {gameObject.name}");
 
         ClearCacheAndReset();
@@ -88,11 +130,19 @@ public class BoxClickHandler : MonoBehaviour
         videoPlayer.clip = Resources.Load<VideoClip>(assignedVideoPath);
         videoPlayer.Prepare();
 
+        // Trigger the rotation and video play
         StartCoroutine(RotateBox(() =>
         {
+            Debug.Log("Playing " + assignedVideoPath);
             PlayVideo(assignedVideoPath);
             videoDisplay.enabled = true;
+
+
+            clicked = assignedVideoPath;
         }));
+
+        // Toggle click state if needed
+        isClickedOnce = !isClickedOnce;
     }
 
     void ClearCacheAndReset()
@@ -169,8 +219,86 @@ public class BoxClickHandler : MonoBehaviour
         videoDisplay.enabled = false;
         vp.loopPointReached -= OnVideoEnd;
 
+        isBoxClicked = false;
+
         StartCoroutine(RotateBoxBack());
     }
+
+    public void HandleMatch(GameObject matchedBox1, GameObject matchedBox2)
+    {
+        if (matchedBox1 != null && matchedBox2 != null)
+        {
+            // Set isFlyingAway to true for both boxes to start the flying-away behavior
+            isFlyingAway = true;
+
+            currentBoxToFlyAway = matchedBox1;
+            flyAwayStartPos = matchedBox1.transform.position;
+
+            // Fly away to a point far outside the screen (adjust range as needed)
+            flyAwayEndPos = flyAwayStartPos + new Vector3(
+            Random.Range(1106.077f, 1200f),  // Farther away on the X-axis (screen width + extra)
+            Random.Range(2356.097f, 2400f),  // Farther away on the Y-axis (screen height + extra)
+            0); // Keep the Z-axis unchanged
+
+            matchedBox2ToFlyAway = matchedBox2; // Set matchedBox2 to fly away as well
+            flyAwayStartPos2 = matchedBox2.transform.position;
+
+            // Fly away to a point far outside the screen for matchedBox2
+            flyAwayEndPos2 = flyAwayStartPos2 + new Vector3(
+                Random.Range(1106.077f, 1200f),  // Farther away on the X-axis (screen width + extra)
+                Random.Range(2356.097f, 2400f),  // Farther away on the Y-axis (screen height + extra)
+                0); // Keep the Z-axis unchanged
+
+            coins += 2;
+            coinText.text = "Coins: " + coins;
+        }
+        else
+        {
+            Debug.LogWarning("One of the boxes is null. Cannot handle match.");
+        }
+    }
+
+    void FlyAwayAndDisableUpdate()
+    {
+        // Handle flying away for matchedBox1
+        if (flyAwayTimeElapsed < flyAwayDuration)
+        {
+            currentBoxToFlyAway.transform.position = Vector3.Lerp(flyAwayStartPos, flyAwayEndPos, flyAwayTimeElapsed / flyAwayDuration);
+            flyAwayTimeElapsed += Time.deltaTime;
+        }
+        else
+        {
+            currentBoxToFlyAway.transform.position = flyAwayEndPos;
+            // MatchedBox1 has finished flying away, keep it active but off-screen
+            // No need to deactivate it, just leave it far off-screen.
+            Debug.Log(currentBoxToFlyAway + " flew away");
+        }
+
+        // Handle flying away for matchedBox2
+        if (flyAwayTimeElapsed < flyAwayDuration)
+        {
+            matchedBox2ToFlyAway.transform.position = Vector3.Lerp(flyAwayStartPos2, flyAwayEndPos2, flyAwayTimeElapsed / flyAwayDuration);
+        }
+        else
+        {
+            matchedBox2ToFlyAway.transform.position = flyAwayEndPos2;
+            // MatchedBox2 has finished flying away, keep it active but off-screen
+            Debug.Log(matchedBox2ToFlyAway + " flew away");
+        }
+
+        // If both boxes have finished flying away, reset the flags
+        if (flyAwayTimeElapsed >= flyAwayDuration)
+        {
+            isFlyingAway = false;
+            flyAwayTimeElapsed = 0f;
+        }
+    }
+
+
+
+
+
+
 
     IEnumerator RotateBoxBack()
     {
@@ -250,4 +378,67 @@ public class BoxClickHandler : MonoBehaviour
             Debug.Log("Loaded video paths from PlayerPrefs.");
         }
     }
+
+
+
+
+    public void CheckMatchWithWord(string selectedWord)
+    {
+        if (VideoPathManager.GetVideoPaths().TryGetValue(clicked, out string correctWord))
+        {
+            if (selectedWord == correctWord)
+            {
+                Debug.Log($"Match! Word '{selectedWord}' matches the assigned word '{correctWord}'.");
+
+                // Find the matched box for `clicked`
+                GameObject clickedBox = null;
+                foreach (var pair in boxVideoAssignments)
+                {
+                    if (pair.Value == clicked)
+                    {
+                        clickedBox = pair.Key;
+                        break;
+                    }
+                }
+
+                // Find the matched box for `selectedWord`
+                GameObject selectedWordBox = null;
+                foreach (var pair in WordDisplayHandler.boxWords)
+                {
+                    if (pair.Value == selectedWord)
+                    {
+                        selectedWordBox = pair.Key;
+                        break;
+                    }
+                }
+
+                // Ensure both boxes are found
+
+                if (clickedBox != null && selectedWordBox != null)
+                {
+                    Debug.Log("Video box is " + clickedBox);
+                    Debug.Log("Word box is " + selectedWordBox);
+                    HandleMatch(selectedWordBox, clickedBox); // Pass both boxes
+                }
+                else
+                {
+                    if (clickedBox == null) Debug.LogError("Clicked box could not be found!");
+                    if (selectedWordBox == null) Debug.LogError("Selected word box could not be found!");
+                }
+
+            }
+            else
+            {
+                Debug.Log($"No match. Word '{selectedWord}' does not match the assigned word '{correctWord}'.");
+                coins -= 2;
+                coinText.text = "Coins: " + coins;
+            }
+        }
+        else
+        {
+            Debug.LogWarning($"The video key '{clicked}' does not exist in the dictionary.");
+        }
+    }
+
+
 }
