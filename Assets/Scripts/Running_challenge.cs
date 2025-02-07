@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Video;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class Running_challenge : MonoBehaviour
 {
     private CharacterController controller;
+    public TextMeshProUGUI countdownText;
     private Vector3 direction;
     public TextMeshProUGUI coins;
     public TextMeshProUGUI score;
@@ -43,16 +45,21 @@ public class Running_challenge : MonoBehaviour
     private float followTimer = 0f;
     private TileManager tileManager;
     private string currentVideoName;
+    private bool isCompleted;
 
+    private Animator animator;
+    private bool isRunning = false; // Player should start only after countdown
 
     void Start()
     {
         controller = GetComponent<CharacterController>();
+        animator = GetComponent<Animator>(); // Get Animator
         numberOfCoins = 0;
+        ChallengeTracker.currentChallenge = 3;
 
         Vector3 startPosition = transform.position;
         startPosition.x = startX;
-        startPosition.y = 8.96f;
+        startPosition.y = 11.044f;
         transform.position = startPosition;
 
         targetX = startX;
@@ -73,13 +80,34 @@ public class Running_challenge : MonoBehaviour
                 videoPlayer.isLooping = true;
             }
         }
+
+        StartCoroutine(StartRunningAfterCountdown()); // Start countdown
     }
 
+    IEnumerator StartRunningAfterCountdown()
+    {
+        countdownText.gameObject.SetActive(true); // Show the countdown text
+
+        for (int i = 3; i > 0; i--)
+        {
+            countdownText.text = i.ToString();
+            yield return new WaitForSeconds(1);
+        }
+
+        countdownText.text = "Go!";
+        yield return new WaitForSeconds(1);
+        countdownText.gameObject.SetActive(false); // Hide after countdown
+
+        isRunning = true;
+        animator.SetBool("isRunning", true); // Start running animation
+    }
     void Update()
     {
+        if (!isRunning) return; // Prevent movement before countdown
+
         direction.z = forwardSpeed;
 
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (SwipeManager.swipeUp)
         {
             jumpRequested = true; // Buffer the jump request
         }
@@ -100,11 +128,11 @@ public class Running_challenge : MonoBehaviour
             direction.y += gravity * Time.deltaTime;
         }
 
-        if (Input.GetKeyDown(KeyCode.RightArrow))
+        if (SwipeManager.swipeRight)
         {
             desiredLane = Mathf.Min(desiredLane + 1, 2);
         }
-        if (Input.GetKeyDown(KeyCode.LeftArrow))
+        if (SwipeManager.swipeLeft)
         {
             desiredLane = Mathf.Max(desiredLane - 1, 0);
         }
@@ -137,7 +165,10 @@ public class Running_challenge : MonoBehaviour
 
     void FixedUpdate()
     {
-        controller.Move(direction * Time.fixedDeltaTime);
+        if (isRunning)
+        {
+            controller.Move(direction * Time.fixedDeltaTime);
+        }
     }
 
     private void Jump()
@@ -145,13 +176,30 @@ public class Running_challenge : MonoBehaviour
         direction.y = jumpForce;
     }
 
-
     void OnControllerColliderHit(ControllerColliderHit hit)
     {
         if (hit.collider.CompareTag("Obstacle"))
         {
             Debug.Log("Collided with: " + hit.collider.gameObject.name);
+            forwardSpeed = 0;
+            isCompleted = true;
+            isRunning = false; // Stop running
+            animator.SetBool("isRunning", false); // Stop running animation
+
+            PlayerPrefs.SetInt("Coins", numberOfCoins);
+            PlayerPrefs.SetInt("Score", scoreNumber);
+            PlayerPrefs.SetInt("IsCompleted", isCompleted ? 1 : 0); // Save as int
+            PlayerPrefs.Save();
+
+            StartCoroutine(LoadNextSceneWithDelay());
         }
+    }
+
+
+    IEnumerator LoadNextSceneWithDelay()
+    {
+        yield return new WaitForSeconds(2f); // Wait for 2 seconds
+        SceneManager.LoadScene(SceneData.challengeFeedback);
     }
 
     private void OnTriggerEnter(Collider other)
@@ -175,7 +223,6 @@ public class Running_challenge : MonoBehaviour
                     scoreNumber -= 1;
                     score.text = "Score: " + scoreNumber.ToString();
                 }
-
             }
         }
 
@@ -188,8 +235,6 @@ public class Running_challenge : MonoBehaviour
 
             // Optionally deactivate the coin after collection
             other.gameObject.SetActive(false);
-
-            // You can add more logic here, like updating score
         }
     }
 }
