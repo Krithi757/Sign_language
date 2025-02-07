@@ -5,6 +5,7 @@ using UnityEngine.Video;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class BoxClickHandler : MonoBehaviour
 
@@ -20,6 +21,8 @@ public class BoxClickHandler : MonoBehaviour
     private static readonly string VideoPathsKey = "AvailableVideoPaths";
     public static string selectedWord = "";
     private static string clicked = "";
+    private static int score;
+    public TextMeshProUGUI scoreText;
 
     private bool isClickedOnce = false;
 
@@ -41,6 +44,13 @@ public class BoxClickHandler : MonoBehaviour
 
 
     private static int coins = 0;
+    public TextMeshProUGUI timeUpText;
+    public TextMeshProUGUI timerText;
+
+
+    private float gameDuration = 10f;
+    private float timeRemaining;
+    private bool isGameOver = false;
 
 
     void Awake()
@@ -56,6 +66,11 @@ public class BoxClickHandler : MonoBehaviour
 
     void Start()
     {
+
+        timeRemaining = gameDuration;
+        ChallengeTracker.currentChallenge = 2;
+        timeUpText.gameObject.SetActive(false); // Hide "Time is Up" label at start
+        StartCoroutine(GameTimer());
         if (videoPlayer == null || videoDisplay == null || renderTexture == null)
         {
             Debug.LogError("VideoPlayer, VideoDisplay, or RenderTexture not assigned!");
@@ -73,8 +88,21 @@ public class BoxClickHandler : MonoBehaviour
         videoPlayer.loopPointReached += OnVideoEnd;
 
         coinText.text = "Coins: 0";
+        scoreText.text = "Score: 0";
 
         Debug.Log($"Script initialized for box: {gameObject.name}");
+    }
+
+    IEnumerator GameTimer()
+    {
+        while (timeRemaining > 0)
+        {
+            timeRemaining -= Time.deltaTime;
+            timerText.text = "Time: " + Mathf.Ceil(timeRemaining).ToString(); // Display countdown
+            yield return null;
+        }
+
+        EndGame();
     }
 
     void ClearRenderTexture()
@@ -250,7 +278,9 @@ public class BoxClickHandler : MonoBehaviour
                 0); // Keep the Z-axis unchanged
 
             coins += 2;
+            score += 1;
             coinText.text = "Coins: " + coins;
+            scoreText.text = "Score: " + score;
         }
         else
         {
@@ -438,6 +468,25 @@ public class BoxClickHandler : MonoBehaviour
         {
             Debug.LogWarning($"The video key '{clicked}' does not exist in the dictionary.");
         }
+    }
+
+    void EndGame()
+    {
+        isGameOver = true;
+        int isCompleted = (score == 8) ? 1 : 0;
+        PlayerPrefs.SetInt("Coins", coins);
+        PlayerPrefs.SetInt("Score", score);
+        PlayerPrefs.SetInt("IsCompleted", isCompleted);
+
+        // Show "Time is Up" label
+        timerText.text = "Time is Up!";
+
+        Debug.Log("Game Over! IsCompleted: " + isCompleted);
+
+        StopAllCoroutines();
+
+        // Load Scene 5
+        SceneManager.LoadScene(5);
     }
 
 

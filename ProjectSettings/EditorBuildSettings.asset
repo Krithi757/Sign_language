@@ -18,6 +18,9 @@ EditorBuildSettings:
     path: Assets/Scenes/ChallengeRunning.unity
     guid: 61c36bbf79d955d498d85e750ae1f859
   - enabled: 1
+    path: Assets/Scenes/ChallengeMenu.unity
+    guid: 9f643a5fb68571e4a9cc423330c0aaed
+  - enabled: 1
     path: Assets/Scenes/Challenge2.unity
     guid: 54e3a88f450e1d848a5f8f66c02e50da
   - enabled: 1
