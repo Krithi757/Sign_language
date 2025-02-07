@@ -14,7 +14,18 @@ public class WordDisplayHandler : MonoBehaviour
 
     void Start()
     {
+        ResetGame();
         wordDisplayText.gameObject.SetActive(true); // Ensure all TextMeshProUGUI components are active
+        UpdateVideoNames();
+        AssignWordsToBoxes();
+        UpdateWordDisplays();
+    }
+
+    void ResetGame()
+    {
+        //Retry();
+        wordDisplayText.gameObject.SetActive(true);
+        wordDisplayText.text = ""; // Clear previous word display
         UpdateVideoNames();
         AssignWordsToBoxes();
         UpdateWordDisplays();
@@ -131,6 +142,8 @@ public class WordDisplayHandler : MonoBehaviour
             }
         }
     }
+
+
 
     void UpdateWordDisplays()
     {

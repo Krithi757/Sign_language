@@ -5,6 +5,7 @@ using UnityEngine.Video;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class BoxClickHandler : MonoBehaviour
 
@@ -20,6 +21,8 @@ public class BoxClickHandler : MonoBehaviour
     private static readonly string VideoPathsKey = "AvailableVideoPaths";
     public static string selectedWord = "";
     private static string clicked = "";
+    private static int score;
+    public TextMeshProUGUI scoreText;
 
     private bool isClickedOnce = false;
 
@@ -41,10 +44,18 @@ public class BoxClickHandler : MonoBehaviour
 
 
     private static int coins = 0;
+    public TextMeshProUGUI timeUpText;
+    public TextMeshProUGUI timerText;
+
+
+    private float gameDuration = 10f;
+    private float timeRemaining;
+    private bool isGameOver = false;
 
 
     void Awake()
     {
+
         // Load video paths from the manager instead of local storage
         LoadVideoPaths();
 
@@ -56,6 +67,16 @@ public class BoxClickHandler : MonoBehaviour
 
     void Start()
     {
+        if (boxVideoAssignments == null)
+        {
+            boxVideoAssignments = new Dictionary<GameObject, string>();
+            Debug.Log(boxVideoAssignments);
+        }
+
+        timeRemaining = gameDuration;
+        ChallengeTracker.currentChallenge = 2;
+        timeUpText.gameObject.SetActive(false); // Hide "Time is Up" label at start
+        StartCoroutine(GameTimer());
         if (videoPlayer == null || videoDisplay == null || renderTexture == null)
         {
             Debug.LogError("VideoPlayer, VideoDisplay, or RenderTexture not assigned!");
@@ -73,8 +94,45 @@ public class BoxClickHandler : MonoBehaviour
         videoPlayer.loopPointReached += OnVideoEnd;
 
         coinText.text = "Coins: 0";
+        scoreText.text = "Score: 0";
 
         Debug.Log($"Script initialized for box: {gameObject.name}");
+    }
+
+    void ResetStaticVariables()
+    {
+        isBoxClicked = false;
+        selectedWord = "";
+        clicked = "";
+        score = 0;
+        coins = 0;
+
+        // Ensure it's always a valid dictionary
+        if (boxVideoAssignments == null)
+        {
+            boxVideoAssignments = new Dictionary<GameObject, string>();
+        }
+        else
+        {
+            boxVideoAssignments.Clear();
+        }
+    }
+
+
+    IEnumerator GameTimer()
+    {
+        while (timeRemaining > 0)
+        {
+            timeRemaining -= Time.deltaTime;
+            timeRemaining -= Time.deltaTime;
+            int hours = Mathf.FloorToInt(timeRemaining / 3600);
+            int minutes = Mathf.FloorToInt((timeRemaining % 3600) / 60);
+            int seconds = Mathf.FloorToInt(timeRemaining % 60);
+            timerText.text = string.Format("{0:D2}:{1:D2}:{2:D2}", hours, minutes, seconds);
+            yield return null;
+        }
+
+        EndGame();
     }
 
     void ClearRenderTexture()
@@ -250,7 +308,9 @@ public class BoxClickHandler : MonoBehaviour
                 0); // Keep the Z-axis unchanged
 
             coins += 2;
+            score += 1;
             coinText.text = "Coins: " + coins;
+            scoreText.text = "Score: " + score;
         }
         else
         {
@@ -390,7 +450,7 @@ public class BoxClickHandler : MonoBehaviour
             {
                 Debug.Log($"Match! Word '{selectedWord}' matches the assigned word '{correctWord}'.");
 
-                // Find the matched box for `clicked`
+                // Find the matched box for clicked
                 GameObject clickedBox = null;
                 foreach (var pair in boxVideoAssignments)
                 {
@@ -401,7 +461,7 @@ public class BoxClickHandler : MonoBehaviour
                     }
                 }
 
-                // Find the matched box for `selectedWord`
+                // Find the matched box for selectedWord
                 GameObject selectedWordBox = null;
                 foreach (var pair in WordDisplayHandler.boxWords)
                 {
@@ -430,7 +490,10 @@ public class BoxClickHandler : MonoBehaviour
             else
             {
                 Debug.Log($"No match. Word '{selectedWord}' does not match the assigned word '{correctWord}'.");
-                coins -= 2;
+                if (coins >= 2)
+                {
+                    coins -= 2;
+                }
                 coinText.text = "Coins: " + coins;
             }
         }
@@ -438,6 +501,25 @@ public class BoxClickHandler : MonoBehaviour
         {
             Debug.LogWarning($"The video key '{clicked}' does not exist in the dictionary.");
         }
+    }
+
+    void EndGame()
+    {
+        isGameOver = true;
+        int isCompleted = (score == 8) ? 1 : 0;
+        PlayerPrefs.SetInt("Coins", coins);
+        PlayerPrefs.SetInt("Score", score);
+        PlayerPrefs.SetInt("IsCompleted", isCompleted);
+
+        // Show "Time is Up" label
+        timerText.text = "Time is Up!";
+
+        Debug.Log("Game Over! IsCompleted: " + isCompleted);
+
+        StopAllCoroutines();
+
+        // Load Scene 5
+        SceneManager.LoadScene(6);
     }
 
 
