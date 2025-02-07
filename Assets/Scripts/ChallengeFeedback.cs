@@ -129,6 +129,6 @@ public class ChallengeFeedback : MonoBehaviour
     {
         Debug.Log("Main menu");
         // Load the main menu scene (assuming scene 0 is the main menu)
-        SceneManager.LoadScene(0);
+        SceneManager.LoadScene(1);
     }
 }

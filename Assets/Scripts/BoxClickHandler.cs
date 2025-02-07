@@ -55,6 +55,7 @@ public class BoxClickHandler : MonoBehaviour
 
     void Awake()
     {
+
         // Load video paths from the manager instead of local storage
         LoadVideoPaths();
 
@@ -66,6 +67,11 @@ public class BoxClickHandler : MonoBehaviour
 
     void Start()
     {
+        if (boxVideoAssignments == null)
+        {
+            boxVideoAssignments = new Dictionary<GameObject, string>();
+            Debug.Log(boxVideoAssignments);
+        }
 
         timeRemaining = gameDuration;
         ChallengeTracker.currentChallenge = 2;
@@ -93,12 +99,36 @@ public class BoxClickHandler : MonoBehaviour
         Debug.Log($"Script initialized for box: {gameObject.name}");
     }
 
+    void ResetStaticVariables()
+    {
+        isBoxClicked = false;
+        selectedWord = "";
+        clicked = "";
+        score = 0;
+        coins = 0;
+
+        // Ensure it's always a valid dictionary
+        if (boxVideoAssignments == null)
+        {
+            boxVideoAssignments = new Dictionary<GameObject, string>();
+        }
+        else
+        {
+            boxVideoAssignments.Clear();
+        }
+    }
+
+
     IEnumerator GameTimer()
     {
         while (timeRemaining > 0)
         {
             timeRemaining -= Time.deltaTime;
-            timerText.text = "Time: " + Mathf.Ceil(timeRemaining).ToString(); // Display countdown
+            timeRemaining -= Time.deltaTime;
+            int hours = Mathf.FloorToInt(timeRemaining / 3600);
+            int minutes = Mathf.FloorToInt((timeRemaining % 3600) / 60);
+            int seconds = Mathf.FloorToInt(timeRemaining % 60);
+            timerText.text = string.Format("{0:D2}:{1:D2}:{2:D2}", hours, minutes, seconds);
             yield return null;
         }
 
@@ -460,7 +490,10 @@ public class BoxClickHandler : MonoBehaviour
             else
             {
                 Debug.Log($"No match. Word '{selectedWord}' does not match the assigned word '{correctWord}'.");
-                coins -= 2;
+                if (coins >= 2)
+                {
+                    coins -= 2;
+                }
                 coinText.text = "Coins: " + coins;
             }
         }
