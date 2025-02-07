@@ -420,7 +420,7 @@ public class BoxClickHandler : MonoBehaviour
             {
                 Debug.Log($"Match! Word '{selectedWord}' matches the assigned word '{correctWord}'.");
 
-                // Find the matched box for `clicked`
+                // Find the matched box for clicked
                 GameObject clickedBox = null;
                 foreach (var pair in boxVideoAssignments)
                 {
@@ -431,7 +431,7 @@ public class BoxClickHandler : MonoBehaviour
                     }
                 }
 
-                // Find the matched box for `selectedWord`
+                // Find the matched box for selectedWord
                 GameObject selectedWordBox = null;
                 foreach (var pair in WordDisplayHandler.boxWords)
                 {
@@ -486,7 +486,7 @@ public class BoxClickHandler : MonoBehaviour
         StopAllCoroutines();
 
         // Load Scene 5
-        SceneManager.LoadScene(5);
+        SceneManager.LoadScene(6);
     }
 
 
