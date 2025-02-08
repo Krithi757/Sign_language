@@ -303,6 +303,7 @@ public class Running_challenge : MonoBehaviour
         {
             Debug.Log("Collided with: " + hit.collider.gameObject.name);
             forwardSpeed = 0;
+            FindObjectOfType<AudioManager>().PlaySound("GameOver");
             isCompleted = true;
             isRunning = false; // Stop running
             animator.SetBool("isRunning", false); // Stop running animation
@@ -350,6 +351,7 @@ public class Running_challenge : MonoBehaviour
         // Handling coin collision
         if (other.CompareTag("Coin"))
         {
+            FindObjectOfType<AudioManager>().PlaySound("PickupCoins ");
             numberOfCoins += 1;
             coins.text = "Coins: " + numberOfCoins.ToString();
             Debug.Log("Collected coin: " + numberOfCoins);

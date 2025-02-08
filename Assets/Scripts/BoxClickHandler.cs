@@ -512,6 +512,7 @@ public class BoxClickHandler : MonoBehaviour
                 {
                     Debug.Log("Video box is " + clickedBox);
                     Debug.Log("Word box is " + selectedWordBox);
+                    FindObjectOfType<AudioManager>().PlaySound("PickupCoins ");
                     HandleMatch(selectedWordBox, clickedBox); // Pass both boxes
                 }
                 else
@@ -540,6 +541,7 @@ public class BoxClickHandler : MonoBehaviour
     void EndGame()
     {
         isGameOver = true;
+        FindObjectOfType<AudioManager>().PlaySound("GameOver");
         int isCompleted = (score == 8) ? 1 : 0;
         PlayerPrefs.SetInt("Coins", coins);
         PlayerPrefs.SetInt("Score", score);
