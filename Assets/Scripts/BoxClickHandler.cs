@@ -13,6 +13,9 @@ public class BoxClickHandler : MonoBehaviour
     public RawImage videoDisplay;
     public VideoPlayer videoPlayer;
     public RenderTexture renderTexture;
+    public GameObject helpPanel; // Panel for help instructions
+
+    public GameObject closeButton;
     private static bool isBoxClicked = false;
 
     // Removed the availableVideoPaths dictionary
@@ -28,10 +31,12 @@ public class BoxClickHandler : MonoBehaviour
 
     private bool isFlyingAway = false;
     private GameObject currentBoxToFlyAway;
+    public GameObject resume;
 
     private GameObject matchedBox2ToFlyAway;
     private float flyAwayDuration = 1.0f;
     private float flyAwayTimeElapsed = 0f;
+    private static bool isPause = false;
 
 
     private Vector3 flyAwayStartPos;
@@ -48,7 +53,7 @@ public class BoxClickHandler : MonoBehaviour
     public TextMeshProUGUI timerText;
 
 
-    private float gameDuration = 10f;
+    private float gameDuration = 30f;
     private float timeRemaining;
     private bool isGameOver = false;
 
@@ -67,6 +72,9 @@ public class BoxClickHandler : MonoBehaviour
 
     void Start()
     {
+        helpPanel.SetActive(false);
+        closeButton.SetActive(false);
+        resume.SetActive(false);
         if (boxVideoAssignments == null)
         {
             boxVideoAssignments = new Dictionary<GameObject, string>();
@@ -123,17 +131,43 @@ public class BoxClickHandler : MonoBehaviour
     {
         while (timeRemaining > 0)
         {
-            timeRemaining -= Time.deltaTime;
+            // If the help panel is active or the game is paused, wait without decrementing time
+            if ((helpPanel.activeSelf) || (isPause))
+            {
+                Debug.Log("Game is paused or help panel is active.");
+                yield return null; // Wait until the next frame, effectively pausing the timer
+                continue; // Skip to the next frame and check the conditions again
+            }
+
+            // Decrement time and update the UI if game is running
             timeRemaining -= Time.deltaTime;
             int hours = Mathf.FloorToInt(timeRemaining / 3600);
             int minutes = Mathf.FloorToInt((timeRemaining % 3600) / 60);
             int seconds = Mathf.FloorToInt(timeRemaining % 60);
             timerText.text = string.Format("{0:D2}:{1:D2}:{2:D2}", hours, minutes, seconds);
-            yield return null;
+
+            yield return null; // Wait until the next frame
         }
 
         EndGame();
     }
+
+    // Pause button method to toggle the pause state
+    public void isPaused()
+    {
+        isPause = true;
+        Debug.Log("isPause toggled. Current state: " + isPause);
+        resume.SetActive(true);
+    }
+    public void isResumed()
+    {
+        resume.SetActive(false);
+        isPause = false;
+        Debug.Log("isPause toggled. Current state: " + isPause);
+    }
+
+
+
 
     void ClearRenderTexture()
     {
@@ -148,16 +182,16 @@ public class BoxClickHandler : MonoBehaviour
 
     void Update()
     {
+        if (helpPanel.activeSelf) return; // Pause game updates if help panel is open
+
         if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
         {
             Vector2 touchPos = Input.GetTouch(0).position;
 
-            // Convert the touch position to the local space of the UI element
             RectTransform rectTransform = GetComponent<RectTransform>();
             Vector2 localPoint;
             RectTransformUtility.ScreenPointToLocalPointInRectangle(rectTransform, touchPos, null, out localPoint);
 
-            // Check if the touch is within the bounds of the UI element
             if (rectTransform.rect.Contains(localPoint))
             {
                 HandleClick();
@@ -166,10 +200,10 @@ public class BoxClickHandler : MonoBehaviour
 
         if (isFlyingAway)
         {
-            // Handle flying animation for the box
             FlyAwayAndDisableUpdate();
         }
     }
+
 
     public void HandleClick()
     {
@@ -520,6 +554,18 @@ public class BoxClickHandler : MonoBehaviour
 
         // Load Scene 5
         SceneManager.LoadScene(6);
+    }
+
+    public void ShowHelp()
+    {
+        helpPanel.SetActive(true);
+        closeButton.SetActive(true); // Show close button when panel is visible
+    }
+
+    public void HideHelp()
+    {
+        helpPanel.SetActive(false);
+        closeButton.SetActive(false); // Hide close button when panel is hidden
     }
 
 

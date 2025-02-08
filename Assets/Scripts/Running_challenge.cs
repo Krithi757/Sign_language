@@ -46,15 +46,32 @@ public class Running_challenge : MonoBehaviour
     private TileManager tileManager;
     private string currentVideoName;
     private bool isCompleted;
+    public static int numberOfDiamonds;
+    public GameObject resume;
+    private static bool isPause = false;
+
+    public GameObject closeButton; // Reference to the close (X) button
+
 
     private Animator animator;
     private bool isRunning = false; // Player should start only after countdown
+    public GameObject helpPanel; // Panel for help instructions
+
+    private int[] diamondRewardScores = { 5, 10, 20 };
+    private bool diamondGranted = false;
+    public TextMeshProUGUI diamondPanelText;
+    public GameObject diamondPanel;
 
     void Start()
     {
+        resume.SetActive(false);
+        helpPanel.SetActive(false);
+        closeButton.SetActive(false);
+        diamondPanel.SetActive(false);
         controller = GetComponent<CharacterController>();
         animator = GetComponent<Animator>(); // Get Animator
         numberOfCoins = 0;
+        numberOfDiamonds = 0;
         ChallengeTracker.currentChallenge = 3;
 
         Vector3 startPosition = transform.position;
@@ -101,6 +118,110 @@ public class Running_challenge : MonoBehaviour
         isRunning = true;
         animator.SetBool("isRunning", true); // Start running animation
     }
+
+    private void CheckForDiamondReward()
+    {
+        if (!diamondGranted && System.Array.Exists(diamondRewardScores, s => s == scoreNumber))
+        {
+            if (Random.value < 0.3f) // 30% chance to get diamonds
+            {
+                numberOfDiamonds += 3;
+                diamondPanelText.text = "You got +3 Diamonds!";
+                diamondPanel.SetActive(true);
+                diamondGranted = true;
+                StartCoroutine(HideDiamondPanel());
+
+
+                PlayerPrefs.SetInt("Diamond", numberOfDiamonds);
+                PlayerPrefs.Save();
+            }
+        }
+    }
+
+    IEnumerator HideDiamondPanel()
+    {
+        yield return new WaitForSeconds(2f);
+        diamondPanel.SetActive(false);
+    }
+
+    public void ShowHelp()
+    {
+        helpPanel.SetActive(true);
+        closeButton.SetActive(true);
+
+        isRunning = false; // Pause player movement
+        animator.SetBool("isRunning", false); // Pause animation
+
+        if (videoObject != null)
+        {
+            VideoPlayer videoPlayer = videoObject.GetComponent<VideoPlayer>();
+            if (videoPlayer != null)
+            {
+                videoPlayer.Pause(); // Pause video
+            }
+        }
+
+        Time.timeScale = 0f; // Pause the entire game
+    }
+
+    public void pause()
+    {
+        resume.SetActive(true);
+        isRunning = false; // Pause player movement
+        animator.SetBool("isRunning", false); // Pause animation
+
+        if (videoObject != null)
+        {
+            VideoPlayer videoPlayer = videoObject.GetComponent<VideoPlayer>();
+            if (videoPlayer != null)
+            {
+                videoPlayer.Pause(); // Pause video
+            }
+        }
+
+        Time.timeScale = 0f; // Pause the entire game
+
+    }
+
+    public void resumeGame()
+    {
+        resume.SetActive(false);
+
+        isRunning = true; // Resume player movement
+        animator.SetBool("isRunning", true); // Resume animation
+
+        if (videoObject != null)
+        {
+            VideoPlayer videoPlayer = videoObject.GetComponent<VideoPlayer>();
+            if (videoPlayer != null)
+            {
+                videoPlayer.Play(); // Resume video
+            }
+        }
+
+        Time.timeScale = 1f; // Resume the game
+    }
+
+    public void HideHelp()
+    {
+        helpPanel.SetActive(false);
+        closeButton.SetActive(false);
+
+        isRunning = true; // Resume player movement
+        animator.SetBool("isRunning", true); // Resume animation
+
+        if (videoObject != null)
+        {
+            VideoPlayer videoPlayer = videoObject.GetComponent<VideoPlayer>();
+            if (videoPlayer != null)
+            {
+                videoPlayer.Play(); // Resume video
+            }
+        }
+
+        Time.timeScale = 1f; // Resume the game
+    }
+
     void Update()
     {
         if (!isRunning) return; // Prevent movement before countdown
@@ -199,7 +320,7 @@ public class Running_challenge : MonoBehaviour
     IEnumerator LoadNextSceneWithDelay()
     {
         yield return new WaitForSeconds(2f); // Wait for 2 seconds
-        SceneManager.LoadScene(SceneData.challengeFeedback);
+        SceneManager.LoadScene(6);
     }
 
     private void OnTriggerEnter(Collider other)
