@@ -53,22 +53,24 @@ public class BoxClickHandler : MonoBehaviour
     public TextMeshProUGUI timerText;
 
 
-    private float gameDuration = 30f;
+    private float gameDuration = 2f;
     private float timeRemaining;
     private bool isGameOver = false;
 
 
     void Awake()
     {
-
         // Load video paths from the manager instead of local storage
         LoadVideoPaths();
 
-        if (boxVideoAssignments == null)
+        // Always re-randomize and assign videos when scene reloads
+        if (boxVideoAssignments == null || boxVideoAssignments.Count == 0)
         {
             RandomizeAndAssignVideos();
         }
     }
+
+
 
     void Start()
     {
@@ -106,6 +108,8 @@ public class BoxClickHandler : MonoBehaviour
 
         Debug.Log($"Script initialized for box: {gameObject.name}");
     }
+
+
 
     void ResetStaticVariables()
     {
@@ -387,13 +391,6 @@ public class BoxClickHandler : MonoBehaviour
             flyAwayTimeElapsed = 0f;
         }
     }
-
-
-
-
-
-
-
     IEnumerator RotateBoxBack()
     {
         Quaternion startRotation = transform.rotation;
@@ -472,10 +469,6 @@ public class BoxClickHandler : MonoBehaviour
             Debug.Log("Loaded video paths from PlayerPrefs.");
         }
     }
-
-
-
-
     public void CheckMatchWithWord(string selectedWord)
     {
         if (VideoPathManager.GetVideoPaths().TryGetValue(clicked, out string correctWord))
