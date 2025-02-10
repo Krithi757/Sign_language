@@ -303,14 +303,17 @@ public class Running_challenge : MonoBehaviour
         {
             Debug.Log("Collided with: " + hit.collider.gameObject.name);
             forwardSpeed = 0;
-            FindObjectOfType<AudioManager>().PlaySound("GameOver");
+            if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+            {
+                FindObjectOfType<AudioManager>().PlaySound("GameOver");
+            }
             isCompleted = true;
             isRunning = false; // Stop running
             animator.SetBool("isRunning", false); // Stop running animation
 
             PlayerPrefs.SetInt("Coins", numberOfCoins);
             PlayerPrefs.SetInt("Score", scoreNumber);
-            PlayerPrefs.SetInt("IsCompleted", isCompleted ? 1 : 0); // Save as int
+            PlayerPrefs.SetInt("ChallengeIsCompleted", isCompleted ? 1 : 0); // Save as int
             PlayerPrefs.Save();
 
             StartCoroutine(LoadNextSceneWithDelay());
@@ -351,7 +354,10 @@ public class Running_challenge : MonoBehaviour
         // Handling coin collision
         if (other.CompareTag("Coin"))
         {
-            FindObjectOfType<AudioManager>().PlaySound("PickupCoins ");
+            if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+            {
+                FindObjectOfType<AudioManager>().PlaySound("PickupCoins ");
+            }
             numberOfCoins += 1;
             coins.text = "Coins: " + numberOfCoins.ToString();
             Debug.Log("Collected coin: " + numberOfCoins);

@@ -8,7 +8,7 @@ public class ChallengeFeedback : MonoBehaviour
     public TextMeshProUGUI coinsText;
     public TextMeshProUGUI scoreText;
     public Animator characterAnimator;
-    public float jumpHeight = 2f; // Adjust jump height as needed
+    public float jumpHeight = 1f; // Adjust jump height as needed
     public float jumpSpeed = 2f;  // Adjust jump speed as needed
     public float coinAnimationSpeed = 0.0001f; // Adjust speed of the coin animation
 
@@ -18,7 +18,7 @@ public class ChallengeFeedback : MonoBehaviour
     {
         int finalCoins = PlayerPrefs.GetInt("Coins", 0);
         int finalScore = PlayerPrefs.GetInt("Score", 0);
-        int isCompleted = PlayerPrefs.GetInt("IsCompleted", 0);
+        int isCompleted = PlayerPrefs.GetInt("ChallengeIsCompleted", 0);
 
         // Start the coin and score increment animations
         StartCoroutine(AnimateCoinsAndScore(0, finalCoins, 0, finalScore));

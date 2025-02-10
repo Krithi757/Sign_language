@@ -53,7 +53,7 @@ public class BoxClickHandler : MonoBehaviour
     public TextMeshProUGUI timerText;
 
 
-    private float gameDuration = 2f;
+    private float gameDuration = 10f;
     private float timeRemaining;
     private bool isGameOver = false;
 
@@ -538,7 +538,7 @@ public class BoxClickHandler : MonoBehaviour
         int isCompleted = (score == 8) ? 1 : 0;
         PlayerPrefs.SetInt("Coins", coins);
         PlayerPrefs.SetInt("Score", score);
-        PlayerPrefs.SetInt("IsCompleted", isCompleted);
+        PlayerPrefs.SetInt("ChallengeIsCompleted", isCompleted);
 
         // Show "Time is Up" label
         timerText.text = "Time is Up!";
