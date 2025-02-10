@@ -310,7 +310,7 @@ public class Running_challenge : MonoBehaviour
 
             PlayerPrefs.SetInt("Coins", numberOfCoins);
             PlayerPrefs.SetInt("Score", scoreNumber);
-            PlayerPrefs.SetInt("IsCompleted", isCompleted ? 1 : 0); // Save as int
+            PlayerPrefs.SetInt("ChallengeIsCompleted", isCompleted ? 1 : 0); // Save as int
             PlayerPrefs.Save();
 
             StartCoroutine(LoadNextSceneWithDelay());
