@@ -5,6 +5,9 @@ using UnityEngine;
 public class AudioManager : MonoBehaviour
 {
     public Sound[] sounds;
+    public static AudioManager instance;
+    private bool mute = false;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -13,8 +16,10 @@ public class AudioManager : MonoBehaviour
             s.source = gameObject.AddComponent<AudioSource>();
             s.source.clip = s.clip;
             s.source.loop = s.loop;
-
-            PlaySound("MainTheme ");
+            if (PlayerPrefs.GetInt("AudioMuted", 1) == 1)
+            {
+                PlaySound("MainTheme ");
+            }
         }
 
     }
@@ -29,4 +34,15 @@ public class AudioManager : MonoBehaviour
             }
         }
     }
+    public void MuteAllSounds(bool mute)
+    {
+        foreach (Sound s in sounds)
+        {
+            if (mute)
+                s.source.Stop();
+            else
+                s.source.Play();
+        }
+    }
+
 }
