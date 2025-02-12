@@ -28,7 +28,7 @@ public class Running_challenge : MonoBehaviour
     public Vector3 videoOffset = new Vector3(0, 5, -10);
 
     private float videoPosX = 126.1f;
-    private float videoPosY = 15.7f;
+    private float videoPosY = 14.5f;
     private float videoPosZ;
 
     private float lerpSpeed = 0.1f;
