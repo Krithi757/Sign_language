@@ -1,18 +1,14 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
-public class Progresspage : MonoBehaviour
+public class ProgressTracker : MonoBehaviour
 {
-    // Start is called before the first frame update
+    public TextMeshProUGUI coinsText; // Assign this in the Inspector
+
     void Start()
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        int savedCoins = PlayerPrefs.GetInt("Coins", 0); // Get stored coins
+        coinsText.text = "Coins: " + savedCoins.ToString(); // Display on UI
     }
 }
