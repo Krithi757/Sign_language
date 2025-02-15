@@ -728,7 +728,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 453.24713, y: 0, z: 0, w: 0.00012207031}
+  m_margin: {x: 456.03394, y: 0, z: -629.8142, w: -105.89783}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -1197,8 +1197,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 430, y: 0}
-  m_SizeDelta: {x: 200, y: 50}
+  m_AnchoredPosition: {x: 549.8319, y: -54.180878}
+  m_SizeDelta: {x: 439.6638, y: 158.3618}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &814323445
 MonoBehaviour:
@@ -2110,6 +2110,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coinsText: {fileID: 814323445}
+  diamondsText: {fileID: 537710028}
 --- !u!4 &1790358392
 Transform:
   m_ObjectHideFlags: 0
