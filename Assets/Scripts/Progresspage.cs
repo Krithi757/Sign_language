@@ -15,6 +15,5 @@ public class ProgressTracker : MonoBehaviour
 
         coinsText.text = "Coins: " + savedCoins.ToString(); // Display on UI
         diamondsText.text = "Diamonds: " + savedDiamonds.ToString(); // Display diamonds
-        
     }
 }
