@@ -121,7 +121,7 @@ public class homeCont : MonoBehaviour
 
     public void gotoLevel()
     {
-        SceneManager.LoadScene(SceneData.levelview);
+        SceneManager.LoadScene(SceneData.newLevel);
     }
     public void gotoProgress()
     {

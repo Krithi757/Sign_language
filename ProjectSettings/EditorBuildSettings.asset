@@ -29,8 +29,18 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Progresspage.unity
     guid: 0554f1b2c4c7a004db580286f697199b
+  - enabled: 1
+    path: Assets/Scenes/NewLevel.unity
+    guid: 5e531c1c8cff72145a25ab837cd23f9f
+  - enabled: 1
+    path: Assets/Scenes/LoadingScreen.unity
+    guid: 2730ed4dfb34a59499f1683b82178e10
   m_configObjects:
+    com.unity.adaptiveperformance.google.android.provider_settings: {fileID: 11400000,
+      guid: e5b4fae91efc8e6418030e66d3c36f58, type: 2}
     com.unity.adaptiveperformance.loader_settings: {fileID: 11400000, guid: 36a9e439cf39e374289e9e25e9a3b183,
       type: 2}
+    com.unity.adaptiveperformance.samsung.android.provider_settings: {fileID: 11400000,
+      guid: 4f40f61954050564da4ae2dbb6dbd988, type: 2}
     com.unity.adaptiveperformance.simulator.provider_settings: {fileID: 11400000,
       guid: 166b50e4237c15442bb77c359039db99, type: 2}

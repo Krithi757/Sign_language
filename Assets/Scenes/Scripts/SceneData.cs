@@ -12,4 +12,5 @@ public class SceneData : MonoBehaviour
     public static int challenge2 = 5;
     public static int challengeFeedback = 6;
     public static int progress = 7;
+    public static int newLevel = 8;
 }
