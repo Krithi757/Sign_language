@@ -313,7 +313,10 @@ public class Running_challenge : MonoBehaviour
 
             PlayerPrefs.SetInt("Coins", numberOfCoins);
             PlayerPrefs.SetInt("Score", scoreNumber);
-            PlayerPrefs.SetInt("ChallengeIsCompleted", isCompleted ? 1 : 0); // Save as int
+            int levelCompleted = PlayerPrefs.GetInt("SelectedLevelId");
+            PlayerPrefs.SetInt("ChallengeCompletedLevel", levelCompleted);
+            Debug.Log("Completed Challenge for " + levelCompleted);
+            PlayerPrefs.SetInt("Challenge2IsCompleted", isCompleted ? 1 : 0); // Save as int 
             PlayerPrefs.Save();
 
             StartCoroutine(LoadNextSceneWithDelay());
