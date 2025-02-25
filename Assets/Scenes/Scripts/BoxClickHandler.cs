@@ -538,6 +538,9 @@ public class BoxClickHandler : MonoBehaviour
         int isCompleted = (score == 8) ? 1 : 0;
         PlayerPrefs.SetInt("Coins", coins);
         PlayerPrefs.SetInt("Score", score);
+        int levelCompleted = PlayerPrefs.GetInt("SelectedLevelId");
+        PlayerPrefs.SetInt("ChallengeCompletedLevel", levelCompleted);
+        Debug.Log("Completed Challenge for " + levelCompleted);
         PlayerPrefs.SetInt("ChallengeIsCompleted", isCompleted);
 
         // Show "Time is Up" label

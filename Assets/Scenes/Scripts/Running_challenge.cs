@@ -21,15 +21,16 @@ public class Running_challenge : MonoBehaviour
     public float laneChangeSpeed = 10f;
     private float startX = 125.87f;
     public float jumpForce;
-    public float gravity = -70f;
+    public float gravity = -9f;
     public static int numberOfCoins;
 
-    public GameObject videoObject;
-    public Vector3 videoOffset = new Vector3(0, 5, -10);
+    private VideoPlayer videoPlayer; // Reference to the VideoPlayer
 
     private float videoPosX = 126.1f;
     private float videoPosY = 14.5f;
     private float videoPosZ;
+
+    private bool hasJumped = false;
 
     private float lerpSpeed = 0.1f;
 
@@ -51,7 +52,6 @@ public class Running_challenge : MonoBehaviour
     private static bool isPause = false;
 
     public GameObject closeButton; // Reference to the close (X) button
-
 
     private Animator animator;
     private bool isRunning = false; // Player should start only after countdown
@@ -87,15 +87,12 @@ public class Running_challenge : MonoBehaviour
             currentVideoName = tileManager.videoPlayer.clip.name;
         }
 
-        if (videoObject != null)
+        // Initialize videoPlayer directly
+        if (tileManager != null && tileManager.videoPlayer != null)
         {
-            videoPosZ = videoObject.transform.position.z;
-            VideoPlayer videoPlayer = videoObject.GetComponent<VideoPlayer>();
-            if (videoPlayer != null)
-            {
-                videoPlayer.Play();
-                videoPlayer.isLooping = true;
-            }
+            videoPlayer = tileManager.videoPlayer; // Assign videoPlayer from TileManager
+            videoPlayer.Play();
+            videoPlayer.isLooping = true;
         }
 
         StartCoroutine(StartRunningAfterCountdown()); // Start countdown
@@ -131,7 +128,6 @@ public class Running_challenge : MonoBehaviour
                 diamondGranted = true;
                 StartCoroutine(HideDiamondPanel());
 
-
                 PlayerPrefs.SetInt("Diamond", numberOfDiamonds);
                 PlayerPrefs.Save();
             }
@@ -152,13 +148,9 @@ public class Running_challenge : MonoBehaviour
         isRunning = false; // Pause player movement
         animator.SetBool("isRunning", false); // Pause animation
 
-        if (videoObject != null)
+        if (videoPlayer != null)
         {
-            VideoPlayer videoPlayer = videoObject.GetComponent<VideoPlayer>();
-            if (videoPlayer != null)
-            {
-                videoPlayer.Pause(); // Pause video
-            }
+            videoPlayer.Pause(); // Pause video
         }
 
         Time.timeScale = 0f; // Pause the entire game
@@ -170,17 +162,12 @@ public class Running_challenge : MonoBehaviour
         isRunning = false; // Pause player movement
         animator.SetBool("isRunning", false); // Pause animation
 
-        if (videoObject != null)
+        if (videoPlayer != null)
         {
-            VideoPlayer videoPlayer = videoObject.GetComponent<VideoPlayer>();
-            if (videoPlayer != null)
-            {
-                videoPlayer.Pause(); // Pause video
-            }
+            videoPlayer.Pause(); // Pause video
         }
 
         Time.timeScale = 0f; // Pause the entire game
-
     }
 
     public void resumeGame()
@@ -190,13 +177,9 @@ public class Running_challenge : MonoBehaviour
         isRunning = true; // Resume player movement
         animator.SetBool("isRunning", true); // Resume animation
 
-        if (videoObject != null)
+        if (videoPlayer != null)
         {
-            VideoPlayer videoPlayer = videoObject.GetComponent<VideoPlayer>();
-            if (videoPlayer != null)
-            {
-                videoPlayer.Play(); // Resume video
-            }
+            videoPlayer.Play(); // Resume video
         }
 
         Time.timeScale = 1f; // Resume the game
@@ -210,13 +193,9 @@ public class Running_challenge : MonoBehaviour
         isRunning = true; // Resume player movement
         animator.SetBool("isRunning", true); // Resume animation
 
-        if (videoObject != null)
+        if (videoPlayer != null)
         {
-            VideoPlayer videoPlayer = videoObject.GetComponent<VideoPlayer>();
-            if (videoPlayer != null)
-            {
-                videoPlayer.Play(); // Resume video
-            }
+            videoPlayer.Play(); // Resume video
         }
 
         Time.timeScale = 1f; // Resume the game
@@ -228,27 +207,35 @@ public class Running_challenge : MonoBehaviour
 
         direction.z = forwardSpeed;
 
-        if (SwipeManager.swipeUp)
+        // Handle jumping only when grounded and swipe up is detected
+        if (SwipeManager.swipeUp && !hasJumped && controller.isGrounded)
         {
             jumpRequested = true; // Buffer the jump request
+            hasJumped = true; // Mark that the player has jumped
+            if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+            {
+                FindObjectOfType<AudioManager>().PlaySound("JumpUp"); // Play sound only once
+            }
         }
 
         if (controller.isGrounded)
         {
-            direction.y = 0;
+            direction.y = 0; // Reset the vertical velocity when grounded
 
             if (jumpRequested && Time.time - lastJumpTime >= jumpCooldown)
             {
-                Jump();
+                Jump(); // Apply jump force
                 lastJumpTime = Time.time;
                 jumpRequested = false; // Reset the jump buffer
+                hasJumped = false; // Reset the jump state
             }
         }
         else
         {
-            direction.y += gravity * Time.deltaTime;
+            direction.y += gravity * Time.deltaTime; // Apply gravity when in the air
         }
 
+        // Handle lane switching with swipes
         if (SwipeManager.swipeRight)
         {
             desiredLane = Mathf.Min(desiredLane + 1, 2);
@@ -262,11 +249,12 @@ public class Running_challenge : MonoBehaviour
         Vector3 moveDirection = new Vector3(targetX - transform.position.x, 0, 0);
         controller.Move(moveDirection * laneChangeSpeed * Time.deltaTime);
 
-        if (videoObject != null)
+        // Handle video position syncing
+        if (videoPlayer != null)
         {
             videoPosZ += forwardSpeed * Time.deltaTime;
             videoPosX = transform.position.x;
-            videoObject.transform.position = new Vector3(videoPosX, videoPosY, videoPosZ);
+            videoPlayer.transform.position = new Vector3(videoPosX, videoPosY, videoPosZ);
         }
 
         followTimer += Time.deltaTime;
@@ -283,6 +271,7 @@ public class Running_challenge : MonoBehaviour
 
         controller.center = new Vector3(0, controller.height / 2, 0.1f);
     }
+
 
     void FixedUpdate()
     {
@@ -313,13 +302,13 @@ public class Running_challenge : MonoBehaviour
 
             PlayerPrefs.SetInt("Coins", numberOfCoins);
             PlayerPrefs.SetInt("Score", scoreNumber);
-            PlayerPrefs.SetInt("ChallengeIsCompleted", isCompleted ? 1 : 0); // Save as int
+            int levelCompleted = PlayerPrefs.GetInt("SelectedLevelId");
+            PlayerPrefs.SetInt("ChallengeIsCompleted", isCompleted ? 1 : 0); // Save as int 
             PlayerPrefs.Save();
 
             StartCoroutine(LoadNextSceneWithDelay());
         }
     }
-
 
     IEnumerator LoadNextSceneWithDelay()
     {
@@ -338,6 +327,10 @@ public class Running_challenge : MonoBehaviour
             if (currentVideoValue != null && textMeshPro.text == currentVideoValue)
             {
                 scoreNumber += 1;
+                if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+                {
+                    FindObjectOfType<AudioManager>().PlaySound("ScorePoint"); // Play sound only once
+                }
                 score.text = "Score: " + scoreNumber.ToString();
                 tileManager.PlayNextVideo();
             }
@@ -366,5 +359,4 @@ public class Running_challenge : MonoBehaviour
             other.gameObject.SetActive(false);
         }
     }
-
 }
