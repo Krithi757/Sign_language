@@ -25,7 +25,13 @@ public class ChallengeFeedback : MonoBehaviour
 
         if (isCompleted == 1)
         {
-            StartCoroutine(HandleJumpAndAnimation());
+            characterAnimator.SetBool("isDanceCover", true);
+            characterAnimator.SetBool("isIdle", false);
+        }
+        else
+        {
+            characterAnimator.SetBool("isDanceCover", false);
+            characterAnimator.SetBool("isIdle", true);
         }
     }
 
@@ -66,9 +72,6 @@ public class ChallengeFeedback : MonoBehaviour
 
             // Trigger the celebratory pose and start the jump
             characterAnimator.SetBool("isPass", true);
-
-            // Perform Jump (without animation)
-            yield return StartCoroutine(Jump());
 
             // After jump, stay in the celebratory pose for a short time
             yield return new WaitForSeconds(1f);  // Adjust this to allow celebratory pose animation to play
