@@ -5,6 +5,7 @@ using TMPro;
 
 public class ChallengeFeedback : MonoBehaviour
 {
+    public NumberIncrementer incrementer;
     public TextMeshProUGUI coinsText;
     public TextMeshProUGUI scoreText;
     public Animator characterAnimator;
@@ -16,6 +17,8 @@ public class ChallengeFeedback : MonoBehaviour
 
     void Start()
     {
+
+
         int finalCoins = PlayerPrefs.GetInt("Coins", 0);
         int finalScore = PlayerPrefs.GetInt("Score", 0);
         int isCompleted = PlayerPrefs.GetInt("ChallengeIsCompleted", 0);
@@ -54,7 +57,11 @@ public class ChallengeFeedback : MonoBehaviour
         }
 
         // Ensure we reach the target coin and score count exactly at the end
-        coinsText.text = targetCoins.ToString();
+        incrementer.IncrementTo(targetCoins);
+        // Trigger shimmer animation when the player collects a coin or answers correctly
+        FindObjectOfType<ShimmerCollector>().CollectCoins();
+
+        //coinsText.text = targetCoins.ToString();
         scoreText.text = "Score: " + targetScore.ToString();
     }
 
