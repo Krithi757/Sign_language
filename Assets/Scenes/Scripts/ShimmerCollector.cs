@@ -16,39 +16,39 @@ public class ShimmerCollector : MonoBehaviour
     // Method to trigger the coin animation
     public void CollectCoins()
     {
-        // Start a coroutine that will handle all coin spawns with delay
+        StartCoroutine(SpawnCoins());
+    }
+
+    public void CollectShimmer()
+    {
         StartCoroutine(SpawnCoins());
     }
 
     private IEnumerator SpawnCoins()
     {
-        // Loop to create multiple coins with delay
-        for (int i = 0; i < numberOfCoins; i++)
+        for (int i = 0; i < 10; i++)
         {
-            // Delay each spawn by the spawnInterval
-            yield return new WaitForSeconds(i * spawnInterval);
-
-            // Spawn the coin
             SpawnCoin();
+            yield return new WaitForSeconds(spawnInterval);  // Proper delay
         }
     }
 
     private void SpawnCoin()
     {
-        // Instantiate the coin at the spawn point
-        GameObject coin = Instantiate(coinPrefab, spawnPoint.position, Quaternion.identity);
+        // Instantiate the coin while keeping its original prefab rotation
+        GameObject coin = Instantiate(coinPrefab, spawnPoint.position, coinPrefab.transform.rotation);
 
-        // Define the midpoint where the coin will float upwards before heading to the target
         Vector3 midPoint = spawnPoint.position + Vector3.up * floatHeight;
 
-        // Create a sequence for smooth animation: float up → fly to target → vanish
         Sequence coinSequence = DOTween.Sequence();
 
-        // Add animations to the sequence
+        // Do NOT set any explicit rotation; let it use the prefab's original rotation
         coinSequence.Append(coin.transform.DOMove(midPoint, 0.5f).SetEase(Ease.OutQuad))   // Float upward
                     .Join(coin.transform.DORotate(new Vector3(0, rotationSpeed, 0), 0.5f, RotateMode.FastBeyond360)) // Rotate while floating
-                    .Append(coin.transform.DOMove(target.position, duration - 0.5f).SetEase(Ease.InQuad))  // Fly towards the target
-                    .Join(coin.transform.DORotate(new Vector3(0, rotationSpeed, 0), duration - 0.5f, RotateMode.FastBeyond360)) // Rotate while moving to the target
-                    .OnComplete(() => Destroy(coin));  // Destroy the coin once animation is complete
+                    .Append(coin.transform.DOMove(target.position, duration - 0.5f).SetEase(Ease.InQuad))  // Fly to target
+                    .Join(coin.transform.DORotate(new Vector3(0, rotationSpeed, 0), duration - 0.5f, RotateMode.FastBeyond360)) // Rotate while moving
+                    .OnComplete(() => Destroy(coin));  // Destroy after animation
     }
+
+
 }

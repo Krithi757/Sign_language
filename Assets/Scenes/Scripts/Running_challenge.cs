@@ -100,6 +100,10 @@ public class Running_challenge : MonoBehaviour
 
     IEnumerator StartRunningAfterCountdown()
     {
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("ReadySound"); // Play sound only once
+        }
         countdownText.gameObject.SetActive(true); // Show the countdown text
 
         for (int i = 3; i > 0; i--)

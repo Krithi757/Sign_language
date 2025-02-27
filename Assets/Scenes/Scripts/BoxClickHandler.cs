@@ -158,12 +158,20 @@ public class BoxClickHandler : MonoBehaviour
     // Pause button method to toggle the pause state
     public void isPaused()
     {
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
+        }
         isPause = true;
         Debug.Log("isPause toggled. Current state: " + isPause);
         resume.SetActive(true);
     }
     public void isResumed()
     {
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
+        }
         resume.SetActive(false);
         isPause = false;
         Debug.Log("isPause toggled. Current state: " + isPause);
@@ -210,6 +218,10 @@ public class BoxClickHandler : MonoBehaviour
 
     public void HandleClick()
     {
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
+        }
 
         if (isBoxClicked) return; // Prevent interaction if a box is already clicked
 
@@ -504,7 +516,10 @@ public class BoxClickHandler : MonoBehaviour
                 {
                     Debug.Log("Video box is " + clickedBox);
                     Debug.Log("Word box is " + selectedWordBox);
-                    FindObjectOfType<AudioManager>().PlaySound("PickupCoins ");
+                    if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+                    {
+                        FindObjectOfType<AudioManager>().PlaySound("Correct"); // Play sound only once
+                    }
                     HandleMatch(selectedWordBox, clickedBox); // Pass both boxes
                 }
                 else
@@ -517,6 +532,10 @@ public class BoxClickHandler : MonoBehaviour
             else
             {
                 Debug.Log($"No match. Word '{selectedWord}' does not match the assigned word '{correctWord}'.");
+                if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+                {
+                    FindObjectOfType<AudioManager>().PlaySound("Error"); // Play sound only once
+                }
                 if (coins >= 2)
                 {
                     coins -= 2;
@@ -563,12 +582,20 @@ public class BoxClickHandler : MonoBehaviour
     }
     public void ShowHelp()
     {
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
+        }
         helpPanel.SetActive(true);
         closeButton.SetActive(true); // Show close button when panel is visible
     }
 
     public void HideHelp()
     {
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
+        }
         helpPanel.SetActive(false);
         closeButton.SetActive(false); // Hide close button when panel is hidden
     }

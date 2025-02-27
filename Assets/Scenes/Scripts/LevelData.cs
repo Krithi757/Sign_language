@@ -39,6 +39,7 @@ public class LevelData : MonoBehaviour
 
             if (touch.phase == TouchPhase.Began) // Only check on touch start
             {
+
                 Ray ray = mainCamera.ScreenPointToRay(touch.position);
                 RaycastHit hit;
 
@@ -55,6 +56,10 @@ public class LevelData : MonoBehaviour
 
     public void OnLevelTapped()
     {
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("LevelMove"); // Play sound only once
+        }
         Debug.Log($"Level {levelId} tapped!");
         PlayerPrefs.SetInt("SelectedLevelId", levelId);
         PlayerPrefs.Save();
@@ -105,6 +110,10 @@ public class LevelData : MonoBehaviour
 
     IEnumerator PopAnimation(Transform target)
     {
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
+        }
         float duration = 0.2f; // Faster pop animation duration.
         float elapsed = 0f;
         Vector3 initialScale = Vector3.zero;

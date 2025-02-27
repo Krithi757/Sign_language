@@ -60,6 +60,10 @@ public class homeCont : MonoBehaviour
 
     public void disableMusic()
     {
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
+        }
         // Set audio state to muted (0)
         PlayerPrefs.SetInt("AudioMuted", 0);
         PlayerPrefs.Save();
@@ -74,6 +78,10 @@ public class homeCont : MonoBehaviour
 
     public void enableMusic()
     {
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
+        }
         // Set audio state to enabled (1)
         PlayerPrefs.SetInt("AudioMuted", 1);
         PlayerPrefs.Save();
@@ -88,6 +96,10 @@ public class homeCont : MonoBehaviour
 
     public void disableSoundEffects()
     {
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
+        }
         // Set audio state to muted (0)
         PlayerPrefs.SetInt("SoundEffectsMuted", 0);
         PlayerPrefs.Save();
@@ -102,6 +114,10 @@ public class homeCont : MonoBehaviour
 
     public void enableSoundEffects()
     {
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
+        }
         // Set audio state to enabled (1)
         PlayerPrefs.SetInt("SoundEffectsMuted", 1);
         PlayerPrefs.Save();
@@ -121,22 +137,52 @@ public class homeCont : MonoBehaviour
 
     public void gotoLevel()
     {
-        SceneManager.LoadScene(SceneData.newLevel);
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
+        }
+        StartCoroutine(LoadSceneAfterSound(1));
     }
     public void gotoProgress()
     {
-        SceneManager.LoadScene(SceneData.progress);
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
+        }
+        StartCoroutine(LoadSceneAfterSound(7));
     }
     public void gotoLearning()
     {
-        //SceneManager.LoadScene(SceneData);
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
+        }
+        StartCoroutine(LoadSceneAfterSound(1));
     }
     public void gotoChallenge()
     {
-        SceneManager.LoadScene(SceneData.challengeMenu);
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
+        }
+        StartCoroutine(LoadSceneAfterSound(4));
     }
     public void gotoPractice()
     {
-        //SceneManager.LoadScene(SceneData);
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
+        }
+        StartCoroutine(LoadSceneAfterSound(7));
+    }
+
+    private IEnumerator LoadSceneAfterSound(int sceneId)
+    {
+        // Wait for the sound to finish playing (assuming "TapSound" has a defined duration)
+
+        yield return new WaitForSeconds(0.3f);
+
+        // Load the scene after the sound has finished
+        SceneManager.LoadScene(sceneId);
     }
 }
