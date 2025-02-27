@@ -6,6 +6,7 @@ public class ProgressTracker : MonoBehaviour
 {
     public TextMeshProUGUI coinsText;
     public TextMeshProUGUI diamondsText;
+    public TextMeshProUGUI scoreText;
     public TextMeshProUGUI timeSpentText;
     public TextMeshProUGUI dateText;
 
@@ -15,24 +16,39 @@ public class ProgressTracker : MonoBehaviour
 
     private float originalCoinFontSize;
     private float originalDiamondFontSize;
+    private float originalScoreFontSize;
 
     void Start()
     {
         originalCoinFontSize = coinsText.fontSize;
         originalDiamondFontSize = diamondsText.fontSize;
+        originalScoreFontSize = scoreText.fontSize;
 
-        int savedCoins = PlayerPrefs.GetInt("Coins", 0);
-        int savedDiamonds = PlayerPrefs.GetInt("Diamond", 0);
+        int sessionCoins = PlayerPrefs.GetInt("Coins", 0);
+        int sessionDiamonds = PlayerPrefs.GetInt("Diamond", 0);
+        int sessionScore = PlayerPrefs.GetInt("Score", 0);
         float savedTime = PlayerPrefs.GetFloat("TimeSpent", 0f);
+
+        // Update total values
+        int totalCoins = PlayerPrefs.GetInt("AllCoins", 0) + sessionCoins;
+        int totalDiamonds = PlayerPrefs.GetInt("AllDiamonds", 0) + sessionDiamonds;
+        int totalScores = PlayerPrefs.GetInt("AllScores", 0) + sessionScore;
+
+        // Save updated values
+        PlayerPrefs.SetInt("AllCoins", totalCoins);
+        PlayerPrefs.SetInt("AllDiamonds", totalDiamonds);
+        PlayerPrefs.SetInt("AllScores", totalScores);
+        PlayerPrefs.Save();
 
         UpdateTimeDisplay(savedTime);
 
         string currentDate = System.DateTime.Now.ToString("ddd d MMM");
         dateText.text = currentDate;
 
-        // Start animations for coins and diamonds
-        StartCoroutine(AnimateCount(savedCoins, coinsText, originalCoinFontSize));
-        StartCoroutine(AnimateCount(savedDiamonds, diamondsText, originalDiamondFontSize));
+        // Start animations for coins, diamonds, and scores
+        StartCoroutine(AnimateCount(totalCoins, coinsText, originalCoinFontSize));
+        StartCoroutine(AnimateCount(totalDiamonds, diamondsText, originalDiamondFontSize));
+        StartCoroutine(AnimateCount(totalScores, scoreText, originalScoreFontSize));
     }
 
     void UpdateTimeDisplay(float elapsedTime)
@@ -52,7 +68,6 @@ public class ProgressTracker : MonoBehaviour
         while (elapsedTime < animationDuration)
         {
             int newValue = Mathf.FloorToInt(Mathf.Lerp(0, targetValue, elapsedTime / animationDuration));
-
             currentValue = newValue;
             textElement.text = currentValue.ToString();
 

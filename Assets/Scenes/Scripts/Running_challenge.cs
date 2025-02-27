@@ -57,7 +57,7 @@ public class Running_challenge : MonoBehaviour
     private bool isRunning = false; // Player should start only after countdown
     public GameObject helpPanel; // Panel for help instructions
 
-    private int[] diamondRewardScores = { 5, 10, 20 };
+    private int[] diamondRewardScores = { 1, 5, 10, 20 };
     private bool diamondGranted = false;
     public TextMeshProUGUI diamondPanelText;
     public GameObject diamondPanel;
@@ -71,7 +71,7 @@ public class Running_challenge : MonoBehaviour
         controller = GetComponent<CharacterController>();
         animator = GetComponent<Animator>(); // Get Animator
         numberOfCoins = 0;
-        numberOfDiamonds = 0;
+        numberOfDiamonds = PlayerPrefs.GetInt("Diamond", 0);
         ChallengeTracker.currentChallenge = 3;
 
         Vector3 startPosition = transform.position;
@@ -120,14 +120,16 @@ public class Running_challenge : MonoBehaviour
     {
         if (!diamondGranted && System.Array.Exists(diamondRewardScores, s => s == scoreNumber))
         {
-            if (Random.value < 0.3f) // 30% chance to get diamonds
+             if (scoreNumber == 1) // Grant diamonds when score is 1 
             {
-                numberOfDiamonds += 3;
-                diamondPanelText.text = "You got +3 Diamonds!";
+                numberOfDiamonds += 20;
+                diamondPanelText.text = "You got +20 Diamonds!";
                 diamondPanel.SetActive(true);
                 diamondGranted = true;
                 StartCoroutine(HideDiamondPanel());
 
+
+                Debug.Log("Diamonds granted: " + numberOfDiamonds);
                 PlayerPrefs.SetInt("Diamond", numberOfDiamonds);
                 PlayerPrefs.Save();
             }
@@ -359,4 +361,4 @@ public class Running_challenge : MonoBehaviour
             other.gameObject.SetActive(false);
         }
     }
-} 
+}
