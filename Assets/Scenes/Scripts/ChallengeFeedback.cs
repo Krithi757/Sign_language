@@ -8,26 +8,65 @@ public class ChallengeFeedback : MonoBehaviour
     public NumberIncrementer incrementer;
     public TextMeshProUGUI coinsText;
     public TextMeshProUGUI scoreText;
+
+    public TextMeshProUGUI TopcoinsText;
+    public TextMeshProUGUI TopdiamondText;
+    public TextMeshProUGUI TopkeyText;
     public Animator characterAnimator;
     public float jumpHeight = 1f; // Adjust jump height as needed
     public float jumpSpeed = 2f;  // Adjust jump speed as needed
     public float coinAnimationSpeed = 0.0001f; // Adjust speed of the coin animation
 
     private bool hasCelebrated = false;
+    public int Coin = 10;
 
     void Start()
     {
 
+        int currentCoins = PlayerPrefs.GetInt("AllCoins", 0);
+
+        // Increment AllCoins by the Coin value
+        currentCoins += Coin;
+
+        // Save the updated AllCoins value back into PlayerPrefs (it won't reset to zero)
+        PlayerPrefs.SetInt("AllCoins", currentCoins);
+
+        // Optionally save PlayerPrefs immediately
+        PlayerPrefs.Save();
+        Debug.Log("Current AllCoins: " + currentCoins);
+
+
+        int currentScore = PlayerPrefs.GetInt("AllScore", 0);
+
+        // Get the value of Coin from PlayerPrefs (defaults to 0 if not set)
+        int Score = PlayerPrefs.GetInt("Score", 0);
+
+        // Increment AllCoins by the Coin value
+        currentScore += Score;
+
+        // Save the updated AllCoins value back into PlayerPrefs
+        PlayerPrefs.SetInt("AllScore", currentScore);
+
+        // Optionally save PlayerPrefs immediately
+        PlayerPrefs.Save();
+
+        // Print the current value of AllCoins to the console
+        Debug.Log("Current AllScore: " + currentScore);
 
         int finalCoins = PlayerPrefs.GetInt("Coins", 0);
         int finalScore = PlayerPrefs.GetInt("Score", 0);
         int isCompleted = PlayerPrefs.GetInt("ChallengeIsCompleted", 0);
 
         // Start the coin and score increment animations
-        StartCoroutine(AnimateCoinsAndScore(0, finalCoins, 0, finalScore));
+        //StartCoroutine(AnimateCoinsAndScore(0, finalCoins, 0, finalScore));
+        StartCoroutine(AnimateCoinsAndScore(0, 100, 0, 50));
 
         if (isCompleted == 1)
         {
+            if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+            {
+                FindObjectOfType<AudioManager>().PlaySound("HaSound"); // Play sound only once
+            }
             characterAnimator.SetBool("isDanceCover", true);
             characterAnimator.SetBool("isIdle", false);
         }
@@ -50,19 +89,22 @@ public class ChallengeFeedback : MonoBehaviour
             int currentScore = Mathf.FloorToInt(Mathf.Lerp(startScore, targetScore, elapsedTime));
 
             coinsText.text = currentCoins.ToString();
-            scoreText.text = "Score: " + currentScore.ToString();
+            scoreText.text = currentScore.ToString();
 
             elapsedTime += Time.deltaTime / coinAnimationSpeed; // Control the speed of the animation
             yield return null;
         }
-
         // Ensure we reach the target coin and score count exactly at the end
-        incrementer.IncrementTo(targetCoins);
+        //incrementer.IncrementTo(targetCoins);
+        incrementer.IncrementTo(targetScore);
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("clinkingSound"); // Play sound only once
+        }
         // Trigger shimmer animation when the player collects a coin or answers correctly
         FindObjectOfType<ShimmerCollector>().CollectCoins();
 
         //coinsText.text = targetCoins.ToString();
-        scoreText.text = "Score: " + targetScore.ToString();
     }
 
     // Coroutine to handle the jump and animation transitions
@@ -129,22 +171,44 @@ public class ChallengeFeedback : MonoBehaviour
     // Method to be called when the "Retry" button is clicked
     public void OnRetryButtonClicked()
     {
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
+        }
         // Load the current challenge scene (assuming ChallengeTracker.CurrentChallenge stores the current challenge index/scene)
         int currentChallenge = ChallengeTracker.currentChallenge;
-        SceneManager.LoadScene(currentChallenge);
+        StartCoroutine(LoadSceneAfterSound(4));
     }
 
     // Method to be called when the "Main Menu" button is clicked
     public void OnMainMenuButtonClicked()
     {
-        Debug.Log("Main menu");
-        // Load the main menu scene (assuming scene 0 is the main menu)
-        SceneManager.LoadScene(0);
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
+        }
+
+        StartCoroutine(LoadSceneAfterSound(0));
     }
 
     public void OnPlayGameClicked()
     {
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
+        }
         // Load the main menu scene (assuming scene 0 is the main menu)
-        SceneManager.LoadScene(4);
+        StartCoroutine(LoadSceneAfterSound(4));
+    }
+
+    private IEnumerator LoadSceneAfterSound(int sceneId)
+    {
+        // Wait for the sound to finish playing (assuming "TapSound" has a defined duration)
+
+        yield return new WaitForSeconds(0.3f);
+
+        // Load the scene after the sound has finished
+        SceneManager.LoadScene(sceneId);
+        //SceneManager.LoadScene(sceneId);
     }
 }
