@@ -359,4 +359,4 @@ public class Running_challenge : MonoBehaviour
             other.gameObject.SetActive(false);
         }
     }
-}
+} 
