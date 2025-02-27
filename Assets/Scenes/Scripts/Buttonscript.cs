@@ -24,6 +24,17 @@ public class Buttonscript : MonoBehaviour
         StartCoroutine(LoadSceneAfterSound(4));
     }
 
+    public void goToHome()
+    {
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
+        }
+
+        // Start the coroutine to wait for the sound to finish before loading the scene
+        StartCoroutine(LoadSceneAfterSound(0));
+    }
+
     public void goToPractice()
     {
         // If you need to load a scene here, you can do it similarly:
