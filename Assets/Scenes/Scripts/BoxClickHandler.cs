@@ -14,6 +14,7 @@ public class BoxClickHandler : MonoBehaviour
     public VideoPlayer videoPlayer;
     public RenderTexture renderTexture;
     public GameObject helpPanel; // Panel for help instructions
+    public GameObject timeUpPanel;
 
     public GameObject closeButton;
     private static bool isBoxClicked = false;
@@ -53,27 +54,26 @@ public class BoxClickHandler : MonoBehaviour
     public TextMeshProUGUI timerText;
 
 
-    private float gameDuration = 10f;
+    private float gameDuration = 30f;
     private float timeRemaining;
     private bool isGameOver = false;
 
 
     void Awake()
     {
+
         // Load video paths from the manager instead of local storage
         LoadVideoPaths();
 
-        // Always re-randomize and assign videos when scene reloads
-        if (boxVideoAssignments == null || boxVideoAssignments.Count == 0)
+        if (boxVideoAssignments == null)
         {
             RandomizeAndAssignVideos();
         }
     }
 
-
-
     void Start()
     {
+        timeUpPanel.SetActive(false);
         helpPanel.SetActive(false);
         closeButton.SetActive(false);
         resume.SetActive(false);
@@ -108,8 +108,6 @@ public class BoxClickHandler : MonoBehaviour
 
         Debug.Log($"Script initialized for box: {gameObject.name}");
     }
-
-
 
     void ResetStaticVariables()
     {
@@ -153,6 +151,7 @@ public class BoxClickHandler : MonoBehaviour
             yield return null; // Wait until the next frame
         }
 
+        // Once the timer ends
         EndGame();
     }
 
@@ -538,22 +537,30 @@ public class BoxClickHandler : MonoBehaviour
         int isCompleted = (score == 8) ? 1 : 0;
         PlayerPrefs.SetInt("Coins", coins);
         PlayerPrefs.SetInt("Score", score);
-        int levelCompleted = PlayerPrefs.GetInt("SelectedLevelId");
-        PlayerPrefs.SetInt("ChallengeCompletedLevel", levelCompleted);
-        Debug.Log("Completed Challenge for " + levelCompleted);
-        PlayerPrefs.SetInt("ChallengeIsCompleted", isCompleted);
+        PlayerPrefs.SetInt("IsCompleted", isCompleted);
 
         // Show "Time is Up" label
         timerText.text = "Time is Up!";
+        timeUpPanel.gameObject.SetActive(true);
+
+        // Wait for 1 second before transitioning to the next scene
+        StartCoroutine(ShowTimeUpAndNextScene());
 
         Debug.Log("Game Over! IsCompleted: " + isCompleted);
-
-        StopAllCoroutines();
-
-        // Load Scene 5
-        SceneManager.LoadScene(6);
     }
 
+    IEnumerator ShowTimeUpAndNextScene()
+    {
+        // Wait for 1 second before moving to the next scene
+        yield return new WaitForSeconds(3f);
+
+        // Hide the "Time is up!" text
+        timeUpText.gameObject.SetActive(false);
+        StopAllCoroutines();
+
+        // Load the next scene (replace with your actual scene name)
+        SceneManager.LoadScene(6); // Replace "NextScene" with the actual scene name
+    }
     public void ShowHelp()
     {
         helpPanel.SetActive(true);
