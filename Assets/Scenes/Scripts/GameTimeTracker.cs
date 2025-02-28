@@ -6,6 +6,7 @@ public class GameTimeTracker : MonoBehaviour
     private float elapsedTime = 0f;
     private string lastPlayedDateKey = "LastPlayedDate";
     private string timeSpentKey = "TimeSpent";
+    private string weeklyTimeKey = "WeeklyTimeSpent"; // Store total weekly time
 
     void Awake()
     {
@@ -17,11 +18,20 @@ public class GameTimeTracker : MonoBehaviour
         // Get today's date
         string todayDate = DateTime.Now.ToString("yyyy-MM-dd");
 
+        // Get the start of the current week (Monday)
+        DateTime startOfWeek = DateTime.Now.AddDays(-(int)DateTime.Now.DayOfWeek + (int)DayOfWeek.Monday);
+
         if (lastPlayedDate != todayDate)
         {
             // If the stored date is different from today, reset the time
             elapsedTime = 0f;
             PlayerPrefs.SetFloat(timeSpentKey, elapsedTime);
+
+            // If the week has changed, reset weekly time
+            if (DateTime.Now >= startOfWeek)
+            {
+                PlayerPrefs.SetFloat(weeklyTimeKey, 0f);  // Reset weekly time when a new week starts
+            }
         }
         else
         {
@@ -38,10 +48,13 @@ public class GameTimeTracker : MonoBehaviour
     {
         elapsedTime += Time.deltaTime;
 
-        // Save updated time
+        // Save updated time spent today
         PlayerPrefs.SetFloat(timeSpentKey, elapsedTime);
+        
+        // Update total weekly time
+        float weeklyTime = PlayerPrefs.GetFloat(weeklyTimeKey, 0f) + Time.deltaTime;
+        PlayerPrefs.SetFloat(weeklyTimeKey, weeklyTime);
+
         PlayerPrefs.Save();
     }
 }
-
-
