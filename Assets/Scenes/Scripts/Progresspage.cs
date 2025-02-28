@@ -33,6 +33,7 @@ public class ProgressTracker : MonoBehaviour
         int totalCoins = PlayerPrefs.GetInt("AllCoins", 0) + sessionCoins;
         int totalDiamonds = PlayerPrefs.GetInt("AllDiamonds", 0) + sessionDiamonds;
         int totalScores = PlayerPrefs.GetInt("AllScores", 0) + sessionScore;
+        
 
         // Save updated values
         PlayerPrefs.SetInt("AllCoins", totalCoins);
