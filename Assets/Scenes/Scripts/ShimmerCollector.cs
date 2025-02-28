@@ -1,11 +1,10 @@
 using UnityEngine;
-using DG.Tweening;  // Ensure DOTween is included
+using DG.Tweening;
 using System.Collections;
 
 public class ShimmerCollector : MonoBehaviour
 {
     public GameObject coinPrefab;           // The coin prefab (3D model of the coin)
-    public Transform spawnPoint;            // Where the coin starts
     public Transform target;                // The target (coin label or score panel)
     public float floatHeight = 2f;          // How high the coin floats before moving
     public float duration = 1.5f;           // Total animation time
@@ -13,42 +12,34 @@ public class ShimmerCollector : MonoBehaviour
     public float spawnInterval = 0.2f;      // Delay between each coin spawn
     public float rotationSpeed = 360f;      // Speed of rotation (degrees per second)
 
-    // Method to trigger the coin animation
-    public void CollectCoins()
+    // Method to trigger the shimmer animation from dragged object position
+    public void CollectShimmer(Transform draggedObjectTransform)
     {
-        StartCoroutine(SpawnCoins());
+        StartCoroutine(SpawnCoins(draggedObjectTransform));
     }
 
-    public void CollectShimmer()
+    private IEnumerator SpawnCoins(Transform draggedObjectTransform)
     {
-        StartCoroutine(SpawnCoins());
-    }
-
-    private IEnumerator SpawnCoins()
-    {
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < numberOfCoins; i++)
         {
-            SpawnCoin();
-            yield return new WaitForSeconds(spawnInterval);  // Proper delay
+            SpawnCoin(draggedObjectTransform.position);
+            yield return new WaitForSeconds(spawnInterval);
         }
     }
 
-    private void SpawnCoin()
+    private void SpawnCoin(Vector3 spawnPosition)
     {
-        // Instantiate the coin while keeping its original prefab rotation
-        GameObject coin = Instantiate(coinPrefab, spawnPoint.position, coinPrefab.transform.rotation);
+        GameObject coin = Instantiate(coinPrefab, spawnPosition, coinPrefab.transform.rotation);
 
-        Vector3 midPoint = spawnPoint.position + Vector3.up * floatHeight;
+        Vector3 midPoint = spawnPosition + Vector3.up * floatHeight;
 
         Sequence coinSequence = DOTween.Sequence();
 
-        // Do NOT set any explicit rotation; let it use the prefab's original rotation
-        coinSequence.Append(coin.transform.DOMove(midPoint, 0.5f).SetEase(Ease.OutQuad))   // Float upward
-                    .Join(coin.transform.DORotate(new Vector3(0, rotationSpeed, 0), 0.5f, RotateMode.FastBeyond360)) // Rotate while floating
-                    .Append(coin.transform.DOMove(target.position, duration - 0.5f).SetEase(Ease.InQuad))  // Fly to target
-                    .Join(coin.transform.DORotate(new Vector3(0, rotationSpeed, 0), duration - 0.5f, RotateMode.FastBeyond360)) // Rotate while moving
+        // Coin animation: float, rotate, and move to target
+        coinSequence.Append(coin.transform.DOMove(midPoint, 0.5f).SetEase(Ease.OutQuad))
+                    .Join(coin.transform.DORotate(new Vector3(0, rotationSpeed, 0), 0.5f, RotateMode.FastBeyond360))
+                    .Append(coin.transform.DOMove(target.position, duration - 0.5f).SetEase(Ease.InQuad))
+                    .Join(coin.transform.DORotate(new Vector3(0, rotationSpeed, 0), duration - 0.5f, RotateMode.FastBeyond360))
                     .OnComplete(() => Destroy(coin));  // Destroy after animation
     }
-
-
 }

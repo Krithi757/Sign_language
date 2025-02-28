@@ -7,7 +7,9 @@ public class AudioManager : MonoBehaviour
 {
     public Sound[] sounds;
     public static AudioManager instance;
+    private bool isPaused = false;
     private bool mute = false;
+    private Dictionary<string, bool> soundPauseState = new Dictionary<string, bool>();
 
     // Start is called before the first frame update
     void Start()
@@ -49,18 +51,38 @@ public class AudioManager : MonoBehaviour
         }
     }
 
-    public float GetSoundDuration(string soundName)
+    public void PauseAllSounds()
     {
-        // Implement your logic to get the sound clip duration
-        // Example: Assuming each sound is an AudioClip
-        AudioClip clip = GetAudioClipByName(soundName); // Get the clip by name
-        if (clip != null)
+        if (!isPaused)  // Prevent double pausing
         {
-            return clip.length;  // Return the duration of the clip in seconds
+            foreach (Sound s in sounds)
+            {
+                if (s.source.isPlaying)
+                {
+                    Debug.Log("Pausing sound: " + s.name);
+                    s.source.Pause();  // Pause the sound
+                    soundPauseState[s.name] = true;  // Track that this sound is paused
+                }
+            }
+            isPaused = true;  // Set the global pause flag
         }
-        return 0f; // Default value if clip is not found
     }
 
+    public void ResumeAllSounds()
+    {
+        if (isPaused)  // Prevent double resuming
+        {
+            foreach (Sound s in sounds)
+            {
+                if (soundPauseState.ContainsKey(s.name) && soundPauseState[s.name])
+                {
+                    s.source.UnPause();  // Resume the sound
+                    soundPauseState[s.name] = false;  // Reset the pause state
+                }
+            }
+            isPaused = false;  // Set the global resume flag
+        }
+    }
     private AudioClip GetAudioClipByName(string soundName)
     {
         // Retrieve your AudioClip by its name

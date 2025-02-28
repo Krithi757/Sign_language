@@ -6,6 +6,11 @@ using TMPro;
 public class ChallengeFeedback : MonoBehaviour
 {
     public NumberIncrementer incrementer;
+    public NumberIncrementer incrementer1;
+
+    public NumberIncrementer incrementerCoinTotal;
+    public NumberIncrementer incrementerDiamondTotal;
+    public NumberIncrementer incrementerFireTotal;
     public TextMeshProUGUI coinsText;
     public TextMeshProUGUI scoreText;
 
@@ -19,43 +24,13 @@ public class ChallengeFeedback : MonoBehaviour
 
     private bool hasCelebrated = false;
     public int Coin = 10;
+    public Transform draggedPrefab;
 
     void Start()
     {
-
-        int currentCoins = PlayerPrefs.GetInt("AllCoins", 0);
-
-        // Increment AllCoins by the Coin value
-        currentCoins += Coin;
-
-        // Save the updated AllCoins value back into PlayerPrefs (it won't reset to zero)
-        PlayerPrefs.SetInt("AllCoins", currentCoins);
-
-        // Optionally save PlayerPrefs immediately
-        PlayerPrefs.Save();
-        Debug.Log("Current AllCoins: " + currentCoins);
-
-
-        int currentScore = PlayerPrefs.GetInt("AllScore", 0);
-
-        // Get the value of Coin from PlayerPrefs (defaults to 0 if not set)
-        int Score = PlayerPrefs.GetInt("Score", 0);
-
-        // Increment AllCoins by the Coin value
-        currentScore += Score;
-
-        // Save the updated AllCoins value back into PlayerPrefs
-        PlayerPrefs.SetInt("AllScore", currentScore);
-
-        // Optionally save PlayerPrefs immediately
-        PlayerPrefs.Save();
-
-        // Print the current value of AllCoins to the console
-        Debug.Log("Current AllScore: " + currentScore);
-
         int finalCoins = PlayerPrefs.GetInt("Coins", 0);
         int finalScore = PlayerPrefs.GetInt("Score", 0);
-        int isCompleted = PlayerPrefs.GetInt("ChallengeIsCompleted", 0);
+        int isCompleted = PlayerPrefs.GetInt("IsCompleted", 0);
 
         // Start the coin and score increment animations
         //StartCoroutine(AnimateCoinsAndScore(0, finalCoins, 0, finalScore));
@@ -72,6 +47,10 @@ public class ChallengeFeedback : MonoBehaviour
         }
         else
         {
+            if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+            {
+                FindObjectOfType<AudioManager>().PlaySound("LoseSound"); // Play sound only once
+            }
             characterAnimator.SetBool("isDanceCover", false);
             characterAnimator.SetBool("isIdle", true);
         }
@@ -82,7 +61,6 @@ public class ChallengeFeedback : MonoBehaviour
     {
         float elapsedTime = 0f;
 
-        // Continuously update the coins and score text until we reach the target numbers
         while (elapsedTime < 1f)
         {
             int currentCoins = Mathf.FloorToInt(Mathf.Lerp(startCoins, targetCoins, elapsedTime));
@@ -91,20 +69,40 @@ public class ChallengeFeedback : MonoBehaviour
             coinsText.text = currentCoins.ToString();
             scoreText.text = currentScore.ToString();
 
-            elapsedTime += Time.deltaTime / coinAnimationSpeed; // Control the speed of the animation
+            elapsedTime += Time.deltaTime / coinAnimationSpeed;
             yield return null;
         }
-        // Ensure we reach the target coin and score count exactly at the end
-        //incrementer.IncrementTo(targetCoins);
+
+        // Ensure final values are set
         incrementer.IncrementTo(targetScore);
+        incrementer1.IncrementTo(targetCoins);
+
         if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
         {
-            FindObjectOfType<AudioManager>().PlaySound("clinkingSound"); // Play sound only once
+            FindObjectOfType<AudioManager>().PlaySound("clinkingSound");
         }
-        // Trigger shimmer animation when the player collects a coin or answers correctly
-        FindObjectOfType<ShimmerCollector>().CollectCoins();
 
-        //coinsText.text = targetCoins.ToString();
+        // Wait for both incrementers to finish
+        yield return new WaitUntil(() => incrementer.IsFinished && incrementer1.IsFinished);
+
+        // Play shimmer and collect animations
+        CoinCollector coinCollector = FindObjectOfType<CoinCollector>();
+        coinCollector.CollectCoins();
+
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("NiceSound");
+        }
+
+        FindObjectOfType<ShimmerCollector>().CollectShimmer(draggedPrefab);
+        incrementerDiamondTotal.IncrementTo(10);
+        incrementerFireTotal.IncrementTo(43);
+
+        // Wait until CoinCollector animation finishes
+        yield return new WaitUntil(() => coinCollector.IsFinished);
+
+        // Now increment the totals
+        incrementerCoinTotal.IncrementTo(50);
     }
 
     // Coroutine to handle the jump and animation transitions
