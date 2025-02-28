@@ -13,23 +13,29 @@ public class CoinCollector : MonoBehaviour
     public float spawnInterval = 0.2f;     // Delay between each coin spawn
     public float rotationSpeed = 360f;     // Speed of rotation (degrees per second)
 
+    private bool _isFinished = true;
+    public bool IsFinished => _isFinished;
+
     public void CollectCoins()
     {
-        StartCoroutine(SpawnCoins());
-    }
-
-    public void CollectShimmer()
-    {
+        if (!_isFinished) return; // Prevent multiple triggers while running
         StartCoroutine(SpawnCoins());
     }
 
     private IEnumerator SpawnCoins()
     {
+        _isFinished = false; // Mark as in progress
+
         for (int i = 0; i < numberOfCoins; i++)
         {
             SpawnCoin();
             yield return new WaitForSeconds(spawnInterval);
         }
+
+        // Wait for the last coin's animation to complete
+        yield return new WaitForSeconds(duration);
+
+        _isFinished = true; // Mark as finished
     }
 
     private void SpawnCoin()

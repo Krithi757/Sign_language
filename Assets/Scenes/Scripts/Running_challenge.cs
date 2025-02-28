@@ -143,6 +143,12 @@ public class Running_challenge : MonoBehaviour
     public void ShowHelp()
     {
         helpPanel.SetActive(true);
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
+        }
+        StartCoroutine(WaitForTapSound());
+        FindObjectOfType<AudioManager>().PauseAllSounds(); // Play sound only once
         closeButton.SetActive(true);
 
         isRunning = false; // Pause player movement
@@ -159,6 +165,15 @@ public class Running_challenge : MonoBehaviour
     public void pause()
     {
         resume.SetActive(true);
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
+        }
+        StartCoroutine(WaitForTapSound());
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PauseAllSounds(); // Play sound only once
+        }
         isRunning = false; // Pause player movement
         animator.SetBool("isRunning", false); // Pause animation
 
@@ -173,7 +188,10 @@ public class Running_challenge : MonoBehaviour
     public void resumeGame()
     {
         resume.SetActive(false);
-
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().ResumeAllSounds(); // Play sound only once
+        }
         isRunning = true; // Resume player movement
         animator.SetBool("isRunning", true); // Resume animation
 
@@ -188,6 +206,10 @@ public class Running_challenge : MonoBehaviour
     public void HideHelp()
     {
         helpPanel.SetActive(false);
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().ResumeAllSounds(); // Play sound only once
+        }
         closeButton.SetActive(false);
 
         isRunning = true; // Resume player movement
@@ -359,5 +381,11 @@ public class Running_challenge : MonoBehaviour
             // Optionally deactivate the coin after collection
             other.gameObject.SetActive(false);
         }
+    }
+
+    private IEnumerator WaitForTapSound()
+    {
+        // Wait for 0.3 seconds to allow the sound to be heard
+        yield return new WaitForSeconds(1);
     }
 }

@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
@@ -10,6 +9,9 @@ public class NumberIncrementer : MonoBehaviour
     public TextMeshProUGUI numberText;             // UI Text to display the number
     public float animationDuration = 1f;           // Duration of the increment animation
 
+    private bool _isFinished = true; // Initially true since no animation is running
+    public bool IsFinished => _isFinished;
+
     /// <summary>
     /// Starts the incrementing animation from the current value to the target value.
     /// </summary>
@@ -17,6 +19,7 @@ public class NumberIncrementer : MonoBehaviour
     public void IncrementTo(int targetValue)
     {
         int startValue = int.Parse(numberText.text);  // Get current value from the text
+        _isFinished = false;  // Mark as not finished
 
         // Adjust duration if you want to speed up or slow down the overall animation
         float fastDuration = animationDuration * 0.6f; // 60% for the fast part
@@ -29,14 +32,15 @@ public class NumberIncrementer : MonoBehaviour
             numberText.text = startValue.ToString();  // Update text each frame
         }, targetValue, fastDuration)  // Fast part
         .SetEase(Ease.OutQuad)           // Fast and smooth ease for the first part
-        .OnKill(() =>
+        .OnComplete(() =>
         {
             DOTween.To(() => startValue, x =>
             {
                 startValue = x;
                 numberText.text = startValue.ToString();  // Update text each frame
             }, targetValue, slowDuration)  // Slow part
-            .SetEase(Ease.OutCubic);        // Slow down as it nears the target
+            .SetEase(Ease.OutCubic)
+            .OnComplete(() => _isFinished = true);  // Mark as finished when done
         });
     }
 }

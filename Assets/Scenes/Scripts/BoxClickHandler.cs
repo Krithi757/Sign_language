@@ -162,6 +162,8 @@ public class BoxClickHandler : MonoBehaviour
         {
             FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
         }
+        StartCoroutine(WaitForTapSound());
+        FindObjectOfType<AudioManager>().PauseAllSounds();
         isPause = true;
         Debug.Log("isPause toggled. Current state: " + isPause);
         resume.SetActive(true);
@@ -172,6 +174,7 @@ public class BoxClickHandler : MonoBehaviour
         {
             FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
         }
+        FindObjectOfType<AudioManager>().ResumeAllSounds();
         resume.SetActive(false);
         isPause = false;
         Debug.Log("isPause toggled. Current state: " + isPause);
@@ -586,6 +589,8 @@ public class BoxClickHandler : MonoBehaviour
         {
             FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
         }
+        StartCoroutine(WaitForTapSound());
+        FindObjectOfType<AudioManager>().PauseAllSounds();
         helpPanel.SetActive(true);
         closeButton.SetActive(true); // Show close button when panel is visible
     }
@@ -596,8 +601,15 @@ public class BoxClickHandler : MonoBehaviour
         {
             FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
         }
+        FindObjectOfType<AudioManager>().ResumeAllSounds();
         helpPanel.SetActive(false);
         closeButton.SetActive(false); // Hide close button when panel is hidden
+    }
+
+    private IEnumerator WaitForTapSound()
+    {
+        // Wait for 0.3 seconds to allow the sound to be heard
+        yield return new WaitForSeconds(1);
     }
 
 
