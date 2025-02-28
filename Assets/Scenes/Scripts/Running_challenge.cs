@@ -100,10 +100,6 @@ public class Running_challenge : MonoBehaviour
 
     IEnumerator StartRunningAfterCountdown()
     {
-        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
-        {
-            FindObjectOfType<AudioManager>().PlaySound("ReadySound"); // Play sound only once
-        }
         countdownText.gameObject.SetActive(true); // Show the countdown text
 
         for (int i = 3; i > 0; i--)
@@ -308,6 +304,7 @@ public class Running_challenge : MonoBehaviour
             PlayerPrefs.SetInt("Score", scoreNumber);
             int levelCompleted = PlayerPrefs.GetInt("SelectedLevelId");
             PlayerPrefs.SetInt("ChallengeIsCompleted", isCompleted ? 1 : 0); // Save as int 
+            Debug.Log("Challenge " + isCompleted);
             PlayerPrefs.Save();
 
             StartCoroutine(LoadNextSceneWithDelay());
