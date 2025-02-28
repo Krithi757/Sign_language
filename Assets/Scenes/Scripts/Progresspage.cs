@@ -18,6 +18,8 @@ public class ProgressTracker : MonoBehaviour
     private float originalDiamondFontSize;
     private float originalScoreFontSize;
 
+    public BarGraph barGraph;
+
     void Start()
     {
         originalCoinFontSize = coinsText.fontSize;
@@ -33,6 +35,7 @@ public class ProgressTracker : MonoBehaviour
         int totalCoins = PlayerPrefs.GetInt("AllCoins", 0) + sessionCoins;
         int totalDiamonds = PlayerPrefs.GetInt("AllDiamonds", 0) + sessionDiamonds;
         int totalScores = PlayerPrefs.GetInt("AllScores", 0) + sessionScore;
+        
         
 
         // Save updated values
@@ -50,6 +53,8 @@ public class ProgressTracker : MonoBehaviour
         StartCoroutine(AnimateCount(totalCoins, coinsText, originalCoinFontSize));
         StartCoroutine(AnimateCount(totalDiamonds, diamondsText, originalDiamondFontSize));
         StartCoroutine(AnimateCount(totalScores, scoreText, originalScoreFontSize));
+
+        
     }
 
     void UpdateTimeDisplay(float elapsedTime)
