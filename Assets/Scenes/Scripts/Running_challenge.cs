@@ -76,7 +76,7 @@ public class Running_challenge : MonoBehaviour
 
         Vector3 startPosition = transform.position;
         startPosition.x = startX;
-        startPosition.y = 11.044f;
+        startPosition.y = 10.47f;
         transform.position = startPosition;
 
         targetX = startX;
@@ -229,35 +229,18 @@ public class Running_challenge : MonoBehaviour
 
         direction.z = forwardSpeed;
 
-        // Handle jumping only when grounded and swipe up is detected
-        if (SwipeManager.swipeUp && !hasJumped && controller.isGrounded)
+        // Prevent any change in Y position
+        Vector3 currentPosition = transform.position;
+        currentPosition.y = 10.46f; // Keep the Y position fixed
+        transform.position = currentPosition;
+
+        // Handle jumping (if needed)
+        if (SwipeManager.swipeUp && controller.isGrounded)
         {
-            jumpRequested = true; // Buffer the jump request
-            hasJumped = true; // Mark that the player has jumped
-            if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
-            {
-                FindObjectOfType<AudioManager>().PlaySound("JumpUp"); // Play sound only once
-            }
+            Jump();
         }
 
-        if (controller.isGrounded)
-        {
-            direction.y = 0; // Reset the vertical velocity when grounded
-
-            if (jumpRequested && Time.time - lastJumpTime >= jumpCooldown)
-            {
-                Jump(); // Apply jump force
-                lastJumpTime = Time.time;
-                jumpRequested = false; // Reset the jump buffer
-                hasJumped = false; // Reset the jump state
-            }
-        }
-        else
-        {
-            direction.y += gravity * Time.deltaTime; // Apply gravity when in the air
-        }
-
-        // Handle lane switching with swipes
+        // Lane switching
         if (SwipeManager.swipeRight)
         {
             desiredLane = Mathf.Min(desiredLane + 1, 2);
@@ -271,7 +254,7 @@ public class Running_challenge : MonoBehaviour
         Vector3 moveDirection = new Vector3(targetX - transform.position.x, 0, 0);
         controller.Move(moveDirection * laneChangeSpeed * Time.deltaTime);
 
-        // Handle video position syncing
+        // Video synchronization (optional)
         if (videoPlayer != null)
         {
             videoPosZ += forwardSpeed * Time.deltaTime;
@@ -279,13 +262,13 @@ public class Running_challenge : MonoBehaviour
             videoPlayer.transform.position = new Vector3(videoPosX, videoPosY, videoPosZ);
         }
 
+        // Camera following logic
         followTimer += Time.deltaTime;
-
         if (followTimer >= cameraFollowDelay)
         {
             if (mainCamera != null)
             {
-                Vector3 targetCameraPosition = new Vector3(transform.position.x, transform.position.y + 2f, transform.position.z - 10f);
+                Vector3 targetCameraPosition = new Vector3(transform.position.x, 8.47f + 2f, transform.position.z - 10f);
                 mainCamera.transform.position = Vector3.SmoothDamp(mainCamera.transform.position, targetCameraPosition, ref cameraVelocity, lerpSpeed);
                 mainCamera.transform.LookAt(transform);
             }
@@ -293,6 +276,7 @@ public class Running_challenge : MonoBehaviour
 
         controller.center = new Vector3(0, controller.height / 2, 0.1f);
     }
+
 
 
     void FixedUpdate()
@@ -325,7 +309,7 @@ public class Running_challenge : MonoBehaviour
             PlayerPrefs.SetInt("Coins", numberOfCoins);
             PlayerPrefs.SetInt("Score", scoreNumber);
             int levelCompleted = PlayerPrefs.GetInt("SelectedLevelId");
-            PlayerPrefs.SetInt("ChallengeIsCompleted", isCompleted ? 1 : 0); // Save as int 
+            PlayerPrefs.SetInt("IsCompleted", isCompleted ? 1 : 0); // Save as int 
             Debug.Log("Challenge " + isCompleted);
             PlayerPrefs.Save();
 
