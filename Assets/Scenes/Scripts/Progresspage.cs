@@ -1,4 +1,5 @@
-using System.Collections;
+using System.Collections; 
+using System;
 using UnityEngine;
 using TMPro;
 
@@ -8,8 +9,6 @@ public class ProgressTracker : MonoBehaviour
     public TextMeshProUGUI diamondsText;
     public TextMeshProUGUI scoreText;
     public TextMeshProUGUI timeSpentText;
-    public TextMeshProUGUI timeSpentTodayText;
-    public TextMeshProUGUI timeSpentThisWeekText;
     public TextMeshProUGUI dateText;
 
     public float animationDuration = 2f;
@@ -20,8 +19,17 @@ public class ProgressTracker : MonoBehaviour
     private float originalDiamondFontSize;
     private float originalScoreFontSize;
 
+   
+
     void Start()
+
     {
+
+        Debug.Log("Session Coins: " + PlayerPrefs.GetInt("Coins", 0));
+        Debug.Log("Session Diamonds: " + PlayerPrefs.GetInt("Diamond", 0));
+        Debug.Log("Session Score: " + PlayerPrefs.GetInt("Score", 0));
+        Debug.Log("Time Spent: " + PlayerPrefs.GetFloat("TimeSpent", 0f));
+
         originalCoinFontSize = coinsText.fontSize;
         originalDiamondFontSize = diamondsText.fontSize;
         originalScoreFontSize = scoreText.fontSize;
@@ -30,12 +38,13 @@ public class ProgressTracker : MonoBehaviour
         int sessionDiamonds = PlayerPrefs.GetInt("Diamond", 0);
         int sessionScore = PlayerPrefs.GetInt("Score", 0);
         float savedTime = PlayerPrefs.GetFloat("TimeSpent", 0f);
-        float savedWeeklyTime = PlayerPrefs.GetFloat("WeeklyTimeSpent", 0f);
 
         // Update total values
         int totalCoins = PlayerPrefs.GetInt("AllCoins", 0) + sessionCoins;
         int totalDiamonds = PlayerPrefs.GetInt("AllDiamonds", 0) + sessionDiamonds;
         int totalScores = PlayerPrefs.GetInt("AllScores", 0) + sessionScore;
+        
+        
 
         // Save updated values
         PlayerPrefs.SetInt("AllCoins", totalCoins);
@@ -44,7 +53,6 @@ public class ProgressTracker : MonoBehaviour
         PlayerPrefs.Save();
 
         UpdateTimeDisplay(savedTime);
-        UpdateWeeklyTimeDisplay(savedWeeklyTime);
 
         string currentDate = System.DateTime.Now.ToString("ddd d MMM");
         dateText.text = currentDate;
@@ -53,6 +61,8 @@ public class ProgressTracker : MonoBehaviour
         StartCoroutine(AnimateCount(totalCoins, coinsText, originalCoinFontSize));
         StartCoroutine(AnimateCount(totalDiamonds, diamondsText, originalDiamondFontSize));
         StartCoroutine(AnimateCount(totalScores, scoreText, originalScoreFontSize));
+
+        
     }
 
     void UpdateTimeDisplay(float elapsedTime)
@@ -62,15 +72,6 @@ public class ProgressTracker : MonoBehaviour
         int seconds = Mathf.FloorToInt(elapsedTime % 60);
 
         timeSpentText.text = string.Format("{0:00}:{1:00}:{2:00}", hours, minutes, seconds);
-    }
-
-    void UpdateWeeklyTimeDisplay(float weeklyTime)
-    {
-        int hours = Mathf.FloorToInt(weeklyTime / 3600);
-        int minutes = Mathf.FloorToInt((weeklyTime % 3600) / 60);
-        int seconds = Mathf.FloorToInt(weeklyTime % 60);
-
-        timeSpentThisWeekText.text = string.Format("{0:00}:{1:00}:{2:00}", hours, minutes, seconds);
     }
 
     IEnumerator AnimateCount(int targetValue, TextMeshProUGUI textElement, float originalFontSize)
