@@ -56,6 +56,7 @@ public class Running_challenge : MonoBehaviour
     private Animator animator;
     private bool isRunning = false; // Player should start only after countdown
     public GameObject helpPanel; // Panel for help instructions
+    public GameObject mainMenuPanel;
 
     private int[] diamondRewardScores = { 5, 10, 20 };
     private bool diamondGranted = false;
@@ -64,6 +65,7 @@ public class Running_challenge : MonoBehaviour
 
     void Start()
     {
+        mainMenuPanel.SetActive(false);
         resume.SetActive(false);
         helpPanel.SetActive(false);
         closeButton.SetActive(false);
@@ -164,6 +166,7 @@ public class Running_challenge : MonoBehaviour
 
     public void pause()
     {
+        mainMenuPanel.SetActive(true);
         resume.SetActive(true);
         if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
         {
@@ -185,8 +188,20 @@ public class Running_challenge : MonoBehaviour
         Time.timeScale = 0f; // Pause the entire game
     }
 
+    public void giveUp()
+    {
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("TapSound");
+        }
+        Time.timeScale = 1f; // Ensure normal time scale
+        SceneManager.LoadScene(6);
+    }
+
+
     public void resumeGame()
     {
+        mainMenuPanel.SetActive(false);
         resume.SetActive(false);
         if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
         {
@@ -366,10 +381,19 @@ public class Running_challenge : MonoBehaviour
             other.gameObject.SetActive(false);
         }
     }
+    private IEnumerator LoadSceneAfterSound(int sceneId)
+    {
+        // Wait for the sound to finish playing (assuming "TapSound" has a defined duration)
+
+        yield return new WaitForSeconds(0.3f);
+
+        // Load the scene after the sound has finished
+        SceneManager.LoadScene(sceneId);
+    }
 
     private IEnumerator WaitForTapSound()
     {
         // Wait for 0.3 seconds to allow the sound to be heard
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSeconds(0.3f);
     }
 }
