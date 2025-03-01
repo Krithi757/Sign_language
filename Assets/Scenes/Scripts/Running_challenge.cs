@@ -56,6 +56,7 @@ public class Running_challenge : MonoBehaviour
     private Animator animator;
     private bool isRunning = false; // Player should start only after countdown
     public GameObject helpPanel; // Panel for help instructions
+    public GameObject mainMenuPanel;
 
     private int[] diamondRewardScores = { 5, 10, 20 };
     private bool diamondGranted = false;
@@ -64,6 +65,7 @@ public class Running_challenge : MonoBehaviour
 
     void Start()
     {
+        mainMenuPanel.SetActive(false);
         resume.SetActive(false);
         helpPanel.SetActive(false);
         closeButton.SetActive(false);
@@ -76,7 +78,7 @@ public class Running_challenge : MonoBehaviour
 
         Vector3 startPosition = transform.position;
         startPosition.x = startX;
-        startPosition.y = 11.044f;
+        startPosition.y = 10.47f;
         transform.position = startPosition;
 
         targetX = startX;
@@ -164,6 +166,7 @@ public class Running_challenge : MonoBehaviour
 
     public void pause()
     {
+        mainMenuPanel.SetActive(true);
         resume.SetActive(true);
         if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
         {
@@ -185,8 +188,20 @@ public class Running_challenge : MonoBehaviour
         Time.timeScale = 0f; // Pause the entire game
     }
 
+    public void giveUp()
+    {
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("TapSound");
+        }
+        Time.timeScale = 1f; // Ensure normal time scale
+        SceneManager.LoadScene(6);
+    }
+
+
     public void resumeGame()
     {
+        mainMenuPanel.SetActive(false);
         resume.SetActive(false);
         if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
         {
@@ -229,35 +244,18 @@ public class Running_challenge : MonoBehaviour
 
         direction.z = forwardSpeed;
 
-        // Handle jumping only when grounded and swipe up is detected
-        if (SwipeManager.swipeUp && !hasJumped && controller.isGrounded)
+        // Prevent any change in Y position
+        Vector3 currentPosition = transform.position;
+        currentPosition.y = 10.46f; // Keep the Y position fixed
+        transform.position = currentPosition;
+
+        // Handle jumping (if needed)
+        if (SwipeManager.swipeUp && controller.isGrounded)
         {
-            jumpRequested = true; // Buffer the jump request
-            hasJumped = true; // Mark that the player has jumped
-            if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
-            {
-                FindObjectOfType<AudioManager>().PlaySound("JumpUp"); // Play sound only once
-            }
+            Jump();
         }
 
-        if (controller.isGrounded)
-        {
-            direction.y = 0; // Reset the vertical velocity when grounded
-
-            if (jumpRequested && Time.time - lastJumpTime >= jumpCooldown)
-            {
-                Jump(); // Apply jump force
-                lastJumpTime = Time.time;
-                jumpRequested = false; // Reset the jump buffer
-                hasJumped = false; // Reset the jump state
-            }
-        }
-        else
-        {
-            direction.y += gravity * Time.deltaTime; // Apply gravity when in the air
-        }
-
-        // Handle lane switching with swipes
+        // Lane switching
         if (SwipeManager.swipeRight)
         {
             desiredLane = Mathf.Min(desiredLane + 1, 2);
@@ -271,7 +269,7 @@ public class Running_challenge : MonoBehaviour
         Vector3 moveDirection = new Vector3(targetX - transform.position.x, 0, 0);
         controller.Move(moveDirection * laneChangeSpeed * Time.deltaTime);
 
-        // Handle video position syncing
+        // Video synchronization (optional)
         if (videoPlayer != null)
         {
             videoPosZ += forwardSpeed * Time.deltaTime;
@@ -279,13 +277,13 @@ public class Running_challenge : MonoBehaviour
             videoPlayer.transform.position = new Vector3(videoPosX, videoPosY, videoPosZ);
         }
 
+        // Camera following logic
         followTimer += Time.deltaTime;
-
         if (followTimer >= cameraFollowDelay)
         {
             if (mainCamera != null)
             {
-                Vector3 targetCameraPosition = new Vector3(transform.position.x, transform.position.y + 2f, transform.position.z - 10f);
+                Vector3 targetCameraPosition = new Vector3(transform.position.x, 8.47f + 2f, transform.position.z - 10f);
                 mainCamera.transform.position = Vector3.SmoothDamp(mainCamera.transform.position, targetCameraPosition, ref cameraVelocity, lerpSpeed);
                 mainCamera.transform.LookAt(transform);
             }
@@ -293,6 +291,7 @@ public class Running_challenge : MonoBehaviour
 
         controller.center = new Vector3(0, controller.height / 2, 0.1f);
     }
+
 
 
     void FixedUpdate()
@@ -325,7 +324,7 @@ public class Running_challenge : MonoBehaviour
             PlayerPrefs.SetInt("Coins", numberOfCoins);
             PlayerPrefs.SetInt("Score", scoreNumber);
             int levelCompleted = PlayerPrefs.GetInt("SelectedLevelId");
-            PlayerPrefs.SetInt("ChallengeIsCompleted", isCompleted ? 1 : 0); // Save as int 
+            PlayerPrefs.SetInt("IsCompleted", isCompleted ? 1 : 0); // Save as int 
             Debug.Log("Challenge " + isCompleted);
             PlayerPrefs.Save();
 
@@ -382,10 +381,19 @@ public class Running_challenge : MonoBehaviour
             other.gameObject.SetActive(false);
         }
     }
+    private IEnumerator LoadSceneAfterSound(int sceneId)
+    {
+        // Wait for the sound to finish playing (assuming "TapSound" has a defined duration)
+
+        yield return new WaitForSeconds(0.3f);
+
+        // Load the scene after the sound has finished
+        SceneManager.LoadScene(sceneId);
+    }
 
     private IEnumerator WaitForTapSound()
     {
         // Wait for 0.3 seconds to allow the sound to be heard
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSeconds(0.3f);
     }
 }
