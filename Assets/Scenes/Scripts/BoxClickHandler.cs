@@ -164,6 +164,7 @@ public class BoxClickHandler : MonoBehaviour
             FindObjectOfType<AudioManager>().PlaySound("TapSound");
         }
         Time.timeScale = 1f; // Ensure normal time scale
+        EndThisGame();
         SceneManager.LoadScene(6);
     }
 
@@ -171,30 +172,34 @@ public class BoxClickHandler : MonoBehaviour
     public void isPaused()
     {
         mainMenuPanel.SetActive(true);
+        isPause = true;
+        resume.SetActive(true);
+        Time.timeScale = 0f; // Pause all game mechanics
+
         if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
         {
-            FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
+            FindObjectOfType<AudioManager>().PlaySound("TapSound");
         }
-        StartCoroutine(WaitForTapSound());
         FindObjectOfType<AudioManager>().PauseAllSounds();
-        isPause = true;
-        Debug.Log("isPause toggled. Current state: " + isPause);
-        resume.SetActive(true);
+
+        Debug.Log("Game is now paused.");
     }
+
     public void isResumed()
     {
         mainMenuPanel.SetActive(false);
+        isPause = false;
+        resume.SetActive(false);
+        Time.timeScale = 1f; // Resume game mechanics
+
         if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
         {
-            FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
+            FindObjectOfType<AudioManager>().PlaySound("TapSound");
         }
         FindObjectOfType<AudioManager>().ResumeAllSounds();
-        resume.SetActive(false);
-        isPause = false;
-        Debug.Log("isPause toggled. Current state: " + isPause);
+
+        Debug.Log("Game has resumed.");
     }
-
-
 
 
     void ClearRenderTexture()
@@ -210,12 +215,24 @@ public class BoxClickHandler : MonoBehaviour
 
     void Update()
     {
+        if (isPause)
+        {
+            if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
+            {
+                Vector2 touchPos = Input.GetTouch(0).position;
+                if (!RectTransformUtility.RectangleContainsScreenPoint(mainMenuPanel.GetComponent<RectTransform>(), touchPos))
+                {
+                    isResumed();
+                }
+            }
+            return; // Prevent any other interactions while paused
+        }
+
         if (helpPanel.activeSelf) return; // Pause game updates if help panel is open
 
         if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
         {
             Vector2 touchPos = Input.GetTouch(0).position;
-
             RectTransform rectTransform = GetComponent<RectTransform>();
             Vector2 localPoint;
             RectTransformUtility.ScreenPointToLocalPointInRectangle(rectTransform, touchPos, null, out localPoint);
@@ -564,6 +581,25 @@ public class BoxClickHandler : MonoBehaviour
         {
             Debug.LogWarning($"The video key '{clicked}' does not exist in the dictionary.");
         }
+    }
+
+    void EndThisGame()
+    {
+        isGameOver = true;
+        //FindObjectOfType<AudioManager>().PlaySound("GameOver");
+        int isCompleted = (score == 8) ? 1 : 0;
+        PlayerPrefs.SetInt("Coins", coins);
+        PlayerPrefs.SetInt("Score", score);
+        PlayerPrefs.SetInt("IsCompleted", isCompleted);
+
+        // Show "Time is Up" label
+        // timerText.text = "Time is Up!";
+        // timeUpPanel.gameObject.SetActive(true);
+
+        // Wait for 1 second before transitioning to the next scene
+        //StartCoroutine(ShowTimeUpAndNextScene());
+
+        Debug.Log("Game Over! IsCompleted: " + isCompleted);
     }
 
     void EndGame()
