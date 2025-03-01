@@ -5,15 +5,15 @@ using System;
 
 public class WeeklyTimeTracker : MonoBehaviour
 {
-    public Slider progressBar; // UI Slider for the progress bar
-    public TextMeshProUGUI timeSpentText; // UI Text to display time spent today
-    public TextMeshProUGUI timeSpentTodayText; // UI Text to display time spent today
+    public Slider[] progressBars = new Slider[7]; // UI Sliders for each day of the week
+    public TextMeshProUGUI[] timeSpentTexts = new TextMeshProUGUI[7]; // UI Texts for each day
+    public TextMeshProUGUI timeSpentTodayText; // UI Text to display today's time spent
 
     private float timeSpentToday = 0f;
     private string timeSpentKey = "TimeSpentToday"; // Key for saving today's time spent
     private string savedDateKey = "SavedDate"; // Key for saving the last played date
 
-    private float[] dailyTimeSpent = new float[7]; // Array to store time spent for each day of the week
+    private float[] dailyTimeSpent = new float[7]; // Array to store time spent for each day
     private string[] timeKeys = { "SundayTime", "MondayTime", "TuesdayTime", "WednesdayTime", "ThursdayTime", "FridayTime", "SaturdayTime" };
 
     void Start()
@@ -57,7 +57,7 @@ public class WeeklyTimeTracker : MonoBehaviour
         }
     }
 
-    // Save the time spent for each day of the week and today's time
+    // Save the time spent for each day of the week
     void SaveWeeklyTimeSpent()
     {
         for (int i = 0; i < 7; i++)
@@ -69,29 +69,31 @@ public class WeeklyTimeTracker : MonoBehaviour
         PlayerPrefs.Save();
     }
 
-    // Update the UI (progress bar and text)
+    // Update the UI (progress bars and text for each day)
     void UpdateUI()
     {
-        float maxTime = 1800f; // Example: 1 hour max for full progress bar
+        float maxTime = 3600f; //   1hr max for full progress bar
 
-        int todayIndex = (int)DateTime.Now.DayOfWeek;
-        
-        if (progressBar != null)
+        for (int i = 0; i < 7; i++)
         {
-            progressBar.value = Mathf.Clamp01(dailyTimeSpent[todayIndex] / maxTime) * progressBar.maxValue;
-        }
+            if (progressBars[i] != null)
+            {
+                progressBars[i].value = Mathf.Clamp01(dailyTimeSpent[i] / maxTime) * progressBars[i].maxValue;
+            }
 
-        if (timeSpentText != null)
-        {
-            int hours = Mathf.FloorToInt(dailyTimeSpent[todayIndex] / 3600);
-            int minutes = Mathf.FloorToInt((dailyTimeSpent[todayIndex] % 3600) / 60);
-            timeSpentText.text = $"{hours}h {minutes}m";
+            if (timeSpentTexts[i] != null)
+            {
+                int hours = Mathf.FloorToInt(dailyTimeSpent[i] / 3600);
+                int minutes = Mathf.FloorToInt((dailyTimeSpent[i] % 3600) / 60);
+                timeSpentTexts[i].text = $"{hours}h {minutes}m";
+            }
         }
 
         if (timeSpentTodayText != null)
         {
-            int hours = Mathf.FloorToInt(timeSpentToday / 3600);
-            int minutes = Mathf.FloorToInt((timeSpentToday % 3600) / 60);
+            int todayIndex = (int)DateTime.Now.DayOfWeek;
+            int hours = Mathf.FloorToInt(dailyTimeSpent[todayIndex] / 3600);
+            int minutes = Mathf.FloorToInt((dailyTimeSpent[todayIndex] % 3600) / 60);
             timeSpentTodayText.text = $"{hours}h {minutes}m";
         }
     }
