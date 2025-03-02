@@ -120,7 +120,7 @@ public class Running_challenge : MonoBehaviour
     {
         if (!diamondGranted && System.Array.Exists(diamondRewardScores, s => s == scoreNumber))
         {
-             if (scoreNumber == 1) // Grant diamonds when score is 1 
+            if (scoreNumber == 1) // Grant diamonds when score is 1 
             {
                 numberOfDiamonds += 20;
                 diamondPanelText.text = "You got +20 Diamonds!";
