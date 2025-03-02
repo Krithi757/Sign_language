@@ -240,16 +240,21 @@ public class Running_challenge : MonoBehaviour
 
     void Update()
     {
-        if (!isRunning) return; // Prevent movement before countdown
+        if (!isRunning) return;
 
         direction.z = forwardSpeed;
 
-        // Prevent any change in Y position
-        Vector3 currentPosition = transform.position;
-        currentPosition.y = 10.46f; // Keep the Y position fixed
-        transform.position = currentPosition;
+        // Apply gravity
+        if (!controller.isGrounded)
+        {
+            direction.y += gravity * Time.deltaTime;  // Apply gravity gradually
+        }
+        else if (direction.y < 0)
+        {
+            direction.y = -2f;  // Keep the player grounded when touching the ground
+        }
 
-        // Handle jumping (if needed)
+        // Handle jumping
         if (SwipeManager.swipeUp && controller.isGrounded)
         {
             Jump();
@@ -269,13 +274,8 @@ public class Running_challenge : MonoBehaviour
         Vector3 moveDirection = new Vector3(targetX - transform.position.x, 0, 0);
         controller.Move(moveDirection * laneChangeSpeed * Time.deltaTime);
 
-        // Video synchronization (optional)
-        if (videoPlayer != null)
-        {
-            videoPosZ += forwardSpeed * Time.deltaTime;
-            videoPosX = transform.position.x;
-            videoPlayer.transform.position = new Vector3(videoPosX, videoPosY, videoPosZ);
-        }
+        // Apply movement
+        controller.Move(direction * Time.deltaTime);
 
         // Camera following logic
         followTimer += Time.deltaTime;
@@ -283,13 +283,16 @@ public class Running_challenge : MonoBehaviour
         {
             if (mainCamera != null)
             {
-                Vector3 targetCameraPosition = new Vector3(transform.position.x, 8.47f + 2f, transform.position.z - 10f);
+                Vector3 targetCameraPosition = new Vector3(transform.position.x, 11.50f, transform.position.z - 10f);
                 mainCamera.transform.position = Vector3.SmoothDamp(mainCamera.transform.position, targetCameraPosition, ref cameraVelocity, lerpSpeed);
                 mainCamera.transform.LookAt(transform);
             }
         }
+    }
 
-        controller.center = new Vector3(0, controller.height / 2, 0.1f);
+    private void Jump()
+    {
+        direction.y = jumpForce;  // Apply jump force
     }
 
 
@@ -302,10 +305,6 @@ public class Running_challenge : MonoBehaviour
         }
     }
 
-    private void Jump()
-    {
-        direction.y = jumpForce;
-    }
 
     void OnControllerColliderHit(ControllerColliderHit hit)
     {
