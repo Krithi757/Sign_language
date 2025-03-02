@@ -1,0 +1,12 @@
+{
+    "name": "PlayMode",
+    "references": [
+        "Unity.TextMeshPro"
+	],
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ]
+}
