@@ -57,6 +57,7 @@ public class BoxClickHandler : MonoBehaviour
     private float gameDuration = 30f;
     private float timeRemaining;
     private bool isGameOver = false;
+    public GameObject mainMenuPanel;
 
 
     void Awake()
@@ -73,6 +74,7 @@ public class BoxClickHandler : MonoBehaviour
 
     void Start()
     {
+        mainMenuPanel.SetActive(false);
         timeUpPanel.SetActive(false);
         helpPanel.SetActive(false);
         closeButton.SetActive(false);
@@ -156,11 +158,21 @@ public class BoxClickHandler : MonoBehaviour
     }
 
 
-    // Pause button method to toggle the pause state
+    public void giveUp()
+    {
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("TapSound");
+        }
+        Time.timeScale = 1f; // Ensure normal time scale
+        SceneManager.LoadScene(6);
+    }
 
+    // Pause button method to toggle the pause state
 
     public void isPaused()
     {
+        mainMenuPanel.SetActive(true);
         if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
         {
             FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
@@ -173,6 +185,8 @@ public class BoxClickHandler : MonoBehaviour
     }
     public void isResumed()
     {
+
+        mainMenuPanel.SetActive(false);
         if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
         {
             FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
