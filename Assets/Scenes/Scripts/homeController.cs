@@ -3,23 +3,26 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
+using System;
+using System.Globalization;
 
-public class homeCont : MonoBehaviour
+
+public class homeController : MonoBehaviour
 {
     public GameObject music;
     public GameObject musicDisabled;
     public GameObject soundEffectDisabled;
     public GameObject soundEffects;
-    public TextMeshProUGUI challenge1StatusText;
+    public TextMeshProUGUI challenge1StatusText; // Assign in Inspector
     private int isMuted;
     private int isSoundEffectMuted;
     private bool settingsVisible;
-    // Start is called before the first frame update
+    private const string NotifyShownKey = "NotifyShown";
 
+    public GameObject notify;
     private const string Challenge1Key = "LastChallenge1Time";
     private const int cooldownDuration = 259200; // 3 days in seconds
-    private const string NotifyShownKey = "NotifyShown"; // Key for tracking notification display
-
+    // Start is called before the first frame update
     void Start()
     {
         music.SetActive(false);
@@ -51,11 +54,6 @@ public class homeCont : MonoBehaviour
         {
             FindObjectOfType<AudioManager>().PlaySound("TapSound");
         }
-    }
-
-    public void HideHelp()
-    {
-        notify.SetActive(false);
     }
 
     void OnApplicationQuit()
@@ -118,6 +116,41 @@ public class homeCont : MonoBehaviour
         music.SetActive(false);  // Hide "enabled" icon when muted
     }
 
+    private IEnumerator UpdateChallenge1Status()
+    {
+        while (true)
+        {
+            if (CanPlayChallenge1())
+            {
+                challenge1StatusText.text = "Challenge 1 is available!";
+            }
+            else
+            {
+                DateTime lastPlayTime = DateTime.Parse(PlayerPrefs.GetString(Challenge1Key, DateTime.UtcNow.ToString()));
+                TimeSpan remainingTime = TimeSpan.FromSeconds(cooldownDuration) - (DateTime.UtcNow - lastPlayTime);
+
+                challenge1StatusText.text = $"Available in {remainingTime.Days}d {remainingTime.Hours}h {remainingTime.Minutes}m {remainingTime.Seconds}s";
+            }
+
+            yield return new WaitForSeconds(1); // Update every second
+        }
+    }
+
+    public void HideHelp()
+    {
+        notify.SetActive(false);
+    }
+
+    private bool CanPlayChallenge1()
+    {
+        if (!PlayerPrefs.HasKey(Challenge1Key)) return true;
+
+        DateTime lastPlayTime = DateTime.Parse(PlayerPrefs.GetString(Challenge1Key));
+        TimeSpan timePassed = DateTime.UtcNow - lastPlayTime;
+
+        return timePassed.TotalSeconds >= cooldownDuration;
+    }
+
     public void enableMusic()
     {
         if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
@@ -171,12 +204,6 @@ public class homeCont : MonoBehaviour
         soundEffectDisabled.SetActive(false);  // Hide "disabled" icon when unmuted
         soundEffects.SetActive(true);  // Show "enabled" icon when unmuted
     }
-
-
-
-
-
-
     public void gotoLevel()
     {
         if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
