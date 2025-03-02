@@ -82,10 +82,11 @@ public class Running_challenge : MonoBehaviour
         targetX = startX;
         tileManager = FindObjectOfType<TileManager>();
 
-        if (tileManager != null && tileManager.videoPlayer != null)
+        if (tileManager != null && tileManager.videoPlayer != null && tileManager.videoPlayer.clip != null)
         {
             currentVideoName = tileManager.videoPlayer.clip.name;
         }
+
 
         // Initialize videoPlayer directly
         if (tileManager != null && tileManager.videoPlayer != null)
@@ -306,10 +307,6 @@ public class Running_challenge : MonoBehaviour
             PlayerPrefs.SetInt("Score", scoreNumber);
             int levelCompleted = PlayerPrefs.GetInt("SelectedLevelId");
             PlayerPrefs.SetInt("ChallengeIsCompleted", isCompleted ? 1 : 0); // Save as int 
-<<<<<<< HEAD
-=======
-            Debug.Log("Challenge " + isCompleted);
->>>>>>> parent of b4a897b (Merge pull request #37 from Krithi757/Challenge/Krithiga)
             PlayerPrefs.Save();
 
             StartCoroutine(LoadNextSceneWithDelay());
@@ -365,13 +362,4 @@ public class Running_challenge : MonoBehaviour
             other.gameObject.SetActive(false);
         }
     }
-<<<<<<< HEAD
-=======
-
-    private IEnumerator WaitForTapSound()
-    {
-        // Wait for 0.3 seconds to allow the sound to be heard
-        yield return new WaitForSeconds(1);
-    }
->>>>>>> parent of b4a897b (Merge pull request #37 from Krithi757/Challenge/Krithiga)
 }

@@ -155,26 +155,12 @@ public class BoxClickHandler : MonoBehaviour
         EndGame();
     }
 
-<<<<<<< HEAD
-    public void giveUp()
-    {
-        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
-        {
-            FindObjectOfType<AudioManager>().PlaySound("TapSound");
-        }
-        Time.timeScale = 1f; // Ensure normal time scale
-        SceneManager.LoadScene(6);
-    }
 
     // Pause button method to toggle the pause state
+
+
     public void isPaused()
     {
-        mainMenuPanel.SetActive(true);
-=======
-    // Pause button method to toggle the pause state
-    public void isPaused()
-    {
->>>>>>> parent of b4a897b (Merge pull request #37 from Krithi757/Challenge/Krithiga)
         if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
         {
             FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
@@ -187,10 +173,6 @@ public class BoxClickHandler : MonoBehaviour
     }
     public void isResumed()
     {
-<<<<<<< HEAD
-        mainMenuPanel.SetActive(false);
-=======
->>>>>>> parent of b4a897b (Merge pull request #37 from Krithi757/Challenge/Krithiga)
         if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
         {
             FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
