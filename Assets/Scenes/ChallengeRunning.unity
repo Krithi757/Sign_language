@@ -780,7 +780,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
 <<<<<<< HEAD
+<<<<<<< HEAD
   m_Material: {fileID: 1979745285}
+=======
+  m_Material: {fileID: 2130731985}
+>>>>>>> parent of a95060e (Explored unit testing with Unity Testing Framework)
 =======
   m_Material: {fileID: 2130731985}
 >>>>>>> parent of a95060e (Explored unit testing with Unity Testing Framework)
@@ -888,7 +892,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
 <<<<<<< HEAD
+<<<<<<< HEAD
   m_Material: {fileID: 590267986}
+=======
+  m_Material: {fileID: 790273909}
+>>>>>>> parent of a95060e (Explored unit testing with Unity Testing Framework)
 =======
   m_Material: {fileID: 790273909}
 >>>>>>> parent of a95060e (Explored unit testing with Unity Testing Framework)
@@ -966,7 +974,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
 <<<<<<< HEAD
+<<<<<<< HEAD
   m_Material: {fileID: 1534862337}
+=======
+  m_Material: {fileID: 1366054556}
+>>>>>>> parent of a95060e (Explored unit testing with Unity Testing Framework)
 =======
   m_Material: {fileID: 1366054556}
 >>>>>>> parent of a95060e (Explored unit testing with Unity Testing Framework)
@@ -1337,7 +1349,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
 <<<<<<< HEAD
+<<<<<<< HEAD
   m_Material: {fileID: 496186933}
+=======
+  m_Material: {fileID: 2129251744}
+>>>>>>> parent of a95060e (Explored unit testing with Unity Testing Framework)
 =======
   m_Material: {fileID: 2129251744}
 >>>>>>> parent of a95060e (Explored unit testing with Unity Testing Framework)
