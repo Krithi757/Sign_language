@@ -61,9 +61,12 @@ public class Running_challenge : MonoBehaviour
     private bool diamondGranted = false;
     public TextMeshProUGUI diamondPanelText;
     public GameObject diamondPanel;
+    public GameObject mainMenuPanel;
+
 
     void Start()
     {
+        mainMenuPanel.SetActive(false);
         resume.SetActive(false);
         helpPanel.SetActive(false);
         closeButton.SetActive(false);
@@ -142,25 +145,20 @@ public class Running_challenge : MonoBehaviour
         diamondPanel.SetActive(false);
     }
 
-    public void ShowHelp()
-    {
-        helpPanel.SetActive(true);
-        closeButton.SetActive(true);
-
-        isRunning = false; // Pause player movement
-        animator.SetBool("isRunning", false); // Pause animation
-
-        if (videoPlayer != null)
-        {
-            videoPlayer.Pause(); // Pause video
-        }
-
-        Time.timeScale = 0f; // Pause the entire game
-    }
 
     public void pause()
     {
+        mainMenuPanel.SetActive(true);
         resume.SetActive(true);
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
+        }
+        StartCoroutine(WaitForTapSound());
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PauseAllSounds(); // Play sound only once
+        }
         isRunning = false; // Pause player movement
         animator.SetBool("isRunning", false); // Pause animation
 
@@ -172,10 +170,26 @@ public class Running_challenge : MonoBehaviour
         Time.timeScale = 0f; // Pause the entire game
     }
 
+    public void giveUp()
+    {
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("TapSound");
+        }
+        Time.timeScale = 1f; // Ensure normal time scale
+        SceneManager.LoadScene(6);
+    }
+
+
+
     public void resumeGame()
     {
+        mainMenuPanel.SetActive(false);
         resume.SetActive(false);
-
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().ResumeAllSounds(); // Play sound only once
+        }
         isRunning = true; // Resume player movement
         animator.SetBool("isRunning", true); // Resume animation
 
@@ -187,21 +201,7 @@ public class Running_challenge : MonoBehaviour
         Time.timeScale = 1f; // Resume the game
     }
 
-    public void HideHelp()
-    {
-        helpPanel.SetActive(false);
-        closeButton.SetActive(false);
 
-        isRunning = true; // Resume player movement
-        animator.SetBool("isRunning", true); // Resume animation
-
-        if (videoPlayer != null)
-        {
-            videoPlayer.Play(); // Resume video
-        }
-
-        Time.timeScale = 1f; // Resume the game
-    }
 
     void Update()
     {
@@ -274,6 +274,54 @@ public class Running_challenge : MonoBehaviour
         controller.center = new Vector3(0, controller.height / 2, 0.1f);
     }
 
+    public void ShowHelp()
+    {
+        helpPanel.SetActive(true);
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
+        }
+        StartCoroutine(WaitForTapSound());
+        FindObjectOfType<AudioManager>().PauseAllSounds(); // Play sound only once
+        closeButton.SetActive(true);
+
+        isRunning = false; // Pause player movement
+        animator.SetBool("isRunning", false); // Pause animation
+
+        if (videoPlayer != null)
+        {
+            videoPlayer.Pause(); // Pause video
+        }
+
+        Time.timeScale = 0f; // Pause the entire game
+    }
+
+
+
+
+
+
+    public void HideHelp()
+    {
+        helpPanel.SetActive(false);
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().ResumeAllSounds(); // Play sound only once
+        }
+        closeButton.SetActive(false);
+
+        isRunning = true; // Resume player movement
+        animator.SetBool("isRunning", true); // Resume animation
+
+        if (videoPlayer != null)
+        {
+            videoPlayer.Play(); // Resume video
+        }
+
+        Time.timeScale = 1f; // Resume the game
+    }
+
+
 
     void FixedUpdate()
     {
@@ -311,13 +359,6 @@ public class Running_challenge : MonoBehaviour
             StartCoroutine(LoadNextSceneWithDelay());
         }
     }
-
-    IEnumerator LoadNextSceneWithDelay()
-    {
-        yield return new WaitForSeconds(2f); // Wait for 2 seconds
-        SceneManager.LoadScene(6);
-    }
-
     private void OnTriggerEnter(Collider other)
     {
         TextMeshPro textMeshPro = other.GetComponent<TextMeshPro>();
@@ -361,4 +402,28 @@ public class Running_challenge : MonoBehaviour
             other.gameObject.SetActive(false);
         }
     }
+
+    private IEnumerator LoadSceneAfterSound(int sceneId)
+    {
+        // Wait for the sound to finish playing (assuming "TapSound" has a defined duration)
+
+        yield return new WaitForSeconds(0.3f);
+
+        // Load the scene after the sound has finished
+        SceneManager.LoadScene(sceneId);
+    }
+
+    IEnumerator LoadNextSceneWithDelay()
+    {
+        yield return new WaitForSeconds(2f); // Wait for 2 seconds
+        SceneManager.LoadScene(6);
+    }
+
+
+    private IEnumerator WaitForTapSound()
+    {
+        // Wait for 0.3 seconds to allow the sound to be heard
+        yield return new WaitForSeconds(0.3f);
+    }
+
 }
