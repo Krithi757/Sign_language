@@ -3,27 +3,23 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
-using System;
-using System.Globalization;
 
-
-public class homeController : MonoBehaviour
+public class homeCont : MonoBehaviour
 {
     public GameObject music;
     public GameObject musicDisabled;
     public GameObject soundEffectDisabled;
     public GameObject soundEffects;
-    public TextMeshProUGUI challenge1StatusText; // Assign in Inspector
+    public TextMeshProUGUI challenge1StatusText;
     private int isMuted;
     private int isSoundEffectMuted;
     private bool settingsVisible;
-    public GameObject notify;
-
-    private const string NotifyShownKey = "NotifyShown";
+    // Start is called before the first frame update
 
     private const string Challenge1Key = "LastChallenge1Time";
     private const int cooldownDuration = 259200; // 3 days in seconds
-    // Start is called before the first frame update
+    private const string NotifyShownKey = "NotifyShown"; // Key for tracking notification display
+
     void Start()
     {
         music.SetActive(false);
@@ -55,6 +51,11 @@ public class homeController : MonoBehaviour
         {
             FindObjectOfType<AudioManager>().PlaySound("TapSound");
         }
+    }
+
+    public void HideHelp()
+    {
+        notify.SetActive(false);
     }
 
     void OnApplicationQuit()
@@ -115,43 +116,6 @@ public class homeController : MonoBehaviour
         // Update UI elements based on the new state
         musicDisabled.SetActive(true);  // Show "disabled" icon when muted
         music.SetActive(false);  // Hide "enabled" icon when muted
-    }
-
-    private IEnumerator UpdateChallenge1Status()
-    {
-        while (true)
-        {
-            if (CanPlayChallenge1())
-            {
-                challenge1StatusText.text = "✅ Challenge 1 is available!";
-                challenge1StatusText.color = Color.green;
-            }
-            else
-            {
-                DateTime lastPlayTime = DateTime.Parse(PlayerPrefs.GetString(Challenge1Key, DateTime.UtcNow.ToString()));
-                TimeSpan remainingTime = TimeSpan.FromSeconds(cooldownDuration) - (DateTime.UtcNow - lastPlayTime);
-
-                challenge1StatusText.text = $"Available in {remainingTime.Days}d {remainingTime.Hours}h {remainingTime.Minutes}m {remainingTime.Seconds}s";
-            }
-
-            yield return new WaitForSeconds(1); // Update every second
-        }
-    }
-
-
-    public void HideHelp()
-    {
-        notify.SetActive(false);
-    }
-
-    private bool CanPlayChallenge1()
-    {
-        if (!PlayerPrefs.HasKey(Challenge1Key)) return true;
-
-        DateTime lastPlayTime = DateTime.Parse(PlayerPrefs.GetString(Challenge1Key));
-        TimeSpan timePassed = DateTime.UtcNow - lastPlayTime;
-
-        return timePassed.TotalSeconds >= cooldownDuration;
     }
 
     public void enableMusic()

@@ -199,17 +199,6 @@ public class ChallengeFeedback : MonoBehaviour
         StartCoroutine(LoadSceneAfterSound(4));
     }
 
-    public void goToHome()
-    {
-        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
-        {
-            FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
-        }
-
-        // Start the coroutine to wait for the sound to finish before loading the scene
-        StartCoroutine(LoadSceneAfterSound(0));
-    }
-
     private IEnumerator LoadSceneAfterSound(int sceneId)
     {
         // Wait for the sound to finish playing (assuming "TapSound" has a defined duration)

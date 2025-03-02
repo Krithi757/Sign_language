@@ -56,12 +56,12 @@ public class Running_challenge : MonoBehaviour
     private Animator animator;
     private bool isRunning = false; // Player should start only after countdown
     public GameObject helpPanel; // Panel for help instructions
-    public GameObject mainMenuPanel;
 
-    private int[] diamondRewardScores = { 5, 10, 20 };
+    private int[] diamondRewardScores = { 1, 5, 10, 20 };
     private bool diamondGranted = false;
     public TextMeshProUGUI diamondPanelText;
     public GameObject diamondPanel;
+    public GameObject mainMenuPanel;
 
     void Start()
     {
@@ -73,21 +73,22 @@ public class Running_challenge : MonoBehaviour
         controller = GetComponent<CharacterController>();
         animator = GetComponent<Animator>(); // Get Animator
         numberOfCoins = 0;
-        numberOfDiamonds = 0;
+        numberOfDiamonds = PlayerPrefs.GetInt("Diamond", 0);
         ChallengeTracker.currentChallenge = 3;
 
         Vector3 startPosition = transform.position;
         startPosition.x = startX;
-        startPosition.y = 10.47f;
+        startPosition.y = 11.044f;
         transform.position = startPosition;
 
         targetX = startX;
         tileManager = FindObjectOfType<TileManager>();
 
-        if (tileManager != null && tileManager.videoPlayer != null)
+        if (tileManager != null && tileManager.videoPlayer != null && tileManager.videoPlayer.clip != null)
         {
             currentVideoName = tileManager.videoPlayer.clip.name;
         }
+
 
         // Initialize videoPlayer directly
         if (tileManager != null && tileManager.videoPlayer != null)
@@ -122,14 +123,16 @@ public class Running_challenge : MonoBehaviour
     {
         if (!diamondGranted && System.Array.Exists(diamondRewardScores, s => s == scoreNumber))
         {
-            if (Random.value < 0.3f) // 30% chance to get diamonds
+            if (scoreNumber == 1) // Grant diamonds when score is 1 
             {
-                numberOfDiamonds += 3;
-                diamondPanelText.text = "You got +3 Diamonds!";
+                numberOfDiamonds += 20;
+                diamondPanelText.text = "You got +20 Diamonds!";
                 diamondPanel.SetActive(true);
                 diamondGranted = true;
                 StartCoroutine(HideDiamondPanel());
 
+
+                Debug.Log("Diamonds granted: " + numberOfDiamonds);
                 PlayerPrefs.SetInt("Diamond", numberOfDiamonds);
                 PlayerPrefs.Save();
             }
@@ -164,6 +167,7 @@ public class Running_challenge : MonoBehaviour
         Time.timeScale = 0f; // Pause the entire game
     }
 
+
     public void pause()
     {
         mainMenuPanel.SetActive(true);
@@ -187,6 +191,7 @@ public class Running_challenge : MonoBehaviour
 
         Time.timeScale = 0f; // Pause the entire game
     }
+
 
     public void giveUp()
     {
@@ -218,6 +223,7 @@ public class Running_challenge : MonoBehaviour
         Time.timeScale = 1f; // Resume the game
     }
 
+
     public void HideHelp()
     {
         helpPanel.SetActive(false);
@@ -238,24 +244,42 @@ public class Running_challenge : MonoBehaviour
         Time.timeScale = 1f; // Resume the game
     }
 
+
     void Update()
     {
         if (!isRunning) return; // Prevent movement before countdown
 
         direction.z = forwardSpeed;
 
-        // Prevent any change in Y position
-        Vector3 currentPosition = transform.position;
-        currentPosition.y = 10.46f; // Keep the Y position fixed
-        transform.position = currentPosition;
-
-        // Handle jumping (if needed)
-        if (SwipeManager.swipeUp && controller.isGrounded)
+        // Handle jumping only when grounded and swipe up is detected
+        if (SwipeManager.swipeUp && !hasJumped && controller.isGrounded)
         {
-            Jump();
+            jumpRequested = true; // Buffer the jump request
+            hasJumped = true; // Mark that the player has jumped
+            if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+            {
+                FindObjectOfType<AudioManager>().PlaySound("JumpUp"); // Play sound only once
+            }
         }
 
-        // Lane switching
+        if (controller.isGrounded)
+        {
+            direction.y = 0; // Reset the vertical velocity when grounded
+
+            if (jumpRequested && Time.time - lastJumpTime >= jumpCooldown)
+            {
+                Jump(); // Apply jump force
+                lastJumpTime = Time.time;
+                jumpRequested = false; // Reset the jump buffer
+                hasJumped = false; // Reset the jump state
+            }
+        }
+        else
+        {
+            direction.y += gravity * Time.deltaTime; // Apply gravity when in the air
+        }
+
+        // Handle lane switching with swipes
         if (SwipeManager.swipeRight)
         {
             desiredLane = Mathf.Min(desiredLane + 1, 2);
@@ -269,7 +293,7 @@ public class Running_challenge : MonoBehaviour
         Vector3 moveDirection = new Vector3(targetX - transform.position.x, 0, 0);
         controller.Move(moveDirection * laneChangeSpeed * Time.deltaTime);
 
-        // Video synchronization (optional)
+        // Handle video position syncing
         if (videoPlayer != null)
         {
             videoPosZ += forwardSpeed * Time.deltaTime;
@@ -277,13 +301,13 @@ public class Running_challenge : MonoBehaviour
             videoPlayer.transform.position = new Vector3(videoPosX, videoPosY, videoPosZ);
         }
 
-        // Camera following logic
         followTimer += Time.deltaTime;
+
         if (followTimer >= cameraFollowDelay)
         {
             if (mainCamera != null)
             {
-                Vector3 targetCameraPosition = new Vector3(transform.position.x, 8.47f + 2f, transform.position.z - 10f);
+                Vector3 targetCameraPosition = new Vector3(transform.position.x, transform.position.y + 2f, transform.position.z - 10f);
                 mainCamera.transform.position = Vector3.SmoothDamp(mainCamera.transform.position, targetCameraPosition, ref cameraVelocity, lerpSpeed);
                 mainCamera.transform.LookAt(transform);
             }
@@ -291,7 +315,6 @@ public class Running_challenge : MonoBehaviour
 
         controller.center = new Vector3(0, controller.height / 2, 0.1f);
     }
-
 
 
     void FixedUpdate()
@@ -325,7 +348,6 @@ public class Running_challenge : MonoBehaviour
             PlayerPrefs.SetInt("Score", scoreNumber);
             int levelCompleted = PlayerPrefs.GetInt("SelectedLevelId");
             PlayerPrefs.SetInt("IsCompleted", isCompleted ? 1 : 0); // Save as int 
-            Debug.Log("Challenge " + isCompleted);
             PlayerPrefs.Save();
 
             StartCoroutine(LoadNextSceneWithDelay());
@@ -396,4 +418,5 @@ public class Running_challenge : MonoBehaviour
         // Wait for 0.3 seconds to allow the sound to be heard
         yield return new WaitForSeconds(0.3f);
     }
+
 }
