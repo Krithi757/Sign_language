@@ -2,27 +2,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using TMPro;
-using System;
-using System.Globalization;
 
-
-public class homeController : MonoBehaviour
+public class homeCont : MonoBehaviour
 {
     public GameObject music;
     public GameObject musicDisabled;
     public GameObject soundEffectDisabled;
     public GameObject soundEffects;
-    public TextMeshProUGUI challenge1StatusText; // Assign in Inspector
     private int isMuted;
     private int isSoundEffectMuted;
     private bool settingsVisible;
-    public GameObject notify;
-
-    private const string NotifyShownKey = "NotifyShown";
-
-    private const string Challenge1Key = "LastChallenge1Time";
-    private const int cooldownDuration = 259200; // 3 days in seconds
     // Start is called before the first frame update
     void Start()
     {
@@ -30,37 +19,7 @@ public class homeController : MonoBehaviour
         soundEffects.SetActive(false);
         musicDisabled.SetActive(false);
         soundEffectDisabled.SetActive(false);
-        notify.SetActive(false); // Ensure it's hidden initially
-
-        Debug.Log("Script has started");
-
-        // Check if the notification should appear
-        if (PlayerPrefs.GetInt(NotifyShownKey, 0) == 0) // If it's 0, it means it hasn't been shown yet
-        {
-            float randomDelay = UnityEngine.Random.Range(3f, 6f); // Random delay between 3 to 6 seconds
-            Invoke(nameof(ShowNotifyPopup), randomDelay);
-        }
-
-        StartCoroutine(UpdateChallenge1Status());
-    }
-
-    private void ShowNotifyPopup()
-    {
-        notify.SetActive(true);
-        PlayerPrefs.SetInt(NotifyShownKey, 1); // Mark it as shown
-        PlayerPrefs.Save();
-
-        // Play the pop-up sound if sound effects are enabled
-        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
-        {
-            FindObjectOfType<AudioManager>().PlaySound("TapSound");
-        }
-    }
-
-    void OnApplicationQuit()
-    {
-        PlayerPrefs.SetInt(NotifyShownKey, 0); // Reset the flag when the game is closed
-        PlayerPrefs.Save();
+        Debug.Log("Script has strated");
     }
 
     // Update is called once per frame
@@ -115,43 +74,6 @@ public class homeController : MonoBehaviour
         // Update UI elements based on the new state
         musicDisabled.SetActive(true);  // Show "disabled" icon when muted
         music.SetActive(false);  // Hide "enabled" icon when muted
-    }
-
-    private IEnumerator UpdateChallenge1Status()
-    {
-        while (true)
-        {
-            if (CanPlayChallenge1())
-            {
-                challenge1StatusText.text = "✅ Challenge 1 is available!";
-                challenge1StatusText.color = Color.green;
-            }
-            else
-            {
-                DateTime lastPlayTime = DateTime.Parse(PlayerPrefs.GetString(Challenge1Key, DateTime.UtcNow.ToString()));
-                TimeSpan remainingTime = TimeSpan.FromSeconds(cooldownDuration) - (DateTime.UtcNow - lastPlayTime);
-
-                challenge1StatusText.text = $"Available in {remainingTime.Days}d {remainingTime.Hours}h {remainingTime.Minutes}m {remainingTime.Seconds}s";
-            }
-
-            yield return new WaitForSeconds(1); // Update every second
-        }
-    }
-
-
-    public void HideHelp()
-    {
-        notify.SetActive(false);
-    }
-
-    private bool CanPlayChallenge1()
-    {
-        if (!PlayerPrefs.HasKey(Challenge1Key)) return true;
-
-        DateTime lastPlayTime = DateTime.Parse(PlayerPrefs.GetString(Challenge1Key));
-        TimeSpan timePassed = DateTime.UtcNow - lastPlayTime;
-
-        return timePassed.TotalSeconds >= cooldownDuration;
     }
 
     public void enableMusic()
