@@ -18,8 +18,8 @@ public class ProgressTracker : MonoBehaviour
     private float originalDiamondFontSize;
     private float originalScoreFontSize;
 
-    public AudioSource audioSource;  // Add this
-    public AudioClip coinSound;  // Assign this in the Inspector
+    public AudioSource audioSource;  
+    public AudioClip coinSound;  
 
     void Start()
     {
@@ -70,17 +70,14 @@ public class ProgressTracker : MonoBehaviour
         int currentValue = 0;
         float elapsedTime = 0f;
 
+        if (isCoin && audioSource != null && coinSound != null)
+        {
+            PlayScaledCoinSound(targetValue); // Dynamically adjust sound
+        }
+
         while (elapsedTime < animationDuration)
         {
             int newValue = Mathf.FloorToInt(Mathf.Lerp(0, targetValue, elapsedTime / animationDuration));
-
-            if (newValue > currentValue)  // Play sound only when the value increases
-            {
-                if (isCoin && audioSource != null && coinSound != null)
-                {
-                    audioSource.PlayOneShot(coinSound);
-                }
-            }
 
             currentValue = newValue;
             textElement.text = currentValue.ToString();
@@ -96,6 +93,27 @@ public class ProgressTracker : MonoBehaviour
 
         textElement.text = targetValue.ToString();
     }
+
+    //  Adjusts sound length & pitch based on the number of coins collected
+    void PlayScaledCoinSound(int coinAmount)
+    {
+        float baseDuration = coinSound.length; // Original sound length
+        float adjustedDuration = Mathf.Clamp(baseDuration * (coinAmount / 10f), 0.2f, 5f); // Scale duration
+        float pitchFactor = Mathf.Clamp(1.0f - (coinAmount / 100f), 0.5f, 1.2f); // Adjust pitch based on amount
+
+        audioSource.pitch = pitchFactor;
+        audioSource.Play();
+
+        StartCoroutine(StopSoundAfterDuration(adjustedDuration));
+    }
+
+    //  Ensures the sound plays for the correct duration
+    IEnumerator StopSoundAfterDuration(float duration)
+    {
+        yield return new WaitForSeconds(duration);
+        audioSource.Stop();
+    }
+
 
     IEnumerator ZoomEffect(TextMeshProUGUI textElement, float originalFontSize)
     {

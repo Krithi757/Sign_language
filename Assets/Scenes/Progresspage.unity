@@ -4260,7 +4260,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: 461c1c61ae7869644b69228b84a07258, type: 3}
+  m_audioClip: {fileID: 8300000, guid: 5315e61e03a8dc444a2518b876e65a1f, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
@@ -4895,7 +4895,7 @@ MonoBehaviour:
   zoomDuration: 0.5
   zoomScale: 1.5
   audioSource: {fileID: 0}
-  coinSound: {fileID: 8300000, guid: 461c1c61ae7869644b69228b84a07258, type: 3}
+  coinSound: {fileID: 8300000, guid: 5315e61e03a8dc444a2518b876e65a1f, type: 3}
 --- !u!4 &1790358392
 Transform:
   m_ObjectHideFlags: 0
