@@ -58,6 +58,7 @@ public class BoxClickHandler : MonoBehaviour
     private float timeRemaining;
     private bool isGameOver = false;
     public GameObject mainMenuPanel;
+    public GameObject helppPanel;
 
 
     void Awake()
@@ -79,22 +80,23 @@ public class BoxClickHandler : MonoBehaviour
         helpPanel.SetActive(false);
         closeButton.SetActive(false);
         resume.SetActive(false);
+
+        StartCoroutine(ShowHelpPanel());
+
         if (boxVideoAssignments == null)
         {
             boxVideoAssignments = new Dictionary<GameObject, string>();
-            Debug.Log(boxVideoAssignments);
         }
 
         timeRemaining = gameDuration;
         ChallengeTracker.currentChallenge = 2;
         timeUpText.gameObject.SetActive(false); // Hide "Time is Up" label at start
-        StartCoroutine(GameTimer());
+
         if (videoPlayer == null || videoDisplay == null || renderTexture == null)
         {
             Debug.LogError("VideoPlayer, VideoDisplay, or RenderTexture not assigned!");
             return;
         }
-
 
         ClearCacheAndReset();
         ClearRenderTexture();
@@ -109,6 +111,20 @@ public class BoxClickHandler : MonoBehaviour
         scoreText.text = "Score: 0";
 
         Debug.Log($"Script initialized for box: {gameObject.name}");
+    }
+
+    IEnumerator ShowHelpPanel()
+    {
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("ReadySound");
+        }
+        helppPanel.SetActive(true);  // Show the help panel
+        yield return new WaitForSeconds(2f);  // Wait for 1 second
+        helppPanel.SetActive(false); // Hide the help panel
+
+        // Now that help panel is closed, start the game timer
+        StartCoroutine(GameTimer());
     }
 
     void ResetStaticVariables()
@@ -133,17 +149,27 @@ public class BoxClickHandler : MonoBehaviour
 
     IEnumerator GameTimer()
     {
+        float tickInterval = 1f; // Play tick sound every second
+        float nextTickTime = timeRemaining; // Initialize next tick time
+
         while (timeRemaining > 0)
         {
-            // If the help panel is active or the game is paused, wait without decrementing time
-            if ((helpPanel.activeSelf) || (isPause))
+            // Pause the timer if help panel is active or game is paused
+            if (helpPanel.activeSelf || isPause)
             {
                 Debug.Log("Game is paused or help panel is active.");
-                yield return null; // Wait until the next frame, effectively pausing the timer
-                continue; // Skip to the next frame and check the conditions again
+                yield return null;
+                continue;
             }
 
-            // Decrement time and update the UI if game is running
+            // Play tick sound at 1-second intervals
+            if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1 && timeRemaining <= nextTickTime)
+            {
+                FindObjectOfType<AudioManager>().PlaySound("TickSound");
+                nextTickTime -= tickInterval; // Schedule the next tick sound
+            }
+
+            // Decrement time and update the UI
             timeRemaining -= Time.deltaTime;
             int hours = Mathf.FloorToInt(timeRemaining / 3600);
             int minutes = Mathf.FloorToInt((timeRemaining % 3600) / 60);
@@ -156,6 +182,8 @@ public class BoxClickHandler : MonoBehaviour
         // Once the timer ends
         EndGame();
     }
+
+
 
 
     public void giveUp()

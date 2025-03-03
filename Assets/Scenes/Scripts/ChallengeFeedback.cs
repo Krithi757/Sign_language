@@ -33,8 +33,8 @@ public class ChallengeFeedback : MonoBehaviour
         int isCompleted = PlayerPrefs.GetInt("IsCompleted", 0);
 
         // Start the coin and score increment animations
-        //StartCoroutine(AnimateCoinsAndScore(0, finalCoins, 0, finalScore));
-        StartCoroutine(AnimateCoinsAndScore(0, 100, 0, 50));
+        StartCoroutine(AnimateCoinsAndScore(0, finalCoins, 0, finalScore));
+        //StartCoroutine(AnimateCoinsAndScore(0, 100, 0, 50));
 
         if (isCompleted == 1)
         {

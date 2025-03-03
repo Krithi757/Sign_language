@@ -126,7 +126,7 @@ public class Running_challenge : MonoBehaviour
             if (scoreNumber == 1) // Grant diamonds when score is 1 
             {
                 numberOfDiamonds += 20;
-                diamondPanelText.text = "You got +20 Diamonds!";
+                diamondPanelText.text = "You got +2 Diamonds!";
                 diamondPanel.SetActive(true);
                 diamondGranted = true;
                 StartCoroutine(HideDiamondPanel());
@@ -200,6 +200,7 @@ public class Running_challenge : MonoBehaviour
             FindObjectOfType<AudioManager>().PlaySound("TapSound");
         }
         Time.timeScale = 1f; // Ensure normal time scale
+        OnEndGame();
         SceneManager.LoadScene(6);
     }
 
@@ -330,6 +331,26 @@ public class Running_challenge : MonoBehaviour
         direction.y = jumpForce;
     }
 
+    void OnEndGame()
+    {
+
+
+        isCompleted = true;
+
+
+        PlayerPrefs.SetInt("Coins", numberOfCoins);
+        int cpins = PlayerPrefs.GetInt("Coins", 0);
+        Debug.Log("Coins " + cpins);
+        PlayerPrefs.SetInt("Score", scoreNumber);
+        int levelCompleted = PlayerPrefs.GetInt("SelectedLevelId");
+        PlayerPrefs.SetInt("IsCompleted", isCompleted ? 1 : 0); // Save as int 
+        PlayerPrefs.Save();
+
+        //StartCoroutine(LoadNextSceneWithDelay());
+    }
+
+
+
     void OnControllerColliderHit(ControllerColliderHit hit)
     {
         if (hit.collider.CompareTag("Obstacle"))
@@ -344,7 +365,9 @@ public class Running_challenge : MonoBehaviour
             isRunning = false; // Stop running
             animator.SetBool("isRunning", false); // Stop running animation
 
-            PlayerPrefs.SetInt("Coins", numberOfCoins);
+            PlayerPrefs.SetInt("Coins", numberOfCoins + 1);
+            int cpins = PlayerPrefs.GetInt("Coins", 0);
+            Debug.Log("Coins " + cpins);
             PlayerPrefs.SetInt("Score", scoreNumber);
             int levelCompleted = PlayerPrefs.GetInt("SelectedLevelId");
             PlayerPrefs.SetInt("IsCompleted", isCompleted ? 1 : 0); // Save as int 
