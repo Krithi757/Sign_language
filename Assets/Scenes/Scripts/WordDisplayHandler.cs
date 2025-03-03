@@ -23,21 +23,13 @@ public class WordDisplayHandler : MonoBehaviour
 
     void ResetGame()
     {
-        // Ensure static boxVideoAssignments is initialized
-        if (BoxClickHandler.boxVideoAssignments == null || BoxClickHandler.boxVideoAssignments.Count == 0)
-        {
-            BoxClickHandler.boxVideoAssignments = new Dictionary<GameObject, string>();
-            Debug.Log("Initialized or reset boxVideoAssignments.");
-        }
-
+        //Retry();
         wordDisplayText.gameObject.SetActive(true);
         wordDisplayText.text = ""; // Clear previous word display
-        UpdateVideoNames();  // Ensure video names are refreshed
+        UpdateVideoNames();
         AssignWordsToBoxes();
         UpdateWordDisplays();
     }
-
-
 
     void Update()
     {
