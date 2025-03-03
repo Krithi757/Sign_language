@@ -1,5 +1,4 @@
-using System.Collections; 
-using System;
+using System.Collections;
 using UnityEngine;
 using TMPro;
 
@@ -19,12 +18,11 @@ public class ProgressTracker : MonoBehaviour
     private float originalDiamondFontSize;
     private float originalScoreFontSize;
 
-   
+    public AudioSource audioSource;  // Add this
+    public AudioClip coinSound;  // Assign this in the Inspector
 
     void Start()
-
     {
-
         Debug.Log("Session Coins: " + PlayerPrefs.GetInt("Coins", 0));
         Debug.Log("Session Diamonds: " + PlayerPrefs.GetInt("Diamond", 0));
         Debug.Log("Session Score: " + PlayerPrefs.GetInt("Score", 0));
@@ -39,14 +37,10 @@ public class ProgressTracker : MonoBehaviour
         int sessionScore = PlayerPrefs.GetInt("Score", 0);
         float savedTime = PlayerPrefs.GetFloat("TimeSpent", 0f);
 
-        // Update total values
         int totalCoins = PlayerPrefs.GetInt("AllCoins", 0) + sessionCoins;
         int totalDiamonds = PlayerPrefs.GetInt("AllDiamonds", 0) + sessionDiamonds;
         int totalScores = PlayerPrefs.GetInt("AllScores", 0) + sessionScore;
-        
-        
 
-        // Save updated values
         PlayerPrefs.SetInt("AllCoins", totalCoins);
         PlayerPrefs.SetInt("AllDiamonds", totalDiamonds);
         PlayerPrefs.SetInt("AllScores", totalScores);
@@ -57,12 +51,9 @@ public class ProgressTracker : MonoBehaviour
         string currentDate = System.DateTime.Now.ToString("ddd d MMM");
         dateText.text = currentDate;
 
-        // Start animations for coins, diamonds, and scores
-        StartCoroutine(AnimateCount(totalCoins, coinsText, originalCoinFontSize));
-        StartCoroutine(AnimateCount(totalDiamonds, diamondsText, originalDiamondFontSize));
-        StartCoroutine(AnimateCount(totalScores, scoreText, originalScoreFontSize));
-
-        
+        StartCoroutine(AnimateCount(totalCoins, coinsText, originalCoinFontSize, true));  // Pass 'true' for coins
+        StartCoroutine(AnimateCount(totalDiamonds, diamondsText, originalDiamondFontSize, false));
+        StartCoroutine(AnimateCount(totalScores, scoreText, originalScoreFontSize, false));
     }
 
     void UpdateTimeDisplay(float elapsedTime)
@@ -74,7 +65,7 @@ public class ProgressTracker : MonoBehaviour
         timeSpentText.text = string.Format("{0:00}:{1:00}:{2:00}", hours, minutes, seconds);
     }
 
-    IEnumerator AnimateCount(int targetValue, TextMeshProUGUI textElement, float originalFontSize)
+    IEnumerator AnimateCount(int targetValue, TextMeshProUGUI textElement, float originalFontSize, bool isCoin)
     {
         int currentValue = 0;
         float elapsedTime = 0f;
@@ -82,6 +73,15 @@ public class ProgressTracker : MonoBehaviour
         while (elapsedTime < animationDuration)
         {
             int newValue = Mathf.FloorToInt(Mathf.Lerp(0, targetValue, elapsedTime / animationDuration));
+
+            if (newValue > currentValue)  // Play sound only when the value increases
+            {
+                if (isCoin && audioSource != null && coinSound != null)
+                {
+                    audioSource.PlayOneShot(coinSound);
+                }
+            }
+
             currentValue = newValue;
             textElement.text = currentValue.ToString();
 
