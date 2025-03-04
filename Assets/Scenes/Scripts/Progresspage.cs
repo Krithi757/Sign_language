@@ -9,6 +9,7 @@ public class ProgressTracker : MonoBehaviour
     public TextMeshProUGUI scoreText;
     public TextMeshProUGUI timeSpentText;
     public TextMeshProUGUI dateText;
+    public TextMeshProUGUI streakText;
 
     public float animationDuration = 2f;
     public float zoomDuration = 0.5f;
@@ -37,13 +38,6 @@ public class ProgressTracker : MonoBehaviour
         int sessionScore = PlayerPrefs.GetInt("Score", 0);
         float savedTime = PlayerPrefs.GetFloat("TimeSpent", 0f);
 
-        // Accumulate Total Values
-
-        // int totalCoins = PlayerPrefs.GetInt("AllCoins", 0) + sessionCoins;
-        // PlayerPrefs.SetInt("AllCoins", totalCoins);
-        //PlayerPrefs.Save();
-        //PlayerPrefs.SetInt("AllDiamonds", PlayerPrefs.GetInt("AllDiamonds", 0) + sessionDiamonds);
-        //PlayerPrefs.SetInt("AllScores", PlayerPrefs.GetInt("AllScores", 0) + sessionScore);
         PlayerPrefs.Save();
 
         UpdateTimeDisplay(savedTime);
@@ -51,10 +45,73 @@ public class ProgressTracker : MonoBehaviour
         string currentDate = System.DateTime.Now.ToString("ddd d MMM");
         dateText.text = currentDate;
 
-        // Start animation with already stored values
+        UpdateStreak();
+
         StartCoroutine(AnimateCount(PlayerPrefs.GetInt("AllCoins", 0), coinsText, originalCoinFontSize, true));
         StartCoroutine(AnimateCount(PlayerPrefs.GetInt("AllDiamonds", 0), diamondsText, originalDiamondFontSize, false));
         StartCoroutine(AnimateCount(PlayerPrefs.GetInt("AllScores", 0), scoreText, originalScoreFontSize, false));
+    }
+
+    void UpdateTimeDisplay(float elapsedTime)
+    {
+        int hours = Mathf.FloorToInt(elapsedTime / 3600);
+        int minutes = Mathf.FloorToInt((elapsedTime % 3600) / 60);
+        int seconds = Mathf.FloorToInt(elapsedTime % 60);
+
+        timeSpentText.text = string.Format("{0:00}:{1:00}:{2:00}", hours, minutes, seconds);
+    }
+
+    void UpdateStreak()
+    {
+        string lastLogin = PlayerPrefs.GetString("LastLoginDate", "");
+        string today = System.DateTime.Now.ToString("yyyy-MM-dd");
+
+        int streak = PlayerPrefs.GetInt("Streak", 0);
+
+        if (lastLogin == today)
+        {
+            Debug.Log("Already logged in today. Streak remains the same.");
+        }
+        else
+        {
+            System.DateTime lastDate;
+            if (System.DateTime.TryParse(lastLogin, out lastDate))
+            {
+                System.DateTime currentDate = System.DateTime.Now;
+                if ((currentDate - lastDate).Days == 1)
+                {
+                    streak++;
+                }
+                else
+                {
+                    streak = 1;
+                }
+            }
+            else
+            {
+                streak = 1;
+            }
+
+            PlayerPrefs.SetInt("Streak", streak);
+            PlayerPrefs.SetString("LastLoginDate", today);
+            PlayerPrefs.Save();
+        }
+
+        streakText.text = GetStreakMessage(streak);
+    }
+
+    string GetStreakMessage(int streak)
+    {
+        if (streak >= 30)
+            return "30-Day Streak! You're doing great!";
+        else if (streak >= 14)
+            return "2 Weeks Streak! Keep it up!";
+        else if (streak >= 7)
+            return "7-Day Streak! You're on fire!";
+        else if (streak >= 3)
+            return "Keep going! " + streak + "-day streak!";
+        else
+            return "Great start! " + streak + "-day streak!";
     }
 
     public void AddCoins(int amount)
@@ -74,15 +131,6 @@ public class ProgressTracker : MonoBehaviour
         Debug.Log($"After Adding: Coins = {currentCoins}, AllCoins = {totalCoins}");
 
         StartCoroutine(AnimateCount(totalCoins, coinsText, originalCoinFontSize, true));
-    }
-
-    void UpdateTimeDisplay(float elapsedTime)
-    {
-        int hours = Mathf.FloorToInt(elapsedTime / 3600);
-        int minutes = Mathf.FloorToInt((elapsedTime % 3600) / 60);
-        int seconds = Mathf.FloorToInt(elapsedTime % 60);
-
-        timeSpentText.text = string.Format("{0:00}:{1:00}:{2:00}", hours, minutes, seconds);
     }
 
     IEnumerator AnimateCount(int targetValue, TextMeshProUGUI textElement, float originalFontSize, bool isCoin)
