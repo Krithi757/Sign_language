@@ -623,6 +623,9 @@ public class BoxClickHandler : MonoBehaviour
         PlayerPrefs.SetInt("Coins", coins);
         PlayerPrefs.SetInt("Score", score);
         PlayerPrefs.SetInt("IsCompleted", isCompleted);
+
+        int totalCoins = PlayerPrefs.GetInt("AllCoins", 0) + coins;
+        PlayerPrefs.SetInt("AllCoins", totalCoins);
         Debug.Log("Game Over! IsCompleted: " + isCompleted);
     }
 
@@ -634,6 +637,11 @@ public class BoxClickHandler : MonoBehaviour
         PlayerPrefs.SetInt("Coins", coins);
         PlayerPrefs.SetInt("Score", score);
         PlayerPrefs.SetInt("IsCompleted", isCompleted);
+
+        int totalCoins = PlayerPrefs.GetInt("AllCoins", 0) + coins;
+        PlayerPrefs.SetInt("AllCoins", totalCoins);
+        PlayerPrefs.Save();
+
 
         // Show "Time is Up" label
         timerText.text = "Time is Up!";

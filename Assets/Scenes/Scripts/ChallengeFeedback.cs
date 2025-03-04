@@ -32,15 +32,28 @@ public class ChallengeFeedback : MonoBehaviour
         int finalScore = PlayerPrefs.GetInt("Score", 0);
         int isCompleted = PlayerPrefs.GetInt("IsCompleted", 0);
 
+        // Calculate dynamic fire number based on Coins and Score
+        // int firNumber = (finalCoins / 10) + (finalScore / 20); // Adjust formula as needed
+        int firNumber = finalCoins + (finalScore % 7 + 2) * 3;
+
+        // Save the calculated firNumber
+        PlayerPrefs.SetInt("FirNumber", firNumber);
+
+        // Retrieve and update AllFire by adding FirNumber
+        int allFire = PlayerPrefs.GetInt("AllFire", 0) + firNumber;
+        PlayerPrefs.SetInt("AllFire", allFire);
+
+        PlayerPrefs.Save(); // Save the updated PlayerPrefs
+
         // Start the coin and score increment animations
         StartCoroutine(AnimateCoinsAndScore(0, finalCoins, 0, finalScore));
-        //StartCoroutine(AnimateCoinsAndScore(0, 100, 0, 50));
 
+        // Play celebration or loss animation based on completion
         if (isCompleted == 1)
         {
             if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
             {
-                FindObjectOfType<AudioManager>().PlaySound("HaSound"); // Play sound only once
+                FindObjectOfType<AudioManager>().PlaySound("HaSound");
             }
             characterAnimator.SetBool("isDanceCover", true);
             characterAnimator.SetBool("isIdle", false);
@@ -49,14 +62,13 @@ public class ChallengeFeedback : MonoBehaviour
         {
             if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
             {
-                FindObjectOfType<AudioManager>().PlaySound("LoseSound"); // Play sound only once
+                FindObjectOfType<AudioManager>().PlaySound("LoseSound");
             }
             characterAnimator.SetBool("isDanceCover", false);
             characterAnimator.SetBool("isIdle", true);
         }
     }
 
-    // Coroutine to handle the coin and score increment animation
     private IEnumerator AnimateCoinsAndScore(int startCoins, int targetCoins, int startScore, int targetScore)
     {
         float elapsedTime = 0f;
@@ -95,14 +107,24 @@ public class ChallengeFeedback : MonoBehaviour
         }
 
         FindObjectOfType<ShimmerCollector>().CollectShimmer(draggedPrefab);
-        incrementerDiamondTotal.IncrementTo(10);
-        incrementerFireTotal.IncrementTo(43);
+
+        int totalDiamonds = PlayerPrefs.GetInt("AllDiamonds", 0);
+        int totalCoins = PlayerPrefs.GetInt("AllCoins", 0);
+
+        Debug.Log("Total number of coins " + totalCoins);
+
+        incrementerDiamondTotal.IncrementTo(totalDiamonds);
+
+        // Use the dynamically calculated fire number instead of a static value
+        int firNumber = PlayerPrefs.GetInt("FirNumber", 0);
+        int allfire = PlayerPrefs.GetInt("AllFire", 0);
+        incrementerFireTotal.IncrementTo(allfire);
 
         // Wait until CoinCollector animation finishes
         yield return new WaitUntil(() => coinCollector.IsFinished);
 
         // Now increment the totals
-        incrementerCoinTotal.IncrementTo(50);
+        incrementerCoinTotal.IncrementTo(totalCoins);
     }
 
     // Coroutine to handle the jump and animation transitions

@@ -37,13 +37,13 @@ public class ProgressTracker : MonoBehaviour
         int sessionScore = PlayerPrefs.GetInt("Score", 0);
         float savedTime = PlayerPrefs.GetFloat("TimeSpent", 0f);
 
-        int totalCoins = PlayerPrefs.GetInt("AllCoins", 0) + sessionCoins;
-        int totalDiamonds = PlayerPrefs.GetInt("AllDiamonds", 0) + sessionDiamonds;
-        int totalScores = PlayerPrefs.GetInt("AllScores", 0) + sessionScore;
+        // Accumulate Total Values
 
-        PlayerPrefs.SetInt("AllCoins", totalCoins);
-        PlayerPrefs.SetInt("AllDiamonds", totalDiamonds);
-        PlayerPrefs.SetInt("AllScores", totalScores);
+        // int totalCoins = PlayerPrefs.GetInt("AllCoins", 0) + sessionCoins;
+        // PlayerPrefs.SetInt("AllCoins", totalCoins);
+        //PlayerPrefs.Save();
+        //PlayerPrefs.SetInt("AllDiamonds", PlayerPrefs.GetInt("AllDiamonds", 0) + sessionDiamonds);
+        //PlayerPrefs.SetInt("AllScores", PlayerPrefs.GetInt("AllScores", 0) + sessionScore);
         PlayerPrefs.Save();
 
         UpdateTimeDisplay(savedTime);
@@ -51,9 +51,29 @@ public class ProgressTracker : MonoBehaviour
         string currentDate = System.DateTime.Now.ToString("ddd d MMM");
         dateText.text = currentDate;
 
-        StartCoroutine(AnimateCount(totalCoins, coinsText, originalCoinFontSize, true));  // Pass 'true' for coins
-        StartCoroutine(AnimateCount(totalDiamonds, diamondsText, originalDiamondFontSize, false));
-        StartCoroutine(AnimateCount(totalScores, scoreText, originalScoreFontSize, false));
+        // Start animation with already stored values
+        StartCoroutine(AnimateCount(PlayerPrefs.GetInt("AllCoins", 0), coinsText, originalCoinFontSize, true));
+        StartCoroutine(AnimateCount(PlayerPrefs.GetInt("AllDiamonds", 0), diamondsText, originalDiamondFontSize, false));
+        StartCoroutine(AnimateCount(PlayerPrefs.GetInt("AllScores", 0), scoreText, originalScoreFontSize, false));
+    }
+
+    public void AddCoins(int amount)
+    {
+        int currentCoins = PlayerPrefs.GetInt("Coins", 0);
+        int totalCoins = PlayerPrefs.GetInt("AllCoins", 0);
+
+        Debug.Log($"Before Adding: Coins = {currentCoins}, AllCoins = {totalCoins}");
+
+        currentCoins += amount;
+        totalCoins += amount;
+
+        PlayerPrefs.SetInt("Coins", currentCoins);
+        PlayerPrefs.SetInt("AllCoins", totalCoins);
+        PlayerPrefs.Save();
+
+        Debug.Log($"After Adding: Coins = {currentCoins}, AllCoins = {totalCoins}");
+
+        StartCoroutine(AnimateCount(totalCoins, coinsText, originalCoinFontSize, true));
     }
 
     void UpdateTimeDisplay(float elapsedTime)
@@ -67,22 +87,20 @@ public class ProgressTracker : MonoBehaviour
 
     IEnumerator AnimateCount(int targetValue, TextMeshProUGUI textElement, float originalFontSize, bool isCoin)
     {
-        int currentValue = 0;
+        int currentValue = int.Parse(textElement.text);
         float elapsedTime = 0f;
 
         if (isCoin && audioSource != null && coinSound != null)
         {
-            PlayScaledCoinSound(targetValue); // Dynamically adjust sound
+            PlayScaledCoinSound(targetValue);
         }
 
         while (elapsedTime < animationDuration)
         {
-            int newValue = Mathf.FloorToInt(Mathf.Lerp(0, targetValue, elapsedTime / animationDuration));
+            int newValue = Mathf.FloorToInt(Mathf.Lerp(currentValue, targetValue, elapsedTime / animationDuration));
+            textElement.text = newValue.ToString();
 
-            currentValue = newValue;
-            textElement.text = currentValue.ToString();
-
-            if (currentValue % 5 == 0 && currentValue != 0)
+            if (newValue % 5 == 0 && newValue != 0)
             {
                 StartCoroutine(ZoomEffect(textElement, originalFontSize));
             }
@@ -94,12 +112,11 @@ public class ProgressTracker : MonoBehaviour
         textElement.text = targetValue.ToString();
     }
 
-    //  Adjusts sound length & pitch based on the number of coins collected
     void PlayScaledCoinSound(int coinAmount)
     {
-        float baseDuration = coinSound.length; // Original sound length
-        float adjustedDuration = Mathf.Clamp(baseDuration * (coinAmount / 10f), 0.2f, 5f); // Scale duration
-        float pitchFactor = Mathf.Clamp(1.0f - (coinAmount / 100f), 0.5f, 1.2f); // Adjust pitch based on amount
+        float baseDuration = coinSound.length;
+        float adjustedDuration = Mathf.Clamp(baseDuration * (coinAmount / 10f), 0.2f, 5f);
+        float pitchFactor = Mathf.Clamp(1.0f - (coinAmount / 100f), 0.5f, 1.2f);
 
         audioSource.pitch = pitchFactor;
         audioSource.Play();
@@ -107,13 +124,11 @@ public class ProgressTracker : MonoBehaviour
         StartCoroutine(StopSoundAfterDuration(adjustedDuration));
     }
 
-    //  Ensures the sound plays for the correct duration
     IEnumerator StopSoundAfterDuration(float duration)
     {
         yield return new WaitForSeconds(duration);
         audioSource.Stop();
     }
-
 
     IEnumerator ZoomEffect(TextMeshProUGUI textElement, float originalFontSize)
     {
