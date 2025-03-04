@@ -57,13 +57,15 @@ public class Running_challenge : MonoBehaviour
     private bool isRunning = false; // Player should start only after countdown
     public GameObject helpPanel; // Panel for help instructions
 
-    private int[] diamondRewardScores = { 5, 10, 20 };
+    private int[] diamondRewardScores = { 1, 5, 10, 20 };
     private bool diamondGranted = false;
     public TextMeshProUGUI diamondPanelText;
     public GameObject diamondPanel;
+    public GameObject mainMenuPanel;
 
     void Start()
     {
+        mainMenuPanel.SetActive(false);
         resume.SetActive(false);
         helpPanel.SetActive(false);
         closeButton.SetActive(false);
@@ -71,7 +73,7 @@ public class Running_challenge : MonoBehaviour
         controller = GetComponent<CharacterController>();
         animator = GetComponent<Animator>(); // Get Animator
         numberOfCoins = 0;
-        numberOfDiamonds = 0;
+        numberOfDiamonds = PlayerPrefs.GetInt("Diamond", 0);
         ChallengeTracker.currentChallenge = 3;
 
         Vector3 startPosition = transform.position;
@@ -82,10 +84,11 @@ public class Running_challenge : MonoBehaviour
         targetX = startX;
         tileManager = FindObjectOfType<TileManager>();
 
-        if (tileManager != null && tileManager.videoPlayer != null)
+        if (tileManager != null && tileManager.videoPlayer != null && tileManager.videoPlayer.clip != null)
         {
             currentVideoName = tileManager.videoPlayer.clip.name;
         }
+
 
         // Initialize videoPlayer directly
         if (tileManager != null && tileManager.videoPlayer != null)
@@ -120,14 +123,16 @@ public class Running_challenge : MonoBehaviour
     {
         if (!diamondGranted && System.Array.Exists(diamondRewardScores, s => s == scoreNumber))
         {
-            if (Random.value < 0.3f) // 30% chance to get diamonds
+            if (scoreNumber == 1) // Grant diamonds when score is 1 
             {
-                numberOfDiamonds += 3;
-                diamondPanelText.text = "You got +3 Diamonds!";
+                numberOfDiamonds += 20;
+                diamondPanelText.text = "You got +2 Diamonds!";
                 diamondPanel.SetActive(true);
                 diamondGranted = true;
                 StartCoroutine(HideDiamondPanel());
 
+
+                Debug.Log("Diamonds granted: " + numberOfDiamonds);
                 PlayerPrefs.SetInt("Diamond", numberOfDiamonds);
                 PlayerPrefs.Save();
             }
@@ -143,6 +148,12 @@ public class Running_challenge : MonoBehaviour
     public void ShowHelp()
     {
         helpPanel.SetActive(true);
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
+        }
+        StartCoroutine(WaitForTapSound());
+        FindObjectOfType<AudioManager>().PauseAllSounds(); // Play sound only once
         closeButton.SetActive(true);
 
         isRunning = false; // Pause player movement
@@ -156,9 +167,20 @@ public class Running_challenge : MonoBehaviour
         Time.timeScale = 0f; // Pause the entire game
     }
 
+
     public void pause()
     {
+        mainMenuPanel.SetActive(true);
         resume.SetActive(true);
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
+        }
+        StartCoroutine(WaitForTapSound());
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PauseAllSounds(); // Play sound only once
+        }
         isRunning = false; // Pause player movement
         animator.SetBool("isRunning", false); // Pause animation
 
@@ -170,10 +192,27 @@ public class Running_challenge : MonoBehaviour
         Time.timeScale = 0f; // Pause the entire game
     }
 
+
+    public void giveUp()
+    {
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("TapSound");
+        }
+        Time.timeScale = 1f; // Ensure normal time scale
+        OnEndGame();
+        SceneManager.LoadScene(6);
+    }
+
+
     public void resumeGame()
     {
+        mainMenuPanel.SetActive(false);
         resume.SetActive(false);
-
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().ResumeAllSounds(); // Play sound only once
+        }
         isRunning = true; // Resume player movement
         animator.SetBool("isRunning", true); // Resume animation
 
@@ -185,9 +224,14 @@ public class Running_challenge : MonoBehaviour
         Time.timeScale = 1f; // Resume the game
     }
 
+
     public void HideHelp()
     {
         helpPanel.SetActive(false);
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().ResumeAllSounds(); // Play sound only once
+        }
         closeButton.SetActive(false);
 
         isRunning = true; // Resume player movement
@@ -200,6 +244,7 @@ public class Running_challenge : MonoBehaviour
 
         Time.timeScale = 1f; // Resume the game
     }
+
 
     void Update()
     {
@@ -286,6 +331,26 @@ public class Running_challenge : MonoBehaviour
         direction.y = jumpForce;
     }
 
+    void OnEndGame()
+    {
+
+
+        isCompleted = true;
+
+
+        PlayerPrefs.SetInt("Coins", numberOfCoins);
+        int cpins = PlayerPrefs.GetInt("Coins", 0);
+        Debug.Log("Coins " + cpins);
+        PlayerPrefs.SetInt("Score", scoreNumber);
+        int levelCompleted = PlayerPrefs.GetInt("SelectedLevelId");
+        PlayerPrefs.SetInt("IsCompleted", isCompleted ? 1 : 0); // Save as int 
+        PlayerPrefs.Save();
+
+        //StartCoroutine(LoadNextSceneWithDelay());
+    }
+
+
+
     void OnControllerColliderHit(ControllerColliderHit hit)
     {
         if (hit.collider.CompareTag("Obstacle"))
@@ -300,10 +365,12 @@ public class Running_challenge : MonoBehaviour
             isRunning = false; // Stop running
             animator.SetBool("isRunning", false); // Stop running animation
 
-            PlayerPrefs.SetInt("Coins", numberOfCoins);
+            PlayerPrefs.SetInt("Coins", numberOfCoins + 1);
+            int cpins = PlayerPrefs.GetInt("Coins", 0);
+            Debug.Log("Coins " + cpins);
             PlayerPrefs.SetInt("Score", scoreNumber);
             int levelCompleted = PlayerPrefs.GetInt("SelectedLevelId");
-            PlayerPrefs.SetInt("ChallengeIsCompleted", isCompleted ? 1 : 0); // Save as int 
+            PlayerPrefs.SetInt("IsCompleted", isCompleted ? 1 : 0); // Save as int 
             PlayerPrefs.Save();
 
             StartCoroutine(LoadNextSceneWithDelay());
@@ -359,4 +426,20 @@ public class Running_challenge : MonoBehaviour
             other.gameObject.SetActive(false);
         }
     }
+    private IEnumerator LoadSceneAfterSound(int sceneId)
+    {
+        // Wait for the sound to finish playing (assuming "TapSound" has a defined duration)
+
+        yield return new WaitForSeconds(0.3f);
+
+        // Load the scene after the sound has finished
+        SceneManager.LoadScene(sceneId);
+    }
+
+    private IEnumerator WaitForTapSound()
+    {
+        // Wait for 0.3 seconds to allow the sound to be heard
+        yield return new WaitForSeconds(0.3f);
+    }
+
 }
