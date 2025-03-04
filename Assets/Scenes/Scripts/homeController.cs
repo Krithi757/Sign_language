@@ -210,7 +210,7 @@ public class homeController : MonoBehaviour
         {
             FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
         }
-        StartCoroutine(LoadSceneAfterSound(1));
+        StartCoroutine(LoadSceneAfterSound(8));
     }
     public void gotoProgress()
     {
