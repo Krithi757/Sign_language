@@ -11,6 +11,7 @@ public class Buttonscript : MonoBehaviour
             FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
         }
         // You can implement any other actions or conditions you need here
+        StartCoroutine(LoadSceneAfterSound(10));
     }
 
     public void goToChallenge()

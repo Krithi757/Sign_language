@@ -18,8 +18,8 @@ public class ProgressTracker : MonoBehaviour
     private float originalDiamondFontSize;
     private float originalScoreFontSize;
 
-    public AudioSource audioSource;  
-    public AudioClip coinSound;  
+    public AudioSource audioSource;
+    public AudioClip coinSound;
 
     void Start()
     {
