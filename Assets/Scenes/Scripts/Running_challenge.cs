@@ -267,6 +267,18 @@ public class Running_challenge : MonoBehaviour
         Time.timeScale = 1f; // Resume the game
     }
 
+    // Smooth lane change
+    private void HandleLaneChange()
+    {
+        if (desiredLane != (int)(transform.position.x / laneDistance))
+        {
+            float targetXPosition = desiredLane * laneDistance + startX;
+            float newX = Mathf.MoveTowards(transform.position.x, targetXPosition, laneChangeSpeed * Time.deltaTime);
+            transform.position = new Vector3(newX, transform.position.y, transform.position.z);
+        }
+    }
+
+
 
     void Update()
     {
