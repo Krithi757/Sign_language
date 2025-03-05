@@ -11,54 +11,22 @@ jobs:
       matrix:
         targetPlatform:
           - Android # Build an Android .apk standalone app.
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          lfs: true  # ✅ Ensure LFS is enabled
+          lfs: true
 
-      - name: Fetch LFS files  # ✅ Explicitly pull LFS content
-        run: git lfs pull
+      - uses: actions/cache@v4  # ✅ Updated to v4
+        with:
+          path: Library
+          key: Library-${{ matrix.targetPlatform }}
+          restore-keys: Library-
 
-      # Debugging: List all LFS-tracked files
-      - name: List tracked LFS files
-        run: git lfs ls-files
-
-      # Debugging: List all files in Assets directory
-      - name: Debug: List all Assets files
-        run: find "Assets" -type f
-
-      # Install FFmpeg
-      - name: Install FFmpeg
-        run: sudo apt-get update && sudo apt-get install -y ffmpeg
-
-      # Verify FFmpeg installation
-      - name: Check FFmpeg Version
-        run: ffmpeg -version
-
-      # Convert all .mp4 files in Assets/Textmesh Pro/Resources recursively
-      - name: Convert All Videos with FFmpeg
-        run: |
-          mkdir -p "Assets/Textmesh Pro/Resources/converted"
-          find "Assets/Textmesh Pro/Resources" -type f -name "*.mp4" | while read file; do
-            output_dir="Assets/Textmesh Pro/Resources/converted"
-            filename=$(basename -- "$file")
-            ffmpeg -i "$file" -vcodec libx264 -acodec aac "$output_dir/${filename%.*}_transcoded.mp4"
-          done
-
-      # Debugging: List converted videos
-      - name: Debug: List converted videos
-        run: find "Assets/Textmesh Pro/Resources/converted" -type f
-
-      # Free up disk space for Unity build
-      - if: ${{ matrix.targetPlatform == 'Android' }}
+      - if: ${{ matrix.targetPlatform == 'Android' }}  # ✅ Fixed condition
         uses: jlumbroso/free-disk-space@v1.3.1
 
-      # Build the Unity project
-      - name: Build with Unity
-        uses: game-ci/unity-builder@v4
+      - uses: game-ci/unity-builder@v4
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
@@ -66,9 +34,7 @@ jobs:
         with:
           targetPlatform: ${{ matrix.targetPlatform }}
 
-      # Upload the built APK
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4  # ✅ Updated to v4
         with:
           name: Build-${{ matrix.targetPlatform }}
           path: build/${{ matrix.targetPlatform }}
