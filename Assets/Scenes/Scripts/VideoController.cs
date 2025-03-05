@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using UnityEngine.Video;
 using System.Collections.Generic;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class VideoController : MonoBehaviour
 {
@@ -102,4 +103,9 @@ public class VideoController : MonoBehaviour
             PlayVideo(currentVideoIndex);
         }
     }
+
+    public void gotoChallenge()
+    {
+        SceneManager.LoadScene(4);
+    } 
 }
