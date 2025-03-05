@@ -27,6 +27,6 @@ public class LoaderScript : MonoBehaviour
             yield return null; // Wait for next frame
         }
 
-        SceneManager.LoadScene(0); // Change to your scene name
+        SceneManager.LoadScene(1); // Change to your scene name
     }
 }

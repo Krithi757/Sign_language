@@ -223,7 +223,7 @@ public class Running_challenge : MonoBehaviour
         }
         Time.timeScale = 1f; // Ensure normal time scale
         OnEndGame();
-        SceneManager.LoadScene(6);
+        SceneManager.LoadScene(7);
     }
 
 
@@ -267,16 +267,6 @@ public class Running_challenge : MonoBehaviour
         Time.timeScale = 1f; // Resume the game
     }
 
-    // Smooth lane change
-    private void HandleLaneChange()
-    {
-        if (desiredLane != (int)(transform.position.x / laneDistance))
-        {
-            float targetXPosition = desiredLane * laneDistance + startX;
-            float newX = Mathf.MoveTowards(transform.position.x, targetXPosition, laneChangeSpeed * Time.deltaTime);
-            transform.position = new Vector3(newX, transform.position.y, transform.position.z);
-        }
-    }
 
 
 
@@ -430,7 +420,7 @@ public class Running_challenge : MonoBehaviour
     IEnumerator LoadNextSceneWithDelay()
     {
         yield return new WaitForSeconds(2f); // Wait for 2 seconds
-        SceneManager.LoadScene(6);
+        SceneManager.LoadScene(7);
     }
 
     private void OnTriggerEnter(Collider other)

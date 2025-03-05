@@ -658,7 +658,7 @@ public class BoxClickHandler : MonoBehaviour
         StopAllCoroutines();
 
         // Load the next scene (replace with your actual scene name)
-        SceneManager.LoadScene(6); // Replace "NextScene" with the actual scene name
+        SceneManager.LoadScene(7); // Replace "NextScene" with the actual scene name
     }
     public void ShowHelp()
     {

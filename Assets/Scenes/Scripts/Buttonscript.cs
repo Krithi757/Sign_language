@@ -22,7 +22,7 @@ public class Buttonscript : MonoBehaviour
         }
 
         // Start the coroutine to wait for the sound to finish before loading the scene
-        StartCoroutine(LoadSceneAfterSound(4));
+        StartCoroutine(LoadSceneAfterSound(5));
     }
 
     public void goToHome()
@@ -33,7 +33,7 @@ public class Buttonscript : MonoBehaviour
         }
 
         // Start the coroutine to wait for the sound to finish before loading the scene
-        StartCoroutine(LoadSceneAfterSound(0));
+        StartCoroutine(LoadSceneAfterSound(1));
     }
 
     public void goToPractice()
