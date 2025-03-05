@@ -26,10 +26,6 @@ jobs:
       - name: List tracked LFS files
         run: git lfs ls-files
 
-      # Debugging: List all files in Assets directory
-      - name: Debug: List all Assets files
-        run: find Assets -type f
-
       # Install FFmpeg
       - name: Install FFmpeg
         run: sudo apt-get update && sudo apt-get install -y ffmpeg
@@ -37,22 +33,6 @@ jobs:
       # Verify FFmpeg installation
       - name: Check FFmpeg Version
         run: ffmpeg -version
-
-      # Convert all .mp4 files in Assets/Textmesh Pro/Resources recursively
-      - name: Convert All Videos with FFmpeg
-        run: |
-          output_dir="Assets/Textmesh Pro/Resources/converted"
-          mkdir -p "$output_dir"
-
-          find "Assets/Textmesh Pro/Resources" -type f -name "*.mp4" | while read -r file; do
-            filename=$(basename -- "$file")
-            sanitized_filename=$(printf '%q' "$filename") # Handle special characters
-            ffmpeg -i "$file" -vcodec libx264 -acodec aac "$output_dir/${sanitized_filename%.*}_transcoded.mp4"
-          done
-
-      # Debugging: List converted videos
-      - name: Debug: List converted videos
-        run: find "Assets/Textmesh Pro/Resources/converted" -type f
 
       # Free up disk space for Unity build (ONLY for Android)
       - name: Free Disk Space
