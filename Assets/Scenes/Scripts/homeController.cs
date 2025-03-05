@@ -210,7 +210,7 @@ public class homeController : MonoBehaviour
         {
             FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
         }
-        StartCoroutine(LoadSceneAfterSound(8));
+        StartCoroutine(LoadSceneAfterSound(9));
     }
     public void gotoProgress()
     {
@@ -218,7 +218,7 @@ public class homeController : MonoBehaviour
         {
             FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
         }
-        StartCoroutine(LoadSceneAfterSound(7));
+        StartCoroutine(LoadSceneAfterSound(8));
     }
     public void gotoLearning()
     {
@@ -234,15 +234,7 @@ public class homeController : MonoBehaviour
         {
             FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
         }
-        StartCoroutine(LoadSceneAfterSound(4));
-    }
-    public void gotoPractice()
-    {
-        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
-        {
-            FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
-        }
-        StartCoroutine(LoadSceneAfterSound(7));
+        StartCoroutine(LoadSceneAfterSound(5));
     }
 
     private IEnumerator LoadSceneAfterSound(int sceneId)
