@@ -91,25 +91,18 @@ public static class VideoPathManager
         {
             case 1:
                 return level1;
-                break;
             case 2:
                 return level2;
-                break;
             case 3:
                 return level3;
-                break;
             case 4:
                 return level4;
-                break;
             case 5:
                 return level5;
-                break;
             case 6:
                 return level6;
-                break;
             default:
                 return level1;
-                break;
         }
     }
 }
