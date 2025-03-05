@@ -41,19 +41,22 @@ jobs:
       # Convert all .mp4 files in Assets/Textmesh Pro/Resources recursively
       - name: Convert All Videos with FFmpeg
         run: |
-          mkdir -p "Assets/Textmesh Pro/Resources/converted"
+          output_dir="Assets/Textmesh Pro/Resources/converted"
+          mkdir -p "$output_dir"
+
           find "Assets/Textmesh Pro/Resources" -type f -name "*.mp4" | while read -r file; do
-            output_dir="Assets/Textmesh Pro/Resources/converted"
             filename=$(basename -- "$file")
-            ffmpeg -i "$file" -vcodec libx264 -acodec aac "$output_dir/${filename%.*}_transcoded.mp4"
+            sanitized_filename=$(printf '%q' "$filename") # Handle special characters
+            ffmpeg -i "$file" -vcodec libx264 -acodec aac "$output_dir/${sanitized_filename%.*}_transcoded.mp4"
           done
 
       # Debugging: List converted videos
       - name: Debug: List converted videos
         run: find "Assets/Textmesh Pro/Resources/converted" -type f
 
-      # Free up disk space for Unity build
-      - if: matrix.targetPlatform == 'Android'
+      # Free up disk space for Unity build (ONLY for Android)
+      - name: Free Disk Space
+        if: ${{ matrix.targetPlatform == 'Android' }}
         uses: jlumbroso/free-disk-space@v1.3.1
 
       # Build the Unity project
