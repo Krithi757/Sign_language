@@ -1548,7 +1548,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   videoPlayer: {fileID: 745608805}
   rawImage: {fileID: 745608803}
-  nextButton: {fileID: 0}
+  nextButton: {fileID: 371115380}
   previousButton: {fileID: 1038746925}
   captionText: {fileID: 427179298}
 --- !u!1 &1996441065

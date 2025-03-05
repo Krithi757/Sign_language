@@ -80,7 +80,6 @@ public class BoxClickHandler : MonoBehaviour
         helpPanel.SetActive(false);
         closeButton.SetActive(false);
         resume.SetActive(false);
-
         StartCoroutine(ShowHelpPanel());
 
         if (boxVideoAssignments == null)
@@ -115,10 +114,6 @@ public class BoxClickHandler : MonoBehaviour
 
     IEnumerator ShowHelpPanel()
     {
-        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
-        {
-            FindObjectOfType<AudioManager>().PlaySound("ReadySound");
-        }
         helppPanel.SetActive(true);  // Show the help panel
         yield return new WaitForSeconds(2f);  // Wait for 1 second
         helppPanel.SetActive(false); // Hide the help panel
