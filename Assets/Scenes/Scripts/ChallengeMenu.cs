@@ -57,7 +57,7 @@ public class ChallengeMenu : MonoBehaviour
         }
 
         // Start the coroutine to wait for the sound to finish before loading the scene
-        StartCoroutine(LoadSceneAfterSound(3));
+        StartCoroutine(LoadSceneAfterSound(4));
     }
 
     // public void goToChallenge2(){

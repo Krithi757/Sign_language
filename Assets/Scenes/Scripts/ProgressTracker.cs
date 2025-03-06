@@ -2,8 +2,7 @@ using System.Collections;
 using UnityEngine;
 using TMPro;
 using UnityEngine.SceneManagement;
-
-public class ProgressPage : MonoBehaviour
+public class ProgressTracker : MonoBehaviour
 {
     public TextMeshProUGUI coinsText;
     public TextMeshProUGUI diamondsText;
@@ -198,5 +197,27 @@ public class ProgressPage : MonoBehaviour
         }
 
         textElement.fontSize = originalFontSize;
+    }
+
+    public void goToHome()
+    {
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
+        }
+
+        // Start the coroutine to wait for the sound to finish before loading the scene
+        StartCoroutine(LoadSceneAfterSound(1));
+    }
+
+    // Coroutine to wait for the sound to finish
+    private IEnumerator LoadSceneAfterSound(int sceneId)
+    {
+        // Wait for the sound to finish playing (assuming "TapSound" has a defined duration)
+
+        yield return new WaitForSeconds(0.3f);
+
+        // Load the scene after the sound has finished
+        SceneManager.LoadScene(sceneId);
     }
 }
