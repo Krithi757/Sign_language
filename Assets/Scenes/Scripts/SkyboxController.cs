@@ -3,19 +3,22 @@ using UnityEngine.Rendering.PostProcessing;
 
 public class SkyboxController : MonoBehaviour
 {
-    public Material morningSkybox; // Assign your morning skybox
-    public Material eveningSkybox; // Assign your evening skybox
-    public Material nightSkybox;   // Assign your night skybox
+    public Material morningSkybox; // Assign your morning skybox material
+    public Material eveningSkybox; // Assign your evening skybox material
+    public Material nightSkybox;   // Assign your night skybox material
 
-    public PostProcessVolume postProcessVolume; // Reference to the PostProcess Volume
-    private Bloom bloom; // Reference to the Bloom effect
+    public PostProcessProfile morningProfile; // Assign morning profile
+    public PostProcessProfile eveningProfile; // Assign evening profile
+    public PostProcessProfile nightProfile;   // Assign night profile
 
     private float cycleTime;
 
+    private PostProcessVolume postProcessVolume;
+
     void Start()
     {
-        // Get the Bloom effect from the PostProcessVolume
-        postProcessVolume.profile.TryGetSettings(out bloom);
+        // Find the PostProcessVolume in the scene
+        postProcessVolume = FindObjectOfType<PostProcessVolume>();
     }
 
     void Update()
@@ -24,18 +27,21 @@ public class SkyboxController : MonoBehaviour
 
         if (cycleTime < 5)
         {
-            RenderSettings.skybox = morningSkybox; // Morning Skybox
-            if (bloom != null) bloom.active = false; // Disable Bloom during morning
+            // Morning
+            RenderSettings.skybox = morningSkybox;
+            postProcessVolume.profile = morningProfile;
         }
         else if (cycleTime < 10)
         {
-            RenderSettings.skybox = eveningSkybox; // Evening Skybox
-            if (bloom != null) bloom.active = true; // Enable Bloom during evening
+            // Evening
+            RenderSettings.skybox = eveningSkybox;
+            postProcessVolume.profile = eveningProfile;
         }
         else
         {
-            RenderSettings.skybox = nightSkybox; // Night Skybox
-            if (bloom != null) bloom.active = true; // Enable Bloom during night
+            // Night
+            RenderSettings.skybox = nightSkybox;
+            postProcessVolume.profile = nightProfile;
         }
     }
 }
