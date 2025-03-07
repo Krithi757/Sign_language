@@ -62,6 +62,9 @@ public class Running_challenge : MonoBehaviour
     public TextMeshProUGUI diamondPanelText;
     public GameObject diamondPanel;
     public GameObject mainMenuPanel;
+    private int currentDiamondsCollected = 0; // Diamonds collected in this session 
+    public TextMeshProUGUI diamondText;
+    private int totalDiamonds = 0; // All diamonds stored
 
     void Start()
     {
@@ -71,9 +74,13 @@ public class Running_challenge : MonoBehaviour
         closeButton.SetActive(false);
         diamondPanel.SetActive(false);
         controller = GetComponent<CharacterController>();
-        animator = GetComponent<Animator>(); // Get Animator
+        animator = GetComponent<Animator>();
+
         numberOfCoins = 0;
-        numberOfDiamonds = PlayerPrefs.GetInt("Diamond", 0);
+        totalDiamonds = PlayerPrefs.GetInt("Diamond", 0); // Load total diamonds
+        currentDiamondsCollected = 0; // Reset session diamonds
+        UpdateDiamondText(); // Update UI
+
         ChallengeTracker.currentChallenge = 3;
 
         Vector3 startPosition = transform.position;
@@ -89,16 +96,14 @@ public class Running_challenge : MonoBehaviour
             currentVideoName = tileManager.videoPlayer.clip.name;
         }
 
-
-        // Initialize videoPlayer directly
         if (tileManager != null && tileManager.videoPlayer != null)
         {
-            videoPlayer = tileManager.videoPlayer; // Assign videoPlayer from TileManager
+            videoPlayer = tileManager.videoPlayer;
             videoPlayer.Play();
             videoPlayer.isLooping = true;
         }
 
-        StartCoroutine(StartRunningAfterCountdown()); // Start countdown
+        StartCoroutine(StartRunningAfterCountdown());
     }
 
     IEnumerator StartRunningAfterCountdown()
@@ -120,22 +125,25 @@ public class Running_challenge : MonoBehaviour
         CheckForDiamondReward();
     }
 
+    private int diamondRewardCount = 0; // Track how many times diamonds have been rewarded
+    private int scoreThresholdIncrease = 0; // Increase the range limit after every 2 rewards
+
     private void CheckForDiamondReward()
     {
         if (!diamondGranted && System.Array.Exists(diamondRewardScores, s => s == scoreNumber))
         {
             int diamondsToAdd = 0;
 
-            if (scoreNumber == 1) // Fixed reward for score 1
+            if (scoreNumber == 1)
             {
                 diamondsToAdd = 2;
             }
-            else if (scoreNumber >= 3 && scoreNumber <= 7) // Randomize when diamond panel is displayed for scores 2 to 5
+            else if (scoreNumber >= 3 + scoreThresholdIncrease && scoreNumber <= 7 + scoreThresholdIncrease)
             {
-                // Randomly decide whether to show the diamond panel based on the score number
-                if (Random.Range(0, 2) == 0) // Randomly either show or not show the diamond panel
+                if (Random.Range(0, 2) == 0) // 50% chance to grant diamonds
                 {
-                    diamondsToAdd = 2; // You can keep it fixed or modify as per your needs
+                    diamondsToAdd = 2;
+                    diamondRewardCount++;
                 }
             }
 
@@ -143,23 +151,43 @@ public class Running_challenge : MonoBehaviour
             {
                 if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
                 {
-                    FindObjectOfType<AudioManager>().PlaySound("DiamondSound"); // Play sound only once
+                    FindObjectOfType<AudioManager>().PlaySound("DiamondSound");
                 }
 
-                numberOfDiamonds += diamondsToAdd;
+                currentDiamondsCollected += diamondsToAdd;
+                totalDiamonds = PlayerPrefs.GetInt("AllDiamonds", 0) + diamondsToAdd; // Ensure totalDiamonds is always updated correctly
+
+                PlayerPrefs.SetInt("AllDiamonds", totalDiamonds); // Save the new total
+                PlayerPrefs.Save(); // Persist changes immediately
+
                 diamondPanelText.text = $"You got +{diamondsToAdd} Diamonds!";
                 diamondPanel.SetActive(true);
+                diamondText.text = "Diamonds: " + currentDiamondsCollected.ToString();
                 diamondGranted = true;
                 StartCoroutine(HideDiamondPanel());
 
-                Debug.Log($"Diamonds granted: {diamondsToAdd}, Total Diamonds: {numberOfDiamonds}");
-                PlayerPrefs.SetInt("Diamond", numberOfDiamonds);
-                PlayerPrefs.Save();
+                Debug.Log($"Diamonds granted: {diamondsToAdd}, Total Diamonds: {totalDiamonds}, Session Diamonds: {currentDiamondsCollected}");
+
+                UpdateDiamondText();
+
+                // Every 2 diamond rewards, increase the threshold
+                if (diamondRewardCount > 0 && diamondRewardCount % 2 == 0)
+                {
+                    scoreThresholdIncrease += 3; // Increase the score range for future rewards
+                    Debug.Log($"Score threshold increased to: {scoreThresholdIncrease}");
+                }
             }
         }
     }
 
 
+    private void UpdateDiamondText()
+    {
+        if (diamondPanelText != null)
+        {
+            diamondPanelText.text = $"Diamonds: {currentDiamondsCollected}";
+        }
+    }
 
     IEnumerator HideDiamondPanel()
     {
@@ -374,7 +402,7 @@ public class Running_challenge : MonoBehaviour
         int totalCoins = PlayerPrefs.GetInt("AllCoins", 0) + cpins;
         PlayerPrefs.SetInt("AllCoins", totalCoins);
 
-        int totalDiamonds = PlayerPrefs.GetInt("AllDiamonds", 0) + diamonds;
+        PlayerPrefs.SetInt("Diamonds", currentDiamondsCollected);
         PlayerPrefs.SetInt("AllDiamonds", totalDiamonds);
         PlayerPrefs.Save();
 
@@ -409,7 +437,7 @@ public class Running_challenge : MonoBehaviour
             int totalCoins = PlayerPrefs.GetInt("AllCoins", 0) + cpins;
             PlayerPrefs.SetInt("AllCoins", totalCoins);
 
-            int totalDiamonds = PlayerPrefs.GetInt("AllDiamonds", 0) + diamonds;
+            PlayerPrefs.SetInt("Diamonds", currentDiamondsCollected);
             PlayerPrefs.SetInt("AllDiamonds", totalDiamonds);
             PlayerPrefs.Save();
 

@@ -109,6 +109,7 @@ public class ChallengeFeedback : MonoBehaviour
         FindObjectOfType<ShimmerCollector>().CollectShimmer(draggedPrefab);
 
         int totalDiamonds = PlayerPrefs.GetInt("AllDiamonds", 0);
+        Debug.Log("Total Diamonds is: " + totalDiamonds);
         int totalCoins = PlayerPrefs.GetInt("AllCoins", 0);
 
         Debug.Log("Total number of coins " + totalCoins);

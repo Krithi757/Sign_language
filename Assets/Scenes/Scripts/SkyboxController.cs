@@ -3,45 +3,58 @@ using UnityEngine.Rendering.PostProcessing;
 
 public class SkyboxController : MonoBehaviour
 {
-    public Material morningSkybox; // Assign your morning skybox material
-    public Material eveningSkybox; // Assign your evening skybox material
-    public Material nightSkybox;   // Assign your night skybox material
+    public Material morningSkybox;
+    public Material eveningSkybox;
+    public Material nightSkybox;
 
-    public PostProcessProfile morningProfile; // Assign morning profile
-    public PostProcessProfile eveningProfile; // Assign evening profile
-    public PostProcessProfile nightProfile;   // Assign night profile
+    public PostProcessProfile morningProfile;
+    public PostProcessProfile eveningProfile;
+    public PostProcessProfile nightProfile;
 
+    private float cycleDuration = 180f; // Each cycle lasts 3 minutes (180 seconds)
     private float cycleTime;
-
     private PostProcessVolume postProcessVolume;
 
     void Start()
     {
-        // Find the PostProcessVolume in the scene
         postProcessVolume = FindObjectOfType<PostProcessVolume>();
+
+        // Ensure the morning skybox is set by default
+        RenderSettings.skybox = morningSkybox;
+        if (postProcessVolume != null)
+        {
+            postProcessVolume.profile = morningProfile;
+        }
     }
 
     void Update()
     {
-        cycleTime = Mathf.Repeat(Time.time, 15); // Resets every 15 seconds
+        cycleTime = Mathf.Repeat(Time.time, cycleDuration * 3); // Full cycle of Morning -> Evening -> Night
 
-        if (cycleTime < 5)
+        if (cycleTime < cycleDuration)
         {
-            // Morning
-            RenderSettings.skybox = morningSkybox;
-            postProcessVolume.profile = morningProfile;
+            SetSkybox(morningSkybox, morningProfile);
         }
-        else if (cycleTime < 10)
+        else if (cycleTime < cycleDuration * 2)
         {
-            // Evening
-            RenderSettings.skybox = eveningSkybox;
-            postProcessVolume.profile = eveningProfile;
+            SetSkybox(eveningSkybox, eveningProfile);
         }
         else
         {
-            // Night
-            RenderSettings.skybox = nightSkybox;
-            postProcessVolume.profile = nightProfile;
+            SetSkybox(nightSkybox, nightProfile);
+        }
+    }
+
+    void SetSkybox(Material skyboxMaterial, PostProcessProfile profile)
+    {
+        if (RenderSettings.skybox != skyboxMaterial)
+        {
+            RenderSettings.skybox = skyboxMaterial;
+        }
+
+        if (postProcessVolume != null && postProcessVolume.profile != profile)
+        {
+            postProcessVolume.profile = profile;
         }
     }
 }
