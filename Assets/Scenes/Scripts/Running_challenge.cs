@@ -68,6 +68,8 @@ public class Running_challenge : MonoBehaviour
 
     void Start()
     {
+        currentDiamondsCollected = 0;
+        numberOfDiamonds = 0;
         mainMenuPanel.SetActive(false);
         resume.SetActive(false);
         helpPanel.SetActive(false);
@@ -159,17 +161,21 @@ public class Running_challenge : MonoBehaviour
                     FindObjectOfType<AudioManager>().PlaySound("DiamondSound");
                 }
 
+                // Load previously saved total diamonds (ensuring it never decreases)
+                int storedTotalDiamonds = PlayerPrefs.GetInt("AllDiamonds", 0);
+                Debug.Log("Diamonds already have: " + storedTotalDiamonds.ToString());
                 currentDiamondsCollected += diamondsToAdd;
-                totalDiamonds = PlayerPrefs.GetInt("AllDiamonds", 0) + diamondsToAdd; // Ensure totalDiamonds is always updated correctly
-
-                PlayerPrefs.SetInt("AllDiamonds", totalDiamonds); // Save the new total
-                PlayerPrefs.Save(); // Persist changes immediately
+                totalDiamonds = storedTotalDiamonds + diamondsToAdd; // Always increase totalDiamonds 
 
                 diamondPanelText.text = $"You got +{diamondsToAdd} Diamonds!";
                 diamondPanel.SetActive(true);
                 diamondText.text = currentDiamondsCollected.ToString();
                 diamondGranted = true;
                 StartCoroutine(HideDiamondPanel());
+
+                PlayerPrefs.SetInt("Diamonds", currentDiamondsCollected); // Save current session diamonds
+                PlayerPrefs.SetInt("AllDiamonds", totalDiamonds); // Save total diamonds (ensures it never decrements)
+                PlayerPrefs.Save(); // Persist changes
 
                 Debug.Log($"Diamonds granted: {diamondsToAdd}, Total Diamonds: {totalDiamonds}, Session Diamonds: {currentDiamondsCollected}");
 
@@ -182,6 +188,7 @@ public class Running_challenge : MonoBehaviour
                     Debug.Log($"Score threshold increased to: {scoreThresholdIncrease}");
                 }
             }
+
         }
     }
 

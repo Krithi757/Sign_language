@@ -7,12 +7,14 @@ public class ChallengeFeedback : MonoBehaviour
 {
     public NumberIncrementer incrementer;
     public NumberIncrementer incrementer1;
+    public NumberIncrementer incrementer2;
 
     public NumberIncrementer incrementerCoinTotal;
     public NumberIncrementer incrementerDiamondTotal;
     public NumberIncrementer incrementerFireTotal;
     public TextMeshProUGUI coinsText;
     public TextMeshProUGUI scoreText;
+    public TextMeshProUGUI diamondText;
 
     public TextMeshProUGUI TopcoinsText;
     public TextMeshProUGUI TopdiamondText;
@@ -28,8 +30,14 @@ public class ChallengeFeedback : MonoBehaviour
 
     void Start()
     {
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("LoadingSound"); // Play sound only once
+        }
         int finalCoins = PlayerPrefs.GetInt("Coins", 0);
         int finalScore = PlayerPrefs.GetInt("Score", 0);
+        int diamonds = PlayerPrefs.GetInt("Diamonds", 0);
+        Debug.Log("Dimonds: " + diamonds);
         int isCompleted = PlayerPrefs.GetInt("IsCompleted", 0);
 
         // Calculate dynamic fire number based on Coins and Score
@@ -46,7 +54,7 @@ public class ChallengeFeedback : MonoBehaviour
         PlayerPrefs.Save(); // Save the updated PlayerPrefs
 
         // Start the coin and score increment animations
-        StartCoroutine(AnimateCoinsAndScore(0, finalCoins, 0, finalScore));
+        StartCoroutine(AnimateCoinsAndScore(0, finalCoins, 0, finalScore, 0, diamonds));
 
         // Play celebration or loss animation based on completion
         if (isCompleted == 1)
@@ -69,7 +77,7 @@ public class ChallengeFeedback : MonoBehaviour
         }
     }
 
-    private IEnumerator AnimateCoinsAndScore(int startCoins, int targetCoins, int startScore, int targetScore)
+    private IEnumerator AnimateCoinsAndScore(int startCoins, int targetCoins, int startScore, int targetScore, int startDiamonds, int targetDiamonds)
     {
         float elapsedTime = 0f;
 
@@ -77,9 +85,14 @@ public class ChallengeFeedback : MonoBehaviour
         {
             int currentCoins = Mathf.FloorToInt(Mathf.Lerp(startCoins, targetCoins, elapsedTime));
             int currentScore = Mathf.FloorToInt(Mathf.Lerp(startScore, targetScore, elapsedTime));
+            Debug.Log("Target Diamonds: " + targetDiamonds.ToString());
+            int currentDiamonds = Mathf.FloorToInt(Mathf.Lerp(startDiamonds, targetDiamonds, elapsedTime));
+            Debug.Log("Current Diamonds " + currentDiamonds.ToString());
+
 
             coinsText.text = currentCoins.ToString();
             scoreText.text = currentScore.ToString();
+            diamondText.text = currentDiamonds.ToString();
 
             elapsedTime += Time.deltaTime / coinAnimationSpeed;
             yield return null;
@@ -88,6 +101,7 @@ public class ChallengeFeedback : MonoBehaviour
         // Ensure final values are set
         incrementer.IncrementTo(targetScore);
         incrementer1.IncrementTo(targetCoins);
+        incrementer2.IncrementTo(targetDiamonds);
 
         if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
         {
