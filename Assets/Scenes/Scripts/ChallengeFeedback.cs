@@ -212,6 +212,17 @@ public class ChallengeFeedback : MonoBehaviour
         StartCoroutine(LoadSceneAfterSound(1));
     }
 
+    public void OnProgressButtonCClicked()
+    {
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
+        }
+        // Load the current challenge scene (assuming ChallengeTracker.CurrentChallenge stores the current challenge index/scene)
+        int currentChallenge = ChallengeTracker.currentChallenge;
+        StartCoroutine(LoadSceneAfterSound(8));
+    }
+
     public void OnPlayGameClicked()
     {
         if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)

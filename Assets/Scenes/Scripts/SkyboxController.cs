@@ -11,7 +11,7 @@ public class SkyboxController : MonoBehaviour
     public PostProcessProfile eveningProfile;
     public PostProcessProfile nightProfile;
 
-    private float cycleDuration = 180f; // Each cycle lasts 3 minutes (180 seconds)
+    private float cycleDuration = 10f; // Each cycle lasts 3 minutes (180 seconds)
     private float cycleTime;
     private PostProcessVolume postProcessVolume;
 

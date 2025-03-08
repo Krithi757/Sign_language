@@ -91,6 +91,11 @@ public class Running_challenge : MonoBehaviour
         targetX = startX;
         tileManager = FindObjectOfType<TileManager>();
 
+        if (mainCamera != null)
+        {
+            mainCamera.transform.position = new Vector3(126.06f, 13.85f, -0.7f);
+        }
+
         if (tileManager != null && tileManager.videoPlayer != null && tileManager.videoPlayer.clip != null)
         {
             currentVideoName = tileManager.videoPlayer.clip.name;
@@ -162,7 +167,7 @@ public class Running_challenge : MonoBehaviour
 
                 diamondPanelText.text = $"You got +{diamondsToAdd} Diamonds!";
                 diamondPanel.SetActive(true);
-                diamondText.text = "Diamonds: " + currentDiamondsCollected.ToString();
+                diamondText.text = currentDiamondsCollected.ToString();
                 diamondGranted = true;
                 StartCoroutine(HideDiamondPanel());
 
@@ -360,7 +365,7 @@ public class Running_challenge : MonoBehaviour
         {
             if (mainCamera != null)
             {
-                Vector3 targetCameraPosition = new Vector3(transform.position.x, transform.position.y + 2f, transform.position.z - 10f);
+                Vector3 targetCameraPosition = new Vector3(transform.position.x, transform.position.y + 2f, transform.position.z - 1f);
                 mainCamera.transform.position = Vector3.SmoothDamp(mainCamera.transform.position, targetCameraPosition, ref cameraVelocity, lerpSpeed);
                 mainCamera.transform.LookAt(transform);
             }
@@ -488,7 +493,7 @@ public class Running_challenge : MonoBehaviour
                 FindObjectOfType<AudioManager>().PlaySound("PickupCoins ");
             }
             numberOfCoins += 1;
-            coins.text = "Coins: " + numberOfCoins.ToString();
+            coins.text = numberOfCoins.ToString();
             Debug.Log("Collected coin: " + numberOfCoins);
 
             // Optionally deactivate the coin after collection
