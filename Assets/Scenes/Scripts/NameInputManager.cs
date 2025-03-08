@@ -13,7 +13,7 @@ public class NameInputManager : MonoBehaviour
     {
         if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
         {
-            FindObjectOfType<AudioManager>().PlaySound("HappyMusic"); // Play sound only once
+            FindObjectOfType<AudioManager>().PlaySound("LoadingMusic"); // Play sound only once
         }
         greetingText.gameObject.SetActive(false);
         // Check if a name is already saved
@@ -56,6 +56,6 @@ public class NameInputManager : MonoBehaviour
     // Method to change the scene
     void ChangeScene()
     {
-        SceneManager.LoadScene(9);  // Change "Scene2" to your actual scene name
+        SceneManager.LoadScene(7);  // Change "Scene2" to your actual scene name
     }
 }

@@ -232,7 +232,7 @@ public class homeController : MonoBehaviour
             {
                 FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
             }
-            StartCoroutine(LoadSceneAfterSound(9));  // Load scene 9
+            StartCoroutine(LoadSceneAfterSound(7));  // Load scene 9
         }
         else
         {
@@ -242,7 +242,7 @@ public class homeController : MonoBehaviour
             {
                 FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
             }
-            StartCoroutine(LoadSceneAfterSound(11));  // Load scene 11
+            StartCoroutine(LoadSceneAfterSound(9));  // Load scene 11
         }
     }
 
@@ -253,7 +253,7 @@ public class homeController : MonoBehaviour
         {
             FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
         }
-        StartCoroutine(LoadSceneAfterSound(8));
+        StartCoroutine(LoadSceneAfterSound(6));
     }
     public void gotoLearning()
     {
@@ -261,7 +261,7 @@ public class homeController : MonoBehaviour
         {
             FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
         }
-        StartCoroutine(LoadSceneAfterSound(10));
+        StartCoroutine(LoadSceneAfterSound(8));
     }
     public void gotoChallenge()
     {
@@ -269,7 +269,7 @@ public class homeController : MonoBehaviour
         {
             FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
         }
-        StartCoroutine(LoadSceneAfterSound(5));
+        StartCoroutine(LoadSceneAfterSound(4));
     }
 
     private IEnumerator LoadSceneAfterSound(int sceneId)
