@@ -13,7 +13,9 @@ public class homeController : MonoBehaviour
     public GameObject musicDisabled;
     public GameObject soundEffectDisabled;
     public GameObject soundEffects;
-    public TextMeshProUGUI challenge1StatusText; // Assign in Inspector
+    public TextMeshProUGUI challenge1StatusText; // Assign in Inspector 
+
+    public TextMeshProUGUI nameText;
     private int isMuted;
     private int isSoundEffectMuted;
     private bool settingsVisible;
@@ -25,6 +27,21 @@ public class homeController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        if (PlayerPrefs.HasKey("PlayerName") && !string.IsNullOrEmpty(PlayerPrefs.GetString("PlayerName")))
+        {
+            // If PlayerName already exists, go to scene 9 
+
+
+            string playerName = PlayerPrefs.GetString("PlayerName", "DefaultName"); // DefaultName is optional and used if PlayerName is not found
+
+            // Log the PlayerName value
+            Debug.Log("Player Name: " + playerName);
+            nameText.text = "Welcome back, " + playerName;
+        }
+        else
+        {
+            nameText.gameObject.SetActive(false);
+        }
         music.SetActive(false);
         soundEffects.SetActive(false);
         musicDisabled.SetActive(false);
@@ -206,12 +223,30 @@ public class homeController : MonoBehaviour
     }
     public void gotoLevel()
     {
-        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        // Check if PlayerName exists in PlayerPrefs (indicating player has started the game before)
+        if (PlayerPrefs.HasKey("PlayerName") && !string.IsNullOrEmpty(PlayerPrefs.GetString("PlayerName")))
         {
-            FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
+            // If PlayerName already exists, go to scene 9 
+            Debug.Log("Player name already set. Going to scene 9.");
+            if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+            {
+                FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
+            }
+            StartCoroutine(LoadSceneAfterSound(9));  // Load scene 9
         }
-        StartCoroutine(LoadSceneAfterSound(9));
+        else
+        {
+            // If PlayerName is not set, load scene 11
+            Debug.Log("Player name not set. Going to scene 11.");
+            if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+            {
+                FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
+            }
+            StartCoroutine(LoadSceneAfterSound(11));  // Load scene 11
+        }
     }
+
+
     public void gotoProgress()
     {
         if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
