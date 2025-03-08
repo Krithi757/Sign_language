@@ -327,11 +327,6 @@ MonoBehaviour:
     volume: 1
     loop: 1
     source: {fileID: 0}
-  - name: HappyMusic
-    clip: {fileID: 8300000, guid: 34c2b85fe1de7474ea2cbe55f5187b04, type: 3}
-    volume: 1
-    loop: 1
-    source: {fileID: 0}
 --- !u!4 &203020828
 Transform:
   m_ObjectHideFlags: 0

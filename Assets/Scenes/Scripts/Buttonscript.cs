@@ -11,7 +11,7 @@ public class Buttonscript : MonoBehaviour
             FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
         }
         // You can implement any other actions or conditions you need here
-        StartCoroutine(LoadSceneAfterSound(10));
+        StartCoroutine(LoadSceneAfterSound(8));
     }
 
     public void goToChallenge()
@@ -22,7 +22,7 @@ public class Buttonscript : MonoBehaviour
         }
 
         // Start the coroutine to wait for the sound to finish before loading the scene
-        StartCoroutine(LoadSceneAfterSound(5));
+        StartCoroutine(LoadSceneAfterSound(4));
     }
 
     public void goToHome()

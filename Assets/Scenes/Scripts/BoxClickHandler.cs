@@ -189,7 +189,7 @@ public class BoxClickHandler : MonoBehaviour
         }
         Time.timeScale = 1f; // Ensure normal time scale 
         endThisGame();
-        SceneManager.LoadScene(6);
+        SceneManager.LoadScene(5);
     }
 
     // Pause button method to toggle the pause state
@@ -658,7 +658,7 @@ public class BoxClickHandler : MonoBehaviour
         StopAllCoroutines();
 
         // Load the next scene (replace with your actual scene name)
-        SceneManager.LoadScene(7); // Replace "NextScene" with the actual scene name
+        SceneManager.LoadScene(5); // Replace "NextScene" with the actual scene name
     }
     public void ShowHelp()
     {

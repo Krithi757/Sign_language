@@ -212,7 +212,7 @@ public class ChallengeFeedback : MonoBehaviour
         }
         // Load the current challenge scene (assuming ChallengeTracker.CurrentChallenge stores the current challenge index/scene)
         int currentChallenge = ChallengeTracker.currentChallenge;
-        StartCoroutine(LoadSceneAfterSound(5));
+        StartCoroutine(LoadSceneAfterSound(4));
     }
 
     // Method to be called when the "Main Menu" button is clicked
@@ -234,7 +234,7 @@ public class ChallengeFeedback : MonoBehaviour
         }
         // Load the current challenge scene (assuming ChallengeTracker.CurrentChallenge stores the current challenge index/scene)
         int currentChallenge = ChallengeTracker.currentChallenge;
-        StartCoroutine(LoadSceneAfterSound(8));
+        StartCoroutine(LoadSceneAfterSound(6));
     }
 
     public void OnPlayGameClicked()
@@ -244,7 +244,7 @@ public class ChallengeFeedback : MonoBehaviour
             FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
         }
         // Load the main menu scene (assuming scene 0 is the main menu)
-        StartCoroutine(LoadSceneAfterSound(5));
+        StartCoroutine(LoadSceneAfterSound(4));
     }
 
     private IEnumerator LoadSceneAfterSound(int sceneId)

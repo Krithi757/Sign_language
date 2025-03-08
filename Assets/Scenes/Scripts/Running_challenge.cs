@@ -263,7 +263,7 @@ public class Running_challenge : MonoBehaviour
         }
         Time.timeScale = 1f; // Ensure normal time scale
         OnEndGame();
-        SceneManager.LoadScene(7);
+        SceneManager.LoadScene(5);
     }
 
 
@@ -460,7 +460,7 @@ public class Running_challenge : MonoBehaviour
     IEnumerator LoadNextSceneWithDelay()
     {
         yield return new WaitForSeconds(2f); // Wait for 2 seconds
-        SceneManager.LoadScene(7);
+        SceneManager.LoadScene(5);
     }
 
     private void OnTriggerEnter(Collider other)
