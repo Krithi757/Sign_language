@@ -1,15 +1,16 @@
-using System.Collections; 
-using System;
+using System.Collections;
 using UnityEngine;
 using TMPro;
+using UnityEngine.SceneManagement;
 
-public class ProgressTracker : MonoBehaviour
+public class ProgressPage : MonoBehaviour
 {
     public TextMeshProUGUI coinsText;
     public TextMeshProUGUI diamondsText;
     public TextMeshProUGUI scoreText;
     public TextMeshProUGUI timeSpentText;
     public TextMeshProUGUI dateText;
+    public TextMeshProUGUI streakText;
 
     public float animationDuration = 2f;
     public float zoomDuration = 0.5f;
@@ -19,12 +20,11 @@ public class ProgressTracker : MonoBehaviour
     private float originalDiamondFontSize;
     private float originalScoreFontSize;
 
-   
+    public AudioSource audioSource;
+    public AudioClip coinSound;
 
     void Start()
-
     {
-
         Debug.Log("Session Coins: " + PlayerPrefs.GetInt("Coins", 0));
         Debug.Log("Session Diamonds: " + PlayerPrefs.GetInt("Diamond", 0));
         Debug.Log("Session Score: " + PlayerPrefs.GetInt("Score", 0));
@@ -39,17 +39,6 @@ public class ProgressTracker : MonoBehaviour
         int sessionScore = PlayerPrefs.GetInt("Score", 0);
         float savedTime = PlayerPrefs.GetFloat("TimeSpent", 0f);
 
-        // Update total values
-        int totalCoins = PlayerPrefs.GetInt("AllCoins", 0) + sessionCoins;
-        int totalDiamonds = PlayerPrefs.GetInt("AllDiamonds", 0) + sessionDiamonds;
-        int totalScores = PlayerPrefs.GetInt("AllScores", 0) + sessionScore;
-        
-        
-
-        // Save updated values
-        PlayerPrefs.SetInt("AllCoins", totalCoins);
-        PlayerPrefs.SetInt("AllDiamonds", totalDiamonds);
-        PlayerPrefs.SetInt("AllScores", totalScores);
         PlayerPrefs.Save();
 
         UpdateTimeDisplay(savedTime);
@@ -57,12 +46,11 @@ public class ProgressTracker : MonoBehaviour
         string currentDate = System.DateTime.Now.ToString("ddd d MMM");
         dateText.text = currentDate;
 
-        // Start animations for coins, diamonds, and scores
-        StartCoroutine(AnimateCount(totalCoins, coinsText, originalCoinFontSize));
-        StartCoroutine(AnimateCount(totalDiamonds, diamondsText, originalDiamondFontSize));
-        StartCoroutine(AnimateCount(totalScores, scoreText, originalScoreFontSize));
+        UpdateStreak();
 
-        
+        StartCoroutine(AnimateCount(PlayerPrefs.GetInt("AllCoins", 0), coinsText, originalCoinFontSize, true));
+        StartCoroutine(AnimateCount(PlayerPrefs.GetInt("AllDiamonds", 0), diamondsText, originalDiamondFontSize, false));
+        StartCoroutine(AnimateCount(PlayerPrefs.GetInt("AllScores", 0), scoreText, originalScoreFontSize, false));
     }
 
     void UpdateTimeDisplay(float elapsedTime)
@@ -74,18 +62,94 @@ public class ProgressTracker : MonoBehaviour
         timeSpentText.text = string.Format("{0:00}:{1:00}:{2:00}", hours, minutes, seconds);
     }
 
-    IEnumerator AnimateCount(int targetValue, TextMeshProUGUI textElement, float originalFontSize)
+    void UpdateStreak()
     {
-        int currentValue = 0;
+        string lastLogin = PlayerPrefs.GetString("LastLoginDate", "");
+        string today = System.DateTime.Now.ToString("yyyy-MM-dd");
+
+        int streak = PlayerPrefs.GetInt("Streak", 0);
+
+        if (lastLogin == today)
+        {
+            Debug.Log("Already logged in today. Streak remains the same.");
+        }
+        else
+        {
+            System.DateTime lastDate;
+            if (System.DateTime.TryParse(lastLogin, out lastDate))
+            {
+                System.DateTime currentDate = System.DateTime.Now;
+                if ((currentDate - lastDate).Days == 1)
+                {
+                    streak++;
+                }
+                else
+                {
+                    streak = 1;
+                }
+            }
+            else
+            {
+                streak = 1;
+            }
+
+            PlayerPrefs.SetInt("Streak", streak);
+            PlayerPrefs.SetString("LastLoginDate", today);
+            PlayerPrefs.Save();
+        }
+
+        streakText.text = GetStreakMessage(streak);
+    }
+
+    string GetStreakMessage(int streak)
+    {
+        if (streak >= 30)
+            return "30-Day Streak! You're doing great!";
+        else if (streak >= 14)
+            return "2 Weeks Streak! Keep it up!";
+        else if (streak >= 7)
+            return "7-Day Streak! You're on fire!";
+        else if (streak >= 3)
+            return "Keep going! " + streak + "-day streak!";
+        else
+            return "Great start! " + streak + "-day streak!";
+    }
+
+    public void AddCoins(int amount)
+    {
+        int currentCoins = PlayerPrefs.GetInt("Coins", 0);
+        int totalCoins = PlayerPrefs.GetInt("AllCoins", 0);
+
+        Debug.Log($"Before Adding: Coins = {currentCoins}, AllCoins = {totalCoins}");
+
+        currentCoins += amount;
+        totalCoins += amount;
+
+        PlayerPrefs.SetInt("Coins", currentCoins);
+        PlayerPrefs.SetInt("AllCoins", totalCoins);
+        PlayerPrefs.Save();
+
+        Debug.Log($"After Adding: Coins = {currentCoins}, AllCoins = {totalCoins}");
+
+        StartCoroutine(AnimateCount(totalCoins, coinsText, originalCoinFontSize, true));
+    }
+
+    IEnumerator AnimateCount(int targetValue, TextMeshProUGUI textElement, float originalFontSize, bool isCoin)
+    {
+        int currentValue = int.Parse(textElement.text);
         float elapsedTime = 0f;
+
+        if (isCoin && audioSource != null && coinSound != null)
+        {
+            PlayScaledCoinSound(targetValue);
+        }
 
         while (elapsedTime < animationDuration)
         {
-            int newValue = Mathf.FloorToInt(Mathf.Lerp(0, targetValue, elapsedTime / animationDuration));
-            currentValue = newValue;
-            textElement.text = currentValue.ToString();
+            int newValue = Mathf.FloorToInt(Mathf.Lerp(currentValue, targetValue, elapsedTime / animationDuration));
+            textElement.text = newValue.ToString();
 
-            if (currentValue % 5 == 0 && currentValue != 0)
+            if (newValue % 5 == 0 && newValue != 0)
             {
                 StartCoroutine(ZoomEffect(textElement, originalFontSize));
             }
@@ -95,6 +159,24 @@ public class ProgressTracker : MonoBehaviour
         }
 
         textElement.text = targetValue.ToString();
+    }
+
+    void PlayScaledCoinSound(int coinAmount)
+    {
+        float baseDuration = coinSound.length;
+        float adjustedDuration = Mathf.Clamp(baseDuration * (coinAmount / 10f), 0.2f, 5f);
+        float pitchFactor = Mathf.Clamp(1.0f - (coinAmount / 100f), 0.5f, 1.2f);
+
+        audioSource.pitch = pitchFactor;
+        audioSource.Play();
+
+        StartCoroutine(StopSoundAfterDuration(adjustedDuration));
+    }
+
+    IEnumerator StopSoundAfterDuration(float duration)
+    {
+        yield return new WaitForSeconds(duration);
+        audioSource.Stop();
     }
 
     IEnumerator ZoomEffect(TextMeshProUGUI textElement, float originalFontSize)

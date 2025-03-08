@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using UnityEngine.Video;
 using System.Collections.Generic;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class VideoController : MonoBehaviour
 {
@@ -23,7 +24,7 @@ public class VideoController : MonoBehaviour
 
         // Get video paths and captions from VideoPathManager
         Dictionary<string, string> videoData = VideoPathManager.GetVideoPaths();
-        
+
         // Convert dictionary keys to a list and SORT them to maintain a consistent order
         videoPaths = new List<string>(videoData.Keys);
         videoPaths.Sort(); // Ensures the videos play in the same order every time
@@ -101,5 +102,10 @@ public class VideoController : MonoBehaviour
             currentVideoIndex--;
             PlayVideo(currentVideoIndex);
         }
+    }
+
+    public void gotoChallenge()
+    {
+        SceneManager.LoadScene(5);
     }
 }

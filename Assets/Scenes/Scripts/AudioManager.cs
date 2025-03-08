@@ -23,7 +23,7 @@ public class AudioManager : MonoBehaviour
         int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
 
         // Play main theme only if NOT Scene 10
-        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1 && currentSceneIndex != 9)
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1 && currentSceneIndex != 0)
         {
             PlaySound("MainTheme ");
         }
@@ -83,6 +83,42 @@ public class AudioManager : MonoBehaviour
             isPaused = false;  // Set the global resume flag
         }
     }
+
+    public void StopSound(string name)
+    {
+        foreach (Sound s in sounds)
+        {
+            if (s.name == name)
+            {
+                s.source.Stop();  // Stop the sound
+            }
+        }
+    }
+
+    public void PlaySoundWithPitch(string name, float pitchFactor)
+    {
+        foreach (Sound s in sounds)
+        {
+            if (s.name == name)
+            {
+                s.source.pitch = pitchFactor;  // Set the pitch
+                s.source.Play();  // Play the sound
+            }
+        }
+    }
+    public AudioClip GetSoundClip(string name)
+    {
+        foreach (Sound s in sounds)
+        {
+            if (s.name == name)
+            {
+                return s.clip;  // Return the AudioClip for the sound
+            }
+        }
+        return null;  // Return null if the sound is not found
+    }
+
+
     private AudioClip GetAudioClipByName(string soundName)
     {
         // Retrieve your AudioClip by its name

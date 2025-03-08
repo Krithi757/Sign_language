@@ -116,32 +116,54 @@ public class Running_challenge : MonoBehaviour
         countdownText.gameObject.SetActive(false); // Hide after countdown
 
         isRunning = true;
-        animator.SetBool("isRunning", true); // Start running animation
+        animator.SetBool("isRunning", true); // Start running animation 
+        CheckForDiamondReward();
     }
 
     private void CheckForDiamondReward()
     {
         if (!diamondGranted && System.Array.Exists(diamondRewardScores, s => s == scoreNumber))
         {
-            if (scoreNumber == 1) // Grant diamonds when score is 1 
+            int diamondsToAdd = 0;
+
+            if (scoreNumber == 1) // Fixed reward for score 1
             {
-                numberOfDiamonds += 20;
-                diamondPanelText.text = "You got +2 Diamonds!";
+                diamondsToAdd = 2;
+            }
+            else if (scoreNumber >= 3 && scoreNumber <= 7) // Randomize when diamond panel is displayed for scores 2 to 5
+            {
+                // Randomly decide whether to show the diamond panel based on the score number
+                if (Random.Range(0, 2) == 0) // Randomly either show or not show the diamond panel
+                {
+                    diamondsToAdd = 2; // You can keep it fixed or modify as per your needs
+                }
+            }
+
+            if (diamondsToAdd > 0)
+            {
+                if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+                {
+                    FindObjectOfType<AudioManager>().PlaySound("DiamondSound"); // Play sound only once
+                }
+
+                numberOfDiamonds += diamondsToAdd;
+                diamondPanelText.text = $"You got +{diamondsToAdd} Diamonds!";
                 diamondPanel.SetActive(true);
                 diamondGranted = true;
                 StartCoroutine(HideDiamondPanel());
 
-
-                Debug.Log("Diamonds granted: " + numberOfDiamonds);
+                Debug.Log($"Diamonds granted: {diamondsToAdd}, Total Diamonds: {numberOfDiamonds}");
                 PlayerPrefs.SetInt("Diamond", numberOfDiamonds);
                 PlayerPrefs.Save();
             }
         }
     }
 
+
+
     IEnumerator HideDiamondPanel()
     {
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(4f);
         diamondPanel.SetActive(false);
     }
 
@@ -201,7 +223,7 @@ public class Running_challenge : MonoBehaviour
         }
         Time.timeScale = 1f; // Ensure normal time scale
         OnEndGame();
-        SceneManager.LoadScene(6);
+        SceneManager.LoadScene(7);
     }
 
 
@@ -244,6 +266,8 @@ public class Running_challenge : MonoBehaviour
 
         Time.timeScale = 1f; // Resume the game
     }
+
+
 
 
     void Update()
@@ -344,6 +368,14 @@ public class Running_challenge : MonoBehaviour
         PlayerPrefs.SetInt("Score", scoreNumber);
         int levelCompleted = PlayerPrefs.GetInt("SelectedLevelId");
         PlayerPrefs.SetInt("IsCompleted", isCompleted ? 1 : 0); // Save as int 
+
+        int diamonds = PlayerPrefs.GetInt("Diamonds", 0);
+
+        int totalCoins = PlayerPrefs.GetInt("AllCoins", 0) + cpins;
+        PlayerPrefs.SetInt("AllCoins", totalCoins);
+
+        int totalDiamonds = PlayerPrefs.GetInt("AllDiamonds", 0) + diamonds;
+        PlayerPrefs.SetInt("AllDiamonds", totalDiamonds);
         PlayerPrefs.Save();
 
         //StartCoroutine(LoadNextSceneWithDelay());
@@ -369,8 +401,16 @@ public class Running_challenge : MonoBehaviour
             int cpins = PlayerPrefs.GetInt("Coins", 0);
             Debug.Log("Coins " + cpins);
             PlayerPrefs.SetInt("Score", scoreNumber);
+
+            int diamonds = PlayerPrefs.GetInt("Diamonds", 0);
             int levelCompleted = PlayerPrefs.GetInt("SelectedLevelId");
             PlayerPrefs.SetInt("IsCompleted", isCompleted ? 1 : 0); // Save as int 
+
+            int totalCoins = PlayerPrefs.GetInt("AllCoins", 0) + cpins;
+            PlayerPrefs.SetInt("AllCoins", totalCoins);
+
+            int totalDiamonds = PlayerPrefs.GetInt("AllDiamonds", 0) + diamonds;
+            PlayerPrefs.SetInt("AllDiamonds", totalDiamonds);
             PlayerPrefs.Save();
 
             StartCoroutine(LoadNextSceneWithDelay());
@@ -380,11 +420,12 @@ public class Running_challenge : MonoBehaviour
     IEnumerator LoadNextSceneWithDelay()
     {
         yield return new WaitForSeconds(2f); // Wait for 2 seconds
-        SceneManager.LoadScene(6);
+        SceneManager.LoadScene(7);
     }
 
     private void OnTriggerEnter(Collider other)
     {
+        CheckForDiamondReward();
         TextMeshPro textMeshPro = other.GetComponent<TextMeshPro>();
 
         if (textMeshPro != null && tileManager != null)
