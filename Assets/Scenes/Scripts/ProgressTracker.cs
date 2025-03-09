@@ -227,6 +227,7 @@ public class ProgressTracker : MonoBehaviour
         {
             FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
         }
+        Debug.Log("Clicked main menu");
 
         // Start the coroutine to wait for the sound to finish before loading the scene
         StartCoroutine(LoadSceneAfterSound(1));
