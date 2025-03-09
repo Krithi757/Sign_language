@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
 
@@ -11,6 +12,11 @@ public class ProgressPage : MonoBehaviour
     public TextMeshProUGUI timeSpentText;
     public TextMeshProUGUI dateText;
     public TextMeshProUGUI streakText;
+
+    public Image streakProgressBar; // Assign in Unity Inspector
+    public Color startColor = Color.green;  // Color when streak is low
+    public Color midColor = Color.yellow;   // Midway color
+    public Color endColor = Color.red;      // Near completion color
 
     public float animationDuration = 2f;
     public float zoomDuration = 0.5f;
@@ -69,28 +75,21 @@ public class ProgressPage : MonoBehaviour
 
         int streak = PlayerPrefs.GetInt("Streak", 0);
 
-        if (lastLogin == today)
-        {
-            Debug.Log("Already logged in today. Streak remains the same.");
-        }
-        else
+        if (lastLogin != today)
         {
             System.DateTime lastDate;
-            if (System.DateTime.TryParse(lastLogin, out lastDate))
+            if (System.DateTime.TryParse(lastLogin, out lastDate) && (System.DateTime.Now - lastDate).Days == 1)
             {
-                System.DateTime currentDate = System.DateTime.Now;
-                if ((currentDate - lastDate).Days == 1)
-                {
-                    streak++;
-                }
-                else
-                {
-                    streak = 1;
-                }
+                streak++;
             }
             else
             {
-                streak = 1;
+                streak = 1; // Reset if missed a day
+            }
+
+            if (streak > 30)
+            {
+                streak = 1; // Reset streak after 30 days
             }
 
             PlayerPrefs.SetInt("Streak", streak);
@@ -99,6 +98,9 @@ public class ProgressPage : MonoBehaviour
         }
 
         streakText.text = GetStreakMessage(streak);
+
+        // Animate streak progress bar
+        StartCoroutine(AnimateStreakProgress(streak));
     }
 
     string GetStreakMessage(int streak)
@@ -113,6 +115,23 @@ public class ProgressPage : MonoBehaviour
             return "Keep going! " + streak + "-day streak!";
         else
             return "Great start! " + streak + "-day streak!";
+    }
+
+    IEnumerator AnimateStreakProgress(int streak)
+    {
+        float targetFill = streak / 30f;
+        float elapsedTime = 0f;
+        float startFill = streakProgressBar.fillAmount;
+
+        while (elapsedTime < animationDuration)
+        {
+            streakProgressBar.fillAmount = Mathf.Lerp(startFill, targetFill, elapsedTime / animationDuration);
+            streakProgressBar.color = Color.Lerp(startColor, (streak >= 15 ? endColor : midColor), targetFill);
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        streakProgressBar.fillAmount = targetFill;
     }
 
     public void AddCoins(int amount)
