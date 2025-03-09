@@ -35,6 +35,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/LoadingScreen.unity
     guid: 2730ed4dfb34a59499f1683b82178e10
+  - enabled: 1
+    path: Assets/Scenes/LearningMode.unity
+    guid: 4d7d05a147c010940a5dcbd5079ebbc8
   m_configObjects:
     com.unity.adaptiveperformance.google.android.provider_settings: {fileID: 11400000,
       guid: e5b4fae91efc8e6418030e66d3c36f58, type: 2}

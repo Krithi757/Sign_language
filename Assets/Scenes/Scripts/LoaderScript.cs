@@ -15,7 +15,10 @@ public class LoaderScript : MonoBehaviour
 
     IEnumerator LoadScene()
     {
-
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("LoadingMusic"); // Play sound only once
+        }
         float elapsedTime = 0f;
         while (elapsedTime < loadingTime)
         {
