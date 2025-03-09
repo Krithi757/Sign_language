@@ -10,6 +10,7 @@ public class ProgressTracker : MonoBehaviour
     public TextMeshProUGUI timeSpentText;
     public TextMeshProUGUI dateText;
     public TextMeshProUGUI streakText;
+    public TextMeshProUGUI name;
 
     public float animationDuration = 2f;
     public float zoomDuration = 0.5f;
@@ -24,6 +25,21 @@ public class ProgressTracker : MonoBehaviour
 
     void Start()
     {
+        if (PlayerPrefs.HasKey("PlayerName") && !string.IsNullOrEmpty(PlayerPrefs.GetString("PlayerName")))
+        {
+            // If PlayerName already exists, go to scene 9 
+
+
+            string playerName = PlayerPrefs.GetString("PlayerName", "DefaultName"); // DefaultName is optional and used if PlayerName is not found
+
+            // Log the PlayerName value
+            Debug.Log("Player Name: " + playerName);
+            name.text = "Welcome back, " + playerName;
+        }
+        else
+        {
+            name.gameObject.SetActive(false);
+        }
         Debug.Log("Session Coins: " + PlayerPrefs.GetInt("Coins", 0));
         Debug.Log("Session Diamonds: " + PlayerPrefs.GetInt("Diamond", 0));
         Debug.Log("Session Score: " + PlayerPrefs.GetInt("Score", 0));
@@ -140,7 +156,10 @@ public class ProgressTracker : MonoBehaviour
 
         if (isCoin && audioSource != null && coinSound != null)
         {
-            PlayScaledCoinSound(targetValue);
+            if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+            {
+                PlayScaledCoinSound(targetValue);
+            }
         }
 
         while (elapsedTime < animationDuration)
@@ -167,7 +186,10 @@ public class ProgressTracker : MonoBehaviour
         float pitchFactor = Mathf.Clamp(1.0f - (coinAmount / 100f), 0.5f, 1.2f);
 
         audioSource.pitch = pitchFactor;
-        audioSource.Play();
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            audioSource.Play();
+        }
 
         StartCoroutine(StopSoundAfterDuration(adjustedDuration));
     }
