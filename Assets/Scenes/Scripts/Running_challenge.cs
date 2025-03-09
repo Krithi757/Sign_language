@@ -95,7 +95,7 @@ public class Running_challenge : MonoBehaviour
 
         if (mainCamera != null)
         {
-            mainCamera.transform.position = new Vector3(126.06f, 13.85f, -0.7f);
+            mainCamera.transform.position = new Vector3(126.06f, 13.85f, 0.04f);
         }
 
         if (tileManager != null && tileManager.videoPlayer != null && tileManager.videoPlayer.clip != null)
