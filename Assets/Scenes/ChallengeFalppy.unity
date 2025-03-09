@@ -635,9 +635,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   videoPlayer: {fileID: 757948883}
-  questionVideos: []
-  answers: []
-  answerTexts: []
+  rawImage: {fileID: 0}
+  videoInfoText: {fileID: 0}
 --- !u!4 &1585010132
 Transform:
   m_ObjectHideFlags: 0
