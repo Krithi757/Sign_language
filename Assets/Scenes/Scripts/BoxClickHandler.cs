@@ -14,6 +14,7 @@ public class BoxClickHandler : MonoBehaviour
     public VideoPlayer videoPlayer;
     public RenderTexture renderTexture;
     public GameObject helpPanel; // Panel for help instructions
+    public GameObject timeUpPanel;
 
     public GameObject closeButton;
     private static bool isBoxClicked = false;
@@ -53,46 +54,48 @@ public class BoxClickHandler : MonoBehaviour
     public TextMeshProUGUI timerText;
 
 
-    private float gameDuration = 10f;
+    private float gameDuration = 30f;
     private float timeRemaining;
     private bool isGameOver = false;
+    public GameObject mainMenuPanel;
+    public GameObject helppPanel;
 
 
     void Awake()
     {
+
         // Load video paths from the manager instead of local storage
         LoadVideoPaths();
 
-        // Always re-randomize and assign videos when scene reloads
-        if (boxVideoAssignments == null || boxVideoAssignments.Count == 0)
+        if (boxVideoAssignments == null)
         {
             RandomizeAndAssignVideos();
         }
     }
 
-
-
     void Start()
     {
+        mainMenuPanel.SetActive(false);
+        timeUpPanel.SetActive(false);
         helpPanel.SetActive(false);
         closeButton.SetActive(false);
         resume.SetActive(false);
+        StartCoroutine(ShowHelpPanel());
+
         if (boxVideoAssignments == null)
         {
             boxVideoAssignments = new Dictionary<GameObject, string>();
-            Debug.Log(boxVideoAssignments);
         }
 
         timeRemaining = gameDuration;
         ChallengeTracker.currentChallenge = 2;
         timeUpText.gameObject.SetActive(false); // Hide "Time is Up" label at start
-        StartCoroutine(GameTimer());
+
         if (videoPlayer == null || videoDisplay == null || renderTexture == null)
         {
             Debug.LogError("VideoPlayer, VideoDisplay, or RenderTexture not assigned!");
             return;
         }
-
 
         ClearCacheAndReset();
         ClearRenderTexture();
@@ -109,7 +112,15 @@ public class BoxClickHandler : MonoBehaviour
         Debug.Log($"Script initialized for box: {gameObject.name}");
     }
 
+    IEnumerator ShowHelpPanel()
+    {
+        helppPanel.SetActive(true);  // Show the help panel
+        yield return new WaitForSeconds(2f);  // Wait for 1 second
+        helppPanel.SetActive(false); // Hide the help panel
 
+        // Now that help panel is closed, start the game timer
+        StartCoroutine(GameTimer());
+    }
 
     void ResetStaticVariables()
     {
@@ -133,17 +144,27 @@ public class BoxClickHandler : MonoBehaviour
 
     IEnumerator GameTimer()
     {
+        float tickInterval = 1f; // Play tick sound every second
+        float nextTickTime = timeRemaining; // Initialize next tick time
+
         while (timeRemaining > 0)
         {
-            // If the help panel is active or the game is paused, wait without decrementing time
-            if ((helpPanel.activeSelf) || (isPause))
+            // Pause the timer if help panel is active or game is paused
+            if (helpPanel.activeSelf || isPause)
             {
                 Debug.Log("Game is paused or help panel is active.");
-                yield return null; // Wait until the next frame, effectively pausing the timer
-                continue; // Skip to the next frame and check the conditions again
+                yield return null;
+                continue;
             }
 
-            // Decrement time and update the UI if game is running
+            // Play tick sound at 1-second intervals
+            if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1 && timeRemaining <= nextTickTime)
+            {
+                FindObjectOfType<AudioManager>().PlaySound("TickSound");
+                nextTickTime -= tickInterval; // Schedule the next tick sound
+            }
+
+            // Decrement time and update the UI
             timeRemaining -= Time.deltaTime;
             int hours = Mathf.FloorToInt(timeRemaining / 3600);
             int minutes = Mathf.FloorToInt((timeRemaining % 3600) / 60);
@@ -153,22 +174,58 @@ public class BoxClickHandler : MonoBehaviour
             yield return null; // Wait until the next frame
         }
 
+        // Once the timer ends
         EndGame();
     }
 
+
+
+
+    public void giveUp()
+    {
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("TapSound");
+        }
+        Time.timeScale = 1f; // Ensure normal time scale 
+        endThisGame();
+        SceneManager.LoadScene(5);
+    }
+
     // Pause button method to toggle the pause state
+
     public void isPaused()
     {
+        mainMenuPanel.SetActive(true);
         isPause = true;
-        Debug.Log("isPause toggled. Current state: " + isPause);
         resume.SetActive(true);
+        Time.timeScale = 0f; // Pause all game mechanics
+
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("TapSound");
+        }
+        FindObjectOfType<AudioManager>().PauseAllSounds();
+
+        Debug.Log("Game is now paused.");
     }
+
     public void isResumed()
     {
-        resume.SetActive(false);
+        mainMenuPanel.SetActive(false);
         isPause = false;
-        Debug.Log("isPause toggled. Current state: " + isPause);
+        resume.SetActive(false);
+        Time.timeScale = 1f; // Resume game mechanics
+
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("TapSound");
+        }
+        FindObjectOfType<AudioManager>().ResumeAllSounds();
+
+        Debug.Log("Game has resumed.");
     }
+
 
 
 
@@ -186,12 +243,12 @@ public class BoxClickHandler : MonoBehaviour
 
     void Update()
     {
-        if (helpPanel.activeSelf) return; // Pause game updates if help panel is open
+        if (isPause) return;
+        if (helpPanel.activeSelf) return;
 
         if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
         {
             Vector2 touchPos = Input.GetTouch(0).position;
-
             RectTransform rectTransform = GetComponent<RectTransform>();
             Vector2 localPoint;
             RectTransformUtility.ScreenPointToLocalPointInRectangle(rectTransform, touchPos, null, out localPoint);
@@ -204,18 +261,17 @@ public class BoxClickHandler : MonoBehaviour
 
         if (isFlyingAway)
         {
-            FlyAwayAndDisableUpdate();
+            FlyAwayAndDisableUpdate(); // Let the animation happen, but don’t block interactions
         }
     }
 
 
     public void HandleClick()
     {
-
-        if (isBoxClicked) return; // Prevent interaction if a box is already clicked
-
-        // Set the flag to true as soon as a box is clicked
-        isBoxClicked = true;
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("TapSound");
+        }
 
         Debug.Log($"Box touched: {gameObject.name}");
 
@@ -232,13 +288,8 @@ public class BoxClickHandler : MonoBehaviour
             Debug.Log("Playing " + assignedVideoPath);
             PlayVideo(assignedVideoPath);
             videoDisplay.enabled = true;
-
-
             clicked = assignedVideoPath;
         }));
-
-        // Toggle click state if needed
-        isClickedOnce = !isClickedOnce;
     }
 
     void ClearCacheAndReset()
@@ -505,7 +556,10 @@ public class BoxClickHandler : MonoBehaviour
                 {
                     Debug.Log("Video box is " + clickedBox);
                     Debug.Log("Word box is " + selectedWordBox);
-                    FindObjectOfType<AudioManager>().PlaySound("PickupCoins ");
+                    if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+                    {
+                        FindObjectOfType<AudioManager>().PlaySound("Correct"); // Play sound only once
+                    }
                     HandleMatch(selectedWordBox, clickedBox); // Pass both boxes
                 }
                 else
@@ -518,6 +572,10 @@ public class BoxClickHandler : MonoBehaviour
             else
             {
                 Debug.Log($"No match. Word '{selectedWord}' does not match the assigned word '{correctWord}'.");
+                if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+                {
+                    FindObjectOfType<AudioManager>().PlaySound("Error"); // Play sound only once
+                }
                 if (coins >= 2)
                 {
                     coins -= 2;
@@ -531,6 +589,19 @@ public class BoxClickHandler : MonoBehaviour
         }
     }
 
+    public void endThisGame()
+    {
+        isGameOver = true;
+        int isCompleted = (score == 8) ? 1 : 0;
+        PlayerPrefs.SetInt("Coins", coins);
+        PlayerPrefs.SetInt("Score", score);
+        PlayerPrefs.SetInt("IsCompleted", isCompleted);
+
+        int totalCoins = PlayerPrefs.GetInt("AllCoins", 0) + coins;
+        PlayerPrefs.SetInt("AllCoins", totalCoins);
+        Debug.Log("Game Over! IsCompleted: " + isCompleted);
+    }
+
     void EndGame()
     {
         isGameOver = true;
@@ -538,29 +609,62 @@ public class BoxClickHandler : MonoBehaviour
         int isCompleted = (score == 8) ? 1 : 0;
         PlayerPrefs.SetInt("Coins", coins);
         PlayerPrefs.SetInt("Score", score);
-        PlayerPrefs.SetInt("ChallengeIsCompleted", isCompleted);
+        PlayerPrefs.SetInt("IsCompleted", isCompleted);
+
+        int totalCoins = PlayerPrefs.GetInt("AllCoins", 0) + coins;
+        PlayerPrefs.SetInt("AllCoins", totalCoins);
+        PlayerPrefs.Save();
+
 
         // Show "Time is Up" label
         timerText.text = "Time is Up!";
+        timeUpPanel.gameObject.SetActive(true);
+
+        // Wait for 1 second before transitioning to the next scene
+        StartCoroutine(ShowTimeUpAndNextScene());
 
         Debug.Log("Game Over! IsCompleted: " + isCompleted);
-
-        StopAllCoroutines();
-
-        // Load Scene 5
-        SceneManager.LoadScene(6);
     }
 
+    IEnumerator ShowTimeUpAndNextScene()
+    {
+        // Wait for 1 second before moving to the next scene
+        yield return new WaitForSeconds(3f);
+
+        // Hide the "Time is up!" text
+        timeUpText.gameObject.SetActive(false);
+        StopAllCoroutines();
+
+        // Load the next scene (replace with your actual scene name)
+        SceneManager.LoadScene(5); // Replace "NextScene" with the actual scene name
+    }
     public void ShowHelp()
     {
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
+        }
+        StartCoroutine(WaitForTapSound());
+        FindObjectOfType<AudioManager>().PauseAllSounds();
         helpPanel.SetActive(true);
         closeButton.SetActive(true); // Show close button when panel is visible
     }
 
     public void HideHelp()
     {
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
+        }
+        FindObjectOfType<AudioManager>().ResumeAllSounds();
         helpPanel.SetActive(false);
         closeButton.SetActive(false); // Hide close button when panel is hidden
+    }
+
+    private IEnumerator WaitForTapSound()
+    {
+        // Wait for 0.3 seconds to allow the sound to be heard
+        yield return new WaitForSeconds(1);
     }
 
 

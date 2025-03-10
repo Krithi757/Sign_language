@@ -1,12 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class AudioManager : MonoBehaviour
 {
     public Sound[] sounds;
     public static AudioManager instance;
+    private bool isPaused = false;
     private bool mute = false;
+    private Dictionary<string, bool> soundPauseState = new Dictionary<string, bool>();
 
     // Start is called before the first frame update
     void Start()
@@ -16,10 +19,13 @@ public class AudioManager : MonoBehaviour
             s.source = gameObject.AddComponent<AudioSource>();
             s.source.clip = s.clip;
             s.source.loop = s.loop;
-            if (PlayerPrefs.GetInt("AudioMuted", 1) == 1)
-            {
-                PlaySound("MainTheme ");
-            }
+        }
+        int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
+
+        // Play main theme only if NOT Scene 10
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1 && currentSceneIndex != 0 && currentSceneIndex != 9 && currentSceneIndex != 5)
+        {
+            PlaySound("MainTheme ");
         }
 
     }
@@ -43,6 +49,82 @@ public class AudioManager : MonoBehaviour
             else
                 s.source.Play();
         }
+    }
+
+    public void PauseAllSounds()
+    {
+        if (!isPaused)  // Prevent double pausing
+        {
+            foreach (Sound s in sounds)
+            {
+                if (s.source.isPlaying)
+                {
+                    Debug.Log("Pausing sound: " + s.name);
+                    s.source.Pause();  // Pause the sound
+                    soundPauseState[s.name] = true;  // Track that this sound is paused
+                }
+            }
+            isPaused = true;  // Set the global pause flag
+        }
+    }
+
+    public void ResumeAllSounds()
+    {
+        if (isPaused)  // Prevent double resuming
+        {
+            foreach (Sound s in sounds)
+            {
+                if (soundPauseState.ContainsKey(s.name) && soundPauseState[s.name])
+                {
+                    s.source.UnPause();  // Resume the sound
+                    soundPauseState[s.name] = false;  // Reset the pause state
+                }
+            }
+            isPaused = false;  // Set the global resume flag
+        }
+    }
+
+    public void StopSound(string name)
+    {
+        foreach (Sound s in sounds)
+        {
+            if (s.name == name)
+            {
+                s.source.Stop();  // Stop the sound
+            }
+        }
+    }
+
+    public void PlaySoundWithPitch(string name, float pitchFactor)
+    {
+        foreach (Sound s in sounds)
+        {
+            if (s.name == name)
+            {
+                s.source.pitch = pitchFactor;  // Set the pitch
+                s.source.Play();  // Play the sound
+            }
+        }
+    }
+    public AudioClip GetSoundClip(string name)
+    {
+        foreach (Sound s in sounds)
+        {
+            if (s.name == name)
+            {
+                return s.clip;  // Return the AudioClip for the sound
+            }
+        }
+        return null;  // Return null if the sound is not found
+    }
+
+
+    private AudioClip GetAudioClipByName(string soundName)
+    {
+        // Retrieve your AudioClip by its name
+        // For example, from a dictionary or an array of sounds
+        // This is just an example; modify based on your actual setup
+        return Resources.Load<AudioClip>("Audio/" + soundName);
     }
 
 }
