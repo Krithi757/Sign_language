@@ -6,11 +6,12 @@ using UnityEngine.Video;
 using UnityEngine.UI;
 using System.Linq;
 
+using TMPro;
 public class RandomVideoPlayer : MonoBehaviour
 {
     public VideoPlayer videoPlayer;
     public RawImage rawImage;
-    public Text videoInfoText; // UI text to display video info
+    public TextMeshProUGUI videoInfoText; // UI text to display video info
 
     // Lists to hold video paths and corresponding text
     private List<string> videoPaths;
