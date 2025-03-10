@@ -107,5 +107,10 @@ public class VideoController : MonoBehaviour
     public void gotoChallenge()
     {
         SceneManager.LoadScene(4);
+    } 
+
+    public void gotoHome()
+    {
+        SceneManager.LoadScene(1);
     }
 }
