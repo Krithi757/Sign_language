@@ -80,7 +80,6 @@ public class BoxClickHandler : MonoBehaviour
         helpPanel.SetActive(false);
         closeButton.SetActive(false);
         resume.SetActive(false);
-
         StartCoroutine(ShowHelpPanel());
 
         if (boxVideoAssignments == null)
@@ -115,10 +114,6 @@ public class BoxClickHandler : MonoBehaviour
 
     IEnumerator ShowHelpPanel()
     {
-        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
-        {
-            FindObjectOfType<AudioManager>().PlaySound("ReadySound");
-        }
         helppPanel.SetActive(true);  // Show the help panel
         yield return new WaitForSeconds(2f);  // Wait for 1 second
         helppPanel.SetActive(false); // Hide the help panel
@@ -194,7 +189,7 @@ public class BoxClickHandler : MonoBehaviour
         }
         Time.timeScale = 1f; // Ensure normal time scale 
         endThisGame();
-        SceneManager.LoadScene(6);
+        SceneManager.LoadScene(5);
     }
 
     // Pause button method to toggle the pause state
@@ -623,6 +618,9 @@ public class BoxClickHandler : MonoBehaviour
         PlayerPrefs.SetInt("Coins", coins);
         PlayerPrefs.SetInt("Score", score);
         PlayerPrefs.SetInt("IsCompleted", isCompleted);
+
+        int totalCoins = PlayerPrefs.GetInt("AllCoins", 0) + coins;
+        PlayerPrefs.SetInt("AllCoins", totalCoins);
         Debug.Log("Game Over! IsCompleted: " + isCompleted);
     }
 
@@ -634,6 +632,11 @@ public class BoxClickHandler : MonoBehaviour
         PlayerPrefs.SetInt("Coins", coins);
         PlayerPrefs.SetInt("Score", score);
         PlayerPrefs.SetInt("IsCompleted", isCompleted);
+
+        int totalCoins = PlayerPrefs.GetInt("AllCoins", 0) + coins;
+        PlayerPrefs.SetInt("AllCoins", totalCoins);
+        PlayerPrefs.Save();
+
 
         // Show "Time is Up" label
         timerText.text = "Time is Up!";
@@ -655,7 +658,7 @@ public class BoxClickHandler : MonoBehaviour
         StopAllCoroutines();
 
         // Load the next scene (replace with your actual scene name)
-        SceneManager.LoadScene(6); // Replace "NextScene" with the actual scene name
+        SceneManager.LoadScene(5); // Replace "NextScene" with the actual scene name
     }
     public void ShowHelp()
     {

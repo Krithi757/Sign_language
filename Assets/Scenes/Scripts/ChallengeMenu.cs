@@ -11,7 +11,7 @@ public class ChallengeMenu : MonoBehaviour
     public TextMeshProUGUI timerText; // Assign the UI Text for countdown
 
     private const string Challenge1Key = "LastChallenge1Time"; // Key for PlayerPrefs
-    private const int cooldownDuration = 259200; // 3 days in seconds
+    private const int cooldownDuration = 3; // 3 days in seconds
 
     //private const int cooldownDuration = 3; // 3 days in seconds
     public Transform draggedPrefab;

@@ -7,12 +7,14 @@ public class ChallengeFeedback : MonoBehaviour
 {
     public NumberIncrementer incrementer;
     public NumberIncrementer incrementer1;
+    public NumberIncrementer incrementer2;
 
     public NumberIncrementer incrementerCoinTotal;
     public NumberIncrementer incrementerDiamondTotal;
     public NumberIncrementer incrementerFireTotal;
     public TextMeshProUGUI coinsText;
     public TextMeshProUGUI scoreText;
+    public TextMeshProUGUI diamondText;
 
     public TextMeshProUGUI TopcoinsText;
     public TextMeshProUGUI TopdiamondText;
@@ -28,19 +30,38 @@ public class ChallengeFeedback : MonoBehaviour
 
     void Start()
     {
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("LoadingSound"); // Play sound only once
+        }
         int finalCoins = PlayerPrefs.GetInt("Coins", 0);
         int finalScore = PlayerPrefs.GetInt("Score", 0);
+        int diamonds = PlayerPrefs.GetInt("Diamonds", 0);
+        Debug.Log("Dimonds: " + diamonds);
         int isCompleted = PlayerPrefs.GetInt("IsCompleted", 0);
 
-        // Start the coin and score increment animations
-        StartCoroutine(AnimateCoinsAndScore(0, finalCoins, 0, finalScore));
-        //StartCoroutine(AnimateCoinsAndScore(0, 100, 0, 50));
+        // Calculate dynamic fire number based on Coins and Score
+        // int firNumber = (finalCoins / 10) + (finalScore / 20); // Adjust formula as needed
+        int firNumber = finalCoins + (finalScore % 7 + 2) * 3;
 
+        // Save the calculated firNumber
+        PlayerPrefs.SetInt("FirNumber", firNumber);
+
+        // Retrieve and update AllFire by adding FirNumber
+        int allFire = PlayerPrefs.GetInt("AllFire", 0) + firNumber;
+        PlayerPrefs.SetInt("AllFire", allFire);
+
+        PlayerPrefs.Save(); // Save the updated PlayerPrefs
+
+        // Start the coin and score increment animations
+        StartCoroutine(AnimateCoinsAndScore(0, finalCoins, 0, finalScore, 0, diamonds));
+
+        // Play celebration or loss animation based on completion
         if (isCompleted == 1)
         {
             if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
             {
-                FindObjectOfType<AudioManager>().PlaySound("HaSound"); // Play sound only once
+                FindObjectOfType<AudioManager>().PlaySound("HaSound");
             }
             characterAnimator.SetBool("isDanceCover", true);
             characterAnimator.SetBool("isIdle", false);
@@ -49,15 +70,14 @@ public class ChallengeFeedback : MonoBehaviour
         {
             if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
             {
-                FindObjectOfType<AudioManager>().PlaySound("LoseSound"); // Play sound only once
+                FindObjectOfType<AudioManager>().PlaySound("LoseSound");
             }
             characterAnimator.SetBool("isDanceCover", false);
             characterAnimator.SetBool("isIdle", true);
         }
     }
 
-    // Coroutine to handle the coin and score increment animation
-    private IEnumerator AnimateCoinsAndScore(int startCoins, int targetCoins, int startScore, int targetScore)
+    private IEnumerator AnimateCoinsAndScore(int startCoins, int targetCoins, int startScore, int targetScore, int startDiamonds, int targetDiamonds)
     {
         float elapsedTime = 0f;
 
@@ -65,9 +85,14 @@ public class ChallengeFeedback : MonoBehaviour
         {
             int currentCoins = Mathf.FloorToInt(Mathf.Lerp(startCoins, targetCoins, elapsedTime));
             int currentScore = Mathf.FloorToInt(Mathf.Lerp(startScore, targetScore, elapsedTime));
+            Debug.Log("Target Diamonds: " + targetDiamonds.ToString());
+            int currentDiamonds = Mathf.FloorToInt(Mathf.Lerp(startDiamonds, targetDiamonds, elapsedTime));
+            Debug.Log("Current Diamonds " + currentDiamonds.ToString());
+
 
             coinsText.text = currentCoins.ToString();
             scoreText.text = currentScore.ToString();
+            diamondText.text = currentDiamonds.ToString();
 
             elapsedTime += Time.deltaTime / coinAnimationSpeed;
             yield return null;
@@ -76,6 +101,7 @@ public class ChallengeFeedback : MonoBehaviour
         // Ensure final values are set
         incrementer.IncrementTo(targetScore);
         incrementer1.IncrementTo(targetCoins);
+        incrementer2.IncrementTo(targetDiamonds);
 
         if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
         {
@@ -95,14 +121,25 @@ public class ChallengeFeedback : MonoBehaviour
         }
 
         FindObjectOfType<ShimmerCollector>().CollectShimmer(draggedPrefab);
-        incrementerDiamondTotal.IncrementTo(10);
-        incrementerFireTotal.IncrementTo(43);
+
+        int totalDiamonds = PlayerPrefs.GetInt("AllDiamonds", 0);
+        Debug.Log("The enitire diamonds is: " + totalDiamonds.ToString());
+        int totalCoins = PlayerPrefs.GetInt("AllCoins", 0);
+
+        Debug.Log("Total number of coins " + totalCoins);
+
+        incrementerDiamondTotal.IncrementTo(totalDiamonds);
+
+        // Use the dynamically calculated fire number instead of a static value
+        int firNumber = PlayerPrefs.GetInt("FirNumber", 0);
+        int allfire = PlayerPrefs.GetInt("AllFire", 0);
+        incrementerFireTotal.IncrementTo(allfire);
 
         // Wait until CoinCollector animation finishes
         yield return new WaitUntil(() => coinCollector.IsFinished);
 
         // Now increment the totals
-        incrementerCoinTotal.IncrementTo(50);
+        incrementerCoinTotal.IncrementTo(totalCoins);
     }
 
     // Coroutine to handle the jump and animation transitions
@@ -186,7 +223,18 @@ public class ChallengeFeedback : MonoBehaviour
             FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
         }
 
-        StartCoroutine(LoadSceneAfterSound(0));
+        StartCoroutine(LoadSceneAfterSound(1));
+    }
+
+    public void OnProgressButtonCClicked()
+    {
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
+        }
+        // Load the current challenge scene (assuming ChallengeTracker.CurrentChallenge stores the current challenge index/scene)
+        int currentChallenge = ChallengeTracker.currentChallenge;
+        StartCoroutine(LoadSceneAfterSound(6));
     }
 
     public void OnPlayGameClicked()
