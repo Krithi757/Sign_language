@@ -45,7 +45,7 @@ EditorBuildSettings:
     path: Assets/Scenes/Shop_Store3.unity
     guid: ce83c2de9e6444c4d8b43d9c0ee8494d
   - enabled: 1
-    path: Assets/Scenes/Shop_Store4.unity
+    path: Assets/Scenes/Shop_Store3.unity
     guid: a6478bb1d00cecc4ca3d7a6cd3df1407
   m_configObjects:
     com.unity.adaptiveperformance.google.android.provider_settings: {fileID: 11400000,
