@@ -1,19 +1,9 @@
 fileFormatVersion: 2
-guid: 623ac2bc4872c4349a08b9d9a453ae1c
+guid: 5beac91dced6aaf4e8247837366a1b3a
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
-  externalObjects:
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Pig Color
-    second: {fileID: 2100000, guid: 2750ba01cba6b3245acd74d46a66e0d5, type: 2}
-  - first:
-      type: UnityEngine:Texture2D
-      assembly: UnityEngine.CoreModule
-      name: Pig Color Base Color
-    second: {fileID: 2800000, guid: f45198c6c75ec5b45a11e80c9df8542b, type: 3}
+  externalObjects: {}
   materials:
     materialImportMode: 2
     materialName: 0

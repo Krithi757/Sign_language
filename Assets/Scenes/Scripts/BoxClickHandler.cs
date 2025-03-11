@@ -243,20 +243,8 @@ public class BoxClickHandler : MonoBehaviour
 
     void Update()
     {
-        if (isPause)
-        {
-            if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
-            {
-                Vector2 touchPos = Input.GetTouch(0).position;
-                if (!RectTransformUtility.RectangleContainsScreenPoint(mainMenuPanel.GetComponent<RectTransform>(), touchPos))
-                {
-                    isResumed();
-                }
-            }
-            return; // Prevent any other interactions while paused
-        }
-
-        if (helpPanel.activeSelf) return; // Pause game updates if help panel is open
+        if (isPause) return;
+        if (helpPanel.activeSelf) return;
 
         if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
         {
@@ -273,7 +261,7 @@ public class BoxClickHandler : MonoBehaviour
 
         if (isFlyingAway)
         {
-            FlyAwayAndDisableUpdate();
+            FlyAwayAndDisableUpdate(); // Let the animation happen, but don’t block interactions
         }
     }
 
@@ -282,13 +270,8 @@ public class BoxClickHandler : MonoBehaviour
     {
         if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
         {
-            FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
+            FindObjectOfType<AudioManager>().PlaySound("TapSound");
         }
-
-        if (isBoxClicked) return; // Prevent interaction if a box is already clicked
-
-        // Set the flag to true as soon as a box is clicked
-        isBoxClicked = true;
 
         Debug.Log($"Box touched: {gameObject.name}");
 
@@ -305,13 +288,8 @@ public class BoxClickHandler : MonoBehaviour
             Debug.Log("Playing " + assignedVideoPath);
             PlayVideo(assignedVideoPath);
             videoDisplay.enabled = true;
-
-
             clicked = assignedVideoPath;
         }));
-
-        // Toggle click state if needed
-        isClickedOnce = !isClickedOnce;
     }
 
     void ClearCacheAndReset()

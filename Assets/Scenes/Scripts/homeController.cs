@@ -272,6 +272,15 @@ public class homeController : MonoBehaviour
         StartCoroutine(LoadSceneAfterSound(4));
     }
 
+    public void gotoShopStore()
+    {
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
+        }
+        StartCoroutine(LoadSceneAfterSound(10));
+    }
+
     private IEnumerator LoadSceneAfterSound(int sceneId)
     {
         // Wait for the sound to finish playing (assuming "TapSound" has a defined duration)

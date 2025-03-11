@@ -95,7 +95,7 @@ public class Running_challenge : MonoBehaviour
 
         if (mainCamera != null)
         {
-            mainCamera.transform.position = new Vector3(126.06f, 13.85f, -0.7f);
+            mainCamera.transform.position = new Vector3(126.06f, 13.85f, 0.04f);
         }
 
         if (tileManager != null && tileManager.videoPlayer != null && tileManager.videoPlayer.clip != null)
@@ -129,69 +129,10 @@ public class Running_challenge : MonoBehaviour
 
         isRunning = true;
         animator.SetBool("isRunning", true); // Start running animation 
-        CheckForDiamondReward();
     }
 
     private int diamondRewardCount = 0; // Track how many times diamonds have been rewarded
     private int scoreThresholdIncrease = 0; // Increase the range limit after every 2 rewards
-
-    private void CheckForDiamondReward()
-    {
-        if (!diamondGranted && System.Array.Exists(diamondRewardScores, s => s == scoreNumber))
-        {
-            int diamondsToAdd = 0;
-
-            if (scoreNumber == 1)
-            {
-                diamondsToAdd = 2;
-            }
-            else if (scoreNumber >= 3 + scoreThresholdIncrease && scoreNumber <= 7 + scoreThresholdIncrease)
-            {
-                if (Random.Range(0, 2) == 0) // 50% chance to grant diamonds
-                {
-                    diamondsToAdd = 2;
-                    diamondRewardCount++;
-                }
-            }
-
-            if (diamondsToAdd > 0)
-            {
-                if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
-                {
-                    FindObjectOfType<AudioManager>().PlaySound("DiamondSound");
-                }
-
-                // Load previously saved total diamonds (ensuring it never decreases)
-                int storedTotalDiamonds = PlayerPrefs.GetInt("AllDiamonds", 0);
-                Debug.Log("Diamonds already have: " + storedTotalDiamonds.ToString());
-                currentDiamondsCollected += diamondsToAdd;
-                totalDiamonds = storedTotalDiamonds + diamondsToAdd; // Always increase totalDiamonds 
-
-                diamondPanelText.text = $"You got +{diamondsToAdd} Diamonds!";
-                diamondPanel.SetActive(true);
-                diamondText.text = currentDiamondsCollected.ToString();
-                diamondGranted = true;
-                StartCoroutine(HideDiamondPanel());
-
-                PlayerPrefs.SetInt("Diamonds", currentDiamondsCollected); // Save current session diamonds
-                PlayerPrefs.SetInt("AllDiamonds", totalDiamonds); // Save total diamonds (ensures it never decrements)
-                PlayerPrefs.Save(); // Persist changes
-
-                Debug.Log($"Diamonds granted: {diamondsToAdd}, Total Diamonds: {totalDiamonds}, Session Diamonds: {currentDiamondsCollected}");
-
-                UpdateDiamondText();
-
-                // Every 2 diamond rewards, increase the threshold
-                if (diamondRewardCount > 0 && diamondRewardCount % 2 == 0)
-                {
-                    scoreThresholdIncrease += 3; // Increase the score range for future rewards
-                    Debug.Log($"Score threshold increased to: {scoreThresholdIncrease}");
-                }
-            }
-
-        }
-    }
-
 
     private void UpdateDiamondText()
     {
@@ -379,6 +320,7 @@ public class Running_challenge : MonoBehaviour
         }
 
         controller.center = new Vector3(0, controller.height / 2, 0.1f);
+        CheckForDiamondReward();
     }
 
 
@@ -395,37 +337,86 @@ public class Running_challenge : MonoBehaviour
         direction.y = jumpForce;
     }
 
-    void OnEndGame()
+    private void CheckForDiamondReward()
     {
+        if (!diamondGranted && System.Array.Exists(diamondRewardScores, s => s == scoreNumber))
+        {
+            int diamondsToAdd = 0;
 
+            if (scoreNumber == 1)
+            {
+                diamondsToAdd = 2;
+            }
+            else if (scoreNumber >= 3 + scoreThresholdIncrease && scoreNumber <= 7 + scoreThresholdIncrease)
+            {
+                if (Random.Range(0, 2) == 0) // 50% chance to grant diamonds
+                {
+                    diamondsToAdd = 2;
+                    diamondRewardCount++;
+                }
+            }
 
-        isCompleted = true;
+            if (diamondsToAdd > 0)
+            {
+                if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+                {
+                    FindObjectOfType<AudioManager>().PlaySound("DiamondSound");
+                }
 
+                Debug.Log($"Before Update: Session Diamonds = {currentDiamondsCollected}");
 
-        PlayerPrefs.SetInt("Coins", numberOfCoins);
-        int cpins = PlayerPrefs.GetInt("Coins", 0);
-        Debug.Log("Coins " + cpins);
-        PlayerPrefs.SetInt("Score", scoreNumber);
-        int levelCompleted = PlayerPrefs.GetInt("SelectedLevelId");
-        PlayerPrefs.SetInt("IsCompleted", isCompleted ? 1 : 0); // Save as int 
+                currentDiamondsCollected += diamondsToAdd;  // Only update session diamonds
 
-        int diamonds = PlayerPrefs.GetInt("Diamonds", 0);
+                diamondPanelText.text = $"You got +{diamondsToAdd} Diamonds!";
+                diamondPanel.SetActive(true);
+                diamondText.text = currentDiamondsCollected.ToString();
+                diamondGranted = true;
+                StartCoroutine(HideDiamondPanel());
 
-        int totalCoins = PlayerPrefs.GetInt("AllCoins", 0) + cpins;
-        PlayerPrefs.SetInt("AllCoins", totalCoins);
+                PlayerPrefs.SetInt("Diamonds", currentDiamondsCollected); // Save only session diamonds
+                PlayerPrefs.Save();
 
-        PlayerPrefs.SetInt("Diamonds", currentDiamondsCollected);
-        PlayerPrefs.SetInt("AllDiamonds", totalDiamonds);
-        PlayerPrefs.Save();
+                Debug.Log($"Diamonds Granted: {diamondsToAdd}, Session Diamonds: {currentDiamondsCollected}");
 
-        //StartCoroutine(LoadNextSceneWithDelay());
+                UpdateDiamondText();
+
+                if (diamondRewardCount > 0 && diamondRewardCount % 2 == 0)
+                {
+                    scoreThresholdIncrease += 3;
+                    Debug.Log($"Score threshold increased to: {scoreThresholdIncrease}");
+                }
+            }
+        }
     }
 
+
+    void OnEndGame()
+    {
+        if (!isCompleted)  // Prevent duplicate execution
+        {
+            isCompleted = true;
+
+            PlayerPrefs.SetInt("Coins", numberOfCoins);
+            PlayerPrefs.SetInt("Score", scoreNumber);
+            PlayerPrefs.SetInt("IsCompleted", 1);
+
+            int storedTotalDiamonds = PlayerPrefs.GetInt("AllDiamonds", 0);
+            totalDiamonds = storedTotalDiamonds + currentDiamondsCollected; // Update only once
+
+            PlayerPrefs.SetInt("AllDiamonds", totalDiamonds);
+
+            // Ensure "Diamonds" is updated correctly even when zero
+            PlayerPrefs.SetInt("Diamonds", currentDiamondsCollected);
+            PlayerPrefs.Save();
+
+            Debug.Log($"End Game: AllDiamonds={totalDiamonds}, Session Diamonds={currentDiamondsCollected}");
+        }
+    }
 
 
     void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        if (hit.collider.CompareTag("Obstacle"))
+        if (hit.collider.CompareTag("Obstacle") && !isCompleted) // Prevent multiple triggers
         {
             Debug.Log("Collided with: " + hit.collider.gameObject.name);
             forwardSpeed = 0;
@@ -434,28 +425,29 @@ public class Running_challenge : MonoBehaviour
                 FindObjectOfType<AudioManager>().PlaySound("GameOver");
             }
             isCompleted = true;
-            isRunning = false; // Stop running
-            animator.SetBool("isRunning", false); // Stop running animation
+            isRunning = false;
+            animator.SetBool("isRunning", false);
 
             PlayerPrefs.SetInt("Coins", numberOfCoins + 1);
-            int cpins = PlayerPrefs.GetInt("Coins", 0);
-            Debug.Log("Coins " + cpins);
             PlayerPrefs.SetInt("Score", scoreNumber);
+            PlayerPrefs.SetInt("IsCompleted", 1);
 
-            int diamonds = PlayerPrefs.GetInt("Diamonds", 0);
-            int levelCompleted = PlayerPrefs.GetInt("SelectedLevelId");
-            PlayerPrefs.SetInt("IsCompleted", isCompleted ? 1 : 0); // Save as int 
+            int storedTotalDiamonds = PlayerPrefs.GetInt("AllDiamonds", 0);
+            totalDiamonds = storedTotalDiamonds + currentDiamondsCollected; // Update once
 
-            int totalCoins = PlayerPrefs.GetInt("AllCoins", 0) + cpins;
-            PlayerPrefs.SetInt("AllCoins", totalCoins);
-
-            PlayerPrefs.SetInt("Diamonds", currentDiamondsCollected);
             PlayerPrefs.SetInt("AllDiamonds", totalDiamonds);
+
+            // Ensure "Diamonds" is updated correctly even when zero
+            PlayerPrefs.SetInt("Diamonds", currentDiamondsCollected);
             PlayerPrefs.Save();
+
+            Debug.Log($"Game Over: AllDiamonds={totalDiamonds}, Session Diamonds={currentDiamondsCollected}");
 
             StartCoroutine(LoadNextSceneWithDelay());
         }
     }
+
+
 
     IEnumerator LoadNextSceneWithDelay()
     {
@@ -465,7 +457,6 @@ public class Running_challenge : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        CheckForDiamondReward();
         TextMeshPro textMeshPro = other.GetComponent<TextMeshPro>();
 
         if (textMeshPro != null && tileManager != null)
