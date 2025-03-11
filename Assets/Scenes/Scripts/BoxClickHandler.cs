@@ -664,7 +664,7 @@ public class BoxClickHandler : MonoBehaviour
     private IEnumerator WaitForTapSound()
     {
         // Wait for 0.3 seconds to allow the sound to be heard
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSeconds(0.3f);
     }
 
 
