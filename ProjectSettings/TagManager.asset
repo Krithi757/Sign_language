@@ -11,6 +11,7 @@ TagManager:
   - Ground
   - Obstacle
   - Coin
+  - Word
   layers:
   - Default
   - TransparentFX
