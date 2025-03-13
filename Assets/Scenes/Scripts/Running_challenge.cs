@@ -257,30 +257,19 @@ public class Running_challenge : MonoBehaviour
 
         direction.z = forwardSpeed;
 
-        // Handle jumping only when grounded and swipe up is detected
-        if (SwipeManager.swipeUp && !hasJumped && controller.isGrounded)
+        // Handle jumping immediately when swipe up is detected
+        if (SwipeManager.swipeUp && controller.isGrounded)
         {
-            jumpRequested = true; // Buffer the jump request
-            hasJumped = true; // Mark that the player has jumped
+            direction.y = jumpForce; // Apply jump instantly
+            hasJumped = true; // Prevent double jumps
+
             if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
             {
-                FindObjectOfType<AudioManager>().PlaySound("JumpUp"); // Play sound only once
+                FindObjectOfType<AudioManager>().PlaySound("JumpUp"); // Play sound
             }
         }
 
-        if (controller.isGrounded)
-        {
-            direction.y = 0; // Reset the vertical velocity when grounded
-
-            if (jumpRequested && Time.time - lastJumpTime >= jumpCooldown)
-            {
-                Jump(); // Apply jump force
-                lastJumpTime = Time.time;
-                jumpRequested = false; // Reset the jump buffer
-                hasJumped = false; // Reset the jump state
-            }
-        }
-        else
+        if (!controller.isGrounded)
         {
             direction.y += gravity * Time.deltaTime; // Apply gravity when in the air
         }
@@ -322,7 +311,6 @@ public class Running_challenge : MonoBehaviour
         controller.center = new Vector3(0, controller.height / 2, 0.1f);
         CheckForDiamondReward();
     }
-
 
     void FixedUpdate()
     {
