@@ -65,7 +65,7 @@ public class ProgressTracker : MonoBehaviour
 
         StartCoroutine(AnimateCount(PlayerPrefs.GetInt("AllCoins", 0), coinsText, originalCoinFontSize, true));
         StartCoroutine(AnimateCount(PlayerPrefs.GetInt("AllDiamonds", 0), diamondsText, originalDiamondFontSize, false));
-        StartCoroutine(AnimateCount(PlayerPrefs.GetInt("AllScores", 0), scoreText, originalScoreFontSize, false));
+        StartCoroutine(AnimateCount(PlayerPrefs.GetInt("Score", 0), scoreText, originalScoreFontSize, false));
     }
 
     void UpdateTimeDisplay(float elapsedTime)

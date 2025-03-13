@@ -23,10 +23,20 @@ public class homeController : MonoBehaviour
 
     public GameObject notify;
     private const string Challenge1Key = "LastChallenge1Time";
+    public TextMeshProUGUI coinText;
+    public TextMeshProUGUI diamondText;
+    public TextMeshProUGUI scoreText;
     private const int cooldownDuration = 259200; // 3 days in seconds
     // Start is called before the first frame update
     void Start()
     {
+        int totalCoins = PlayerPrefs.GetInt("AllCoins", 0);
+        int totalDiamonds = PlayerPrefs.GetInt("AllDiamonds", 0);
+        int score = PlayerPrefs.GetInt("Score", 0);
+
+        coinText.text = totalCoins.ToString();
+        diamondText.text = totalDiamonds.ToString();
+        scoreText.text = score.ToString();
         if (PlayerPrefs.HasKey("PlayerName") && !string.IsNullOrEmpty(PlayerPrefs.GetString("PlayerName")))
         {
             // If PlayerName already exists, go to scene 9 
