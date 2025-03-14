@@ -1,77 +1,75 @@
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-    public Text scoreText, coinsText, livesText, wordText;
-    public GameObject helpPanel;
-    public Button helpButton, hideHelpButton, pauseButton;
-    public Sprite pauseIcon, resumeIcon; // Assign icons in Inspector
+    public static GameManager instance;
 
-    private int score = 0;
-    private int coins = 0;
-    private int lives = 3;
-    private bool isPaused = false;
+    public int score = 0;
+    public int lives = 3;
+    public Text scoreText;
+    public Text livesText;
+
+    public GameObject pausePanel;
+
+    void Awake()
+    {
+        if (instance == null)
+            instance = this;
+        else
+            Destroy(gameObject);
+    }
 
     void Start()
     {
         UpdateUI();
-        helpPanel.SetActive(false);
-        pauseButton.image.sprite = pauseIcon;
+        if (pausePanel != null)
+            pausePanel.SetActive(false);
+    }
 
-        helpButton.onClick.AddListener(ShowHelp);
-        hideHelpButton.onClick.AddListener(HideHelp);
-        pauseButton.onClick.AddListener(TogglePause);
+    public void CorrectAnswer()
+    {
+        score += 10;
+        UpdateUI();
+        Debug.Log("Correct Answer! Score: " + score);
+    }
+
+    public void WrongAnswer()
+    {
+        lives--;
+        UpdateUI();
+        Debug.Log("Wrong Answer! Lives left: " + lives);
+
+        if (lives <= 0)
+            GameOver();
     }
 
     void UpdateUI()
     {
-        scoreText.text = "Score: " + score;
-        coinsText.text = "Coins: " + coins;
-        livesText.text = "Lives: " + lives;
+        if (scoreText != null)
+            scoreText.text = "Score: " + score;
+
+        if (livesText != null)
+            livesText.text = "Lives: " + lives;
     }
 
-    public void CheckMatch(bool isCorrect)
+    public void PauseGame()
     {
-        if (isCorrect)
-        {
-            score += 10;
-            coins += 1;
-        }
-        else
-        {
-            score -= 5;
-            lives--;
+        Time.timeScale = 0;
+        if (pausePanel != null)
+            pausePanel.SetActive(true);
+    }
 
-            if (lives <= 0)
-            {
-                GameOver();
-            }
-        }
-        UpdateUI();
+    public void ResumeGame()
+    {
+        Time.timeScale = 1;
+        if (pausePanel != null)
+            pausePanel.SetActive(false);
     }
 
     void GameOver()
     {
         Debug.Log("Game Over!");
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name); // Restart game
-    }
-
-    void ShowHelp()
-    {
-        helpPanel.SetActive(true);
-    }
-
-    void HideHelp()
-    {
-        helpPanel.SetActive(false);
-    }
-
-    void TogglePause()
-    {
-        isPaused = !isPaused;
-        Time.timeScale = isPaused ? 0 : 1;
-        pauseButton.image.sprite = isPaused ? resumeIcon : pauseIcon;
+        // Do game over stuff here!
     }
 }

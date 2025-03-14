@@ -1,15 +1,18 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class DraggableWord : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
+public class WordDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     private RectTransform rectTransform;
     private CanvasGroup canvasGroup;
 
-    void Start()
+    private Vector2 originalPosition;
+
+    void Awake()
     {
         rectTransform = GetComponent<RectTransform>();
         canvasGroup = GetComponent<CanvasGroup>();
+        originalPosition = rectTransform.anchoredPosition;
     }
 
     public void OnBeginDrag(PointerEventData eventData)
@@ -27,5 +30,15 @@ public class DraggableWord : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
     {
         canvasGroup.alpha = 1f;
         canvasGroup.blocksRaycasts = true;
+
+        if (!eventData.pointerEnter)
+        {
+            rectTransform.anchoredPosition = originalPosition;
+        }
+    }
+
+    public void ResetPosition()
+    {
+        rectTransform.anchoredPosition = originalPosition;
     }
 }
