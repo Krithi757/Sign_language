@@ -15,6 +15,7 @@ public class WordDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         originalPosition = rectTransform.anchoredPosition;
     }
 
+  
     public void OnBeginDrag(PointerEventData eventData)
     {
         canvasGroup.alpha = 0.6f;

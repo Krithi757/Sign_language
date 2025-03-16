@@ -7,10 +7,12 @@ public class GameManager : MonoBehaviour
 
     public int score = 0;
     public int lives = 3;
+
     public Text scoreText;
     public Text livesText;
 
     public GameObject pausePanel;
+    public GameObject gameOverPanel; // Optional
 
     void Awake()
     {
@@ -23,8 +25,12 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         UpdateUI();
+
         if (pausePanel != null)
             pausePanel.SetActive(false);
+
+        if (gameOverPanel != null)
+            gameOverPanel.SetActive(false);
     }
 
     public void CorrectAnswer()
@@ -70,6 +76,9 @@ public class GameManager : MonoBehaviour
     void GameOver()
     {
         Debug.Log("Game Over!");
-        // Do game over stuff here!
+        Time.timeScale = 0;
+
+        if (gameOverPanel != null)
+            gameOverPanel.SetActive(true);
     }
 }
