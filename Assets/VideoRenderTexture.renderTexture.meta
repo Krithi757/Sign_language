@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+<<<<<<<< HEAD:Assets/VideoRenderTexture.renderTexture.meta
+guid: e2e06fe28b2c96e4190f8d9e36bbcce8
+NativeFormatImporter:
+========
+guid: c6e4ec046c8dacd4ba257c05265d59fa
+folderAsset: yes
+DefaultImporter:
+>>>>>>>> main:Assets/Plugins.meta
+  externalObjects: {}
+  mainObjectFileID: 8400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

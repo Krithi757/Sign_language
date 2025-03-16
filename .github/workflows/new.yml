@@ -1,6 +1,12 @@
 name: Build project
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main  # Only trigger on push to the 'main' branch
+  pull_request:
+    branches:
+      - main  # Only trigger on pull request to the 'main' branch
 
 jobs:
   buildForAllSupportedPlatforms:
@@ -17,11 +23,11 @@ jobs:
           fetch-depth: 0
           lfs: true
 
-      # - uses: actions/cache@v4  # ✅ Updated to v4
-      #   with:
-      #     path: Library
-      #     key: Library-${{ matrix.targetPlatform }}
-      #     restore-keys: Library-
+      - uses: actions/cache@v4  # ✅ Updated to v4
+        with:
+          path: Library
+          key: Library-${{ matrix.targetPlatform }}
+          restore-keys: Library-
 
       - if: ${{ matrix.targetPlatform == 'Android' }}  # ✅ Fixed condition
         uses: jlumbroso/free-disk-space@v1.3.1

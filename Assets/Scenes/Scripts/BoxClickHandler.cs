@@ -243,20 +243,8 @@ public class BoxClickHandler : MonoBehaviour
 
     void Update()
     {
-        if (isPause)
-        {
-            if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
-            {
-                Vector2 touchPos = Input.GetTouch(0).position;
-                if (!RectTransformUtility.RectangleContainsScreenPoint(mainMenuPanel.GetComponent<RectTransform>(), touchPos))
-                {
-                    isResumed();
-                }
-            }
-            return; // Prevent any other interactions while paused
-        }
-
-        if (helpPanel.activeSelf) return; // Pause game updates if help panel is open
+        if (isPause) return;
+        if (helpPanel.activeSelf) return;
 
         if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
         {
@@ -273,7 +261,7 @@ public class BoxClickHandler : MonoBehaviour
 
         if (isFlyingAway)
         {
-            FlyAwayAndDisableUpdate();
+            FlyAwayAndDisableUpdate(); // Let the animation happen, but don’t block interactions
         }
     }
 
@@ -282,13 +270,8 @@ public class BoxClickHandler : MonoBehaviour
     {
         if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
         {
-            FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
+            FindObjectOfType<AudioManager>().PlaySound("TapSound");
         }
-
-        if (isBoxClicked) return; // Prevent interaction if a box is already clicked
-
-        // Set the flag to true as soon as a box is clicked
-        isBoxClicked = true;
 
         Debug.Log($"Box touched: {gameObject.name}");
 
@@ -305,13 +288,8 @@ public class BoxClickHandler : MonoBehaviour
             Debug.Log("Playing " + assignedVideoPath);
             PlayVideo(assignedVideoPath);
             videoDisplay.enabled = true;
-
-
             clicked = assignedVideoPath;
         }));
-
-        // Toggle click state if needed
-        isClickedOnce = !isClickedOnce;
     }
 
     void ClearCacheAndReset()
@@ -418,8 +396,8 @@ public class BoxClickHandler : MonoBehaviour
                 Random.Range(2356.097f, 2400f),  // Farther away on the Y-axis (screen height + extra)
                 0); // Keep the Z-axis unchanged
 
-            coins += 2;
-            score += 1;
+            coins += 20;
+            score += 30;
             coinText.text = "Coins: " + coins;
             scoreText.text = "Score: " + score;
         }
@@ -598,9 +576,9 @@ public class BoxClickHandler : MonoBehaviour
                 {
                     FindObjectOfType<AudioManager>().PlaySound("Error"); // Play sound only once
                 }
-                if (coins >= 2)
+                if (coins >= 20)
                 {
-                    coins -= 2;
+                    coins -= 20;
                 }
                 coinText.text = "Coins: " + coins;
             }
@@ -614,13 +592,17 @@ public class BoxClickHandler : MonoBehaviour
     public void endThisGame()
     {
         isGameOver = true;
-        int isCompleted = (score == 8) ? 1 : 0;
+        int isCompleted = (score == 240) ? 1 : 0;
         PlayerPrefs.SetInt("Coins", coins);
         PlayerPrefs.SetInt("Score", score);
         PlayerPrefs.SetInt("IsCompleted", isCompleted);
 
         int totalCoins = PlayerPrefs.GetInt("AllCoins", 0) + coins;
         PlayerPrefs.SetInt("AllCoins", totalCoins);
+
+
+        int totalScore = PlayerPrefs.GetInt("AllScore", 0) + score;
+        PlayerPrefs.SetInt("AllScore", totalScore);
         Debug.Log("Game Over! IsCompleted: " + isCompleted);
     }
 
@@ -628,13 +610,16 @@ public class BoxClickHandler : MonoBehaviour
     {
         isGameOver = true;
         FindObjectOfType<AudioManager>().PlaySound("GameOver");
-        int isCompleted = (score == 8) ? 1 : 0;
+        int isCompleted = (score == 240) ? 1 : 0;
         PlayerPrefs.SetInt("Coins", coins);
         PlayerPrefs.SetInt("Score", score);
         PlayerPrefs.SetInt("IsCompleted", isCompleted);
 
         int totalCoins = PlayerPrefs.GetInt("AllCoins", 0) + coins;
         PlayerPrefs.SetInt("AllCoins", totalCoins);
+
+        int totalScore = PlayerPrefs.GetInt("AllScore", 0) + score;
+        PlayerPrefs.SetInt("AllScore", totalScore);
         PlayerPrefs.Save();
 
 
@@ -686,7 +671,7 @@ public class BoxClickHandler : MonoBehaviour
     private IEnumerator WaitForTapSound()
     {
         // Wait for 0.3 seconds to allow the sound to be heard
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSeconds(0.3f);
     }
 
 

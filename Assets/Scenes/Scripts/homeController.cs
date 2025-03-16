@@ -23,10 +23,20 @@ public class homeController : MonoBehaviour
 
     public GameObject notify;
     private const string Challenge1Key = "LastChallenge1Time";
+    public TextMeshProUGUI coinText;
+    public TextMeshProUGUI diamondText;
+    public TextMeshProUGUI scoreText;
     private const int cooldownDuration = 259200; // 3 days in seconds
     // Start is called before the first frame update
     void Start()
     {
+        int totalCoins = PlayerPrefs.GetInt("AllCoins", 0);
+        int totalDiamonds = PlayerPrefs.GetInt("AllDiamonds", 0);
+        int score = PlayerPrefs.GetInt("AllScore", 0);
+
+        coinText.text = totalCoins.ToString();
+        diamondText.text = totalDiamonds.ToString();
+        scoreText.text = score.ToString();
         if (PlayerPrefs.HasKey("PlayerName") && !string.IsNullOrEmpty(PlayerPrefs.GetString("PlayerName")))
         {
             // If PlayerName already exists, go to scene 9 
@@ -270,6 +280,15 @@ public class homeController : MonoBehaviour
             FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
         }
         StartCoroutine(LoadSceneAfterSound(4));
+    }
+
+    public void gotoShopStore()
+    {
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
+        }
+        StartCoroutine(LoadSceneAfterSound(10));
     }
 
     private IEnumerator LoadSceneAfterSound(int sceneId)
