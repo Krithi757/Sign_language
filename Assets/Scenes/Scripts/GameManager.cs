@@ -3,16 +3,26 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
+    public GameObject helpPanel;  // Reference to your help panel
+    public GameObject pauseButton; // Reference to the pause button
+    public GameObject helpButton;  // Reference to the help button
+
+    // Singleton instance
     public static GameManager instance;
 
+    // Score and lives variables
     public int score = 0;
     public int lives = 3;
 
+    // Game state variables
+    public bool gameStarted = false;
+    public GameObject tapText;
     public Text scoreText;
     public Text livesText;
 
+    // UI Panels for Pause and Game Over
     public GameObject pausePanel;
-    public GameObject gameOverPanel; // Optional
+    public GameObject gameOverPanel;
 
     void Awake()
     {
@@ -24,6 +34,14 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
+        // Initially hide the help panel
+        helpPanel.SetActive(false);
+
+        // Ensure buttons are visible during gameplay
+        pauseButton.SetActive(true);
+        helpButton.SetActive(true);
+
+        // Set initial states for UI components
         UpdateUI();
 
         if (pausePanel != null)
@@ -31,6 +49,28 @@ public class GameManager : MonoBehaviour
 
         if (gameOverPanel != null)
             gameOverPanel.SetActive(false);
+    }
+
+    // Method to toggle help panel visibility
+    public void ToggleHelpPanel()
+    {
+        helpPanel.SetActive(!helpPanel.activeSelf);
+    }
+
+    // Method to hide the help panel manually
+    public void HideHelpPanel()
+    {
+        helpPanel.SetActive(false);
+    }
+
+    void Update()
+    {
+        // Start the game when the player taps the screen
+        if (Input.GetMouseButtonDown(0) && !gameStarted)
+        {
+            gameStarted = true;
+            tapText.SetActive(false);
+        }
     }
 
     public void CorrectAnswer()
