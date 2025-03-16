@@ -45,7 +45,7 @@ public class NameInputManager : MonoBehaviour
             greetingText.gameObject.SetActive(true);
 
             // Optionally, load the next scene here after a delay or immediately
-            Invoke("ChangeScene", 2f);  // Change scene after 2 seconds (optional delay)
+            Invoke("ChangeScene", 0.3f);  // Change scene after 2 seconds (optional delay)
         }
         else
         {

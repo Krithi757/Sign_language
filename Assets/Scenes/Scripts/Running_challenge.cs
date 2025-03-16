@@ -257,30 +257,19 @@ public class Running_challenge : MonoBehaviour
 
         direction.z = forwardSpeed;
 
-        // Handle jumping only when grounded and swipe up is detected
-        if (SwipeManager.swipeUp && !hasJumped && controller.isGrounded)
+        // Handle jumping immediately when swipe up is detected
+        if (SwipeManager.swipeUp && controller.isGrounded)
         {
-            jumpRequested = true; // Buffer the jump request
-            hasJumped = true; // Mark that the player has jumped
+            direction.y = jumpForce; // Apply jump instantly
+            hasJumped = true; // Prevent double jumps
+
             if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
             {
-                FindObjectOfType<AudioManager>().PlaySound("JumpUp"); // Play sound only once
+                FindObjectOfType<AudioManager>().PlaySound("JumpUp"); // Play sound
             }
         }
 
-        if (controller.isGrounded)
-        {
-            direction.y = 0; // Reset the vertical velocity when grounded
-
-            if (jumpRequested && Time.time - lastJumpTime >= jumpCooldown)
-            {
-                Jump(); // Apply jump force
-                lastJumpTime = Time.time;
-                jumpRequested = false; // Reset the jump buffer
-                hasJumped = false; // Reset the jump state
-            }
-        }
-        else
+        if (!controller.isGrounded)
         {
             direction.y += gravity * Time.deltaTime; // Apply gravity when in the air
         }
@@ -323,7 +312,6 @@ public class Running_challenge : MonoBehaviour
         CheckForDiamondReward();
     }
 
-
     void FixedUpdate()
     {
         if (isRunning)
@@ -347,7 +335,7 @@ public class Running_challenge : MonoBehaviour
             {
                 diamondsToAdd = 2;
             }
-            else if (scoreNumber >= 3 + scoreThresholdIncrease && scoreNumber <= 7 + scoreThresholdIncrease)
+            else if (scoreNumber >= 10 + scoreThresholdIncrease && scoreNumber <= 100 + scoreThresholdIncrease)
             {
                 if (Random.Range(0, 2) == 0) // 50% chance to grant diamonds
                 {
@@ -400,6 +388,14 @@ public class Running_challenge : MonoBehaviour
             PlayerPrefs.SetInt("Score", scoreNumber);
             PlayerPrefs.SetInt("IsCompleted", 1);
 
+            int totalCoins = PlayerPrefs.GetInt("AllCoins", 0) + numberOfCoins + 1;
+            PlayerPrefs.SetInt("AllCoins", totalCoins);
+
+
+
+            int totalScore = PlayerPrefs.GetInt("AllScore", 0) + scoreNumber;
+            PlayerPrefs.SetInt("AllScore", totalScore);
+
             int storedTotalDiamonds = PlayerPrefs.GetInt("AllDiamonds", 0);
             totalDiamonds = storedTotalDiamonds + currentDiamondsCollected; // Update only once
 
@@ -431,6 +427,15 @@ public class Running_challenge : MonoBehaviour
             PlayerPrefs.SetInt("Coins", numberOfCoins + 1);
             PlayerPrefs.SetInt("Score", scoreNumber);
             PlayerPrefs.SetInt("IsCompleted", 1);
+
+
+            int totalCoins = PlayerPrefs.GetInt("AllCoins", 0) + numberOfCoins + 1;
+            PlayerPrefs.SetInt("AllCoins", totalCoins);
+
+
+
+            int totalScore = PlayerPrefs.GetInt("AllScore", 0) + scoreNumber;
+            PlayerPrefs.SetInt("AllScore", totalScore);
 
             int storedTotalDiamonds = PlayerPrefs.GetInt("AllDiamonds", 0);
             totalDiamonds = storedTotalDiamonds + currentDiamondsCollected; // Update once
@@ -465,7 +470,7 @@ public class Running_challenge : MonoBehaviour
 
             if (currentVideoValue != null && textMeshPro.text == currentVideoValue)
             {
-                scoreNumber += 1;
+                scoreNumber += 20;
                 if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
                 {
                     FindObjectOfType<AudioManager>().PlaySound("ScorePoint"); // Play sound only once
@@ -477,7 +482,7 @@ public class Running_challenge : MonoBehaviour
             {
                 if (scoreNumber > 0)
                 {
-                    scoreNumber -= 1;
+                    scoreNumber -= 10;
                     score.text = "Score: " + scoreNumber.ToString();
                 }
             }

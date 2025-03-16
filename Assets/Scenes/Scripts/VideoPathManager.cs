@@ -83,6 +83,62 @@ public static class VideoPathManager
         {"Level4/Yesterday_015", "Yesterday"},
         {"Level3/Yellow_047", "Yellow"}
     };
+
+    public static Dictionary<string, string> level7 = new Dictionary<string, string>
+    {
+        { "Level6/April_008", "April" },
+        { "Level5/August_008", "August" },
+        { "Level5/Ayubowan_001", "Ayubowan" },
+        { "Level5/Hello_003", "Hello" },
+        {"Level5/How are you_001", "How are you"},
+        {"Level3/Red_028", "Red"},
+        {"Level3/White_048", "White"},
+        {"Level3/Yellow_047", "Yellow"}
+    };
+
+    public static Dictionary<string, string> level8 = new Dictionary<string, string>
+    {
+        {"Level4/Wednesday_019", "Wednesday"},
+        {"Level4/Yesterday_015", "Yesterday"},
+        {"Level3/Yellow_047", "Yellow"},
+        {"Level3/Orange_003", "Orange"},
+        {"Level3/Pink_004", "Pink"},
+        {"Level3/Purple_028", "Purple"},
+        { "Level5/August_008", "August" },
+         {"Level3/White_048", "White"}
+
+    };
+    public static Dictionary<string, string> level9 = new Dictionary<string, string>
+    {
+         { "Level2/Also_008", "Also" },
+        { "Level2/Can_008", "Can" },
+        { "Level2/Cant_003", "Can't" },
+        {"Level2/Clearly_001", "Clearly"},
+        {"Level5/How are you_001", "How are you"},
+        {"Level5/Thank you_016", "Thank you"},
+        {"Level4/Wednesday_019", "Wednesday"},
+        {"Level4/Yesterday_015", "Yesterday"},
+        {"Level3/Yellow_047", "Yellow"}
+    };
+
+    public static Dictionary<string, string> level10 = new Dictionary<string, string>
+    {
+        { "Level3/Black_008", "Black" },
+        { "Level3/Blue_002", "Blue" },
+        { "Level3/Brown_002", "Brown" },
+        { "Level3/Gold_002", "Gold" },
+        {"Level3/Green_010", "Green"},
+        {"Level5/How are you_001", "How are you"},
+        {"Level5/Thank you_016", "Thank you"},
+        {"Level4/Wednesday_019", "Wednesday"},
+        {"Level4/Yesterday_015", "Yesterday"},
+        {"Level3/Yellow_047", "Yellow"}
+    };
+
+
+
+
+
     public static Dictionary<string, string> GetVideoPaths()
     {
         int levelId = PlayerPrefs.GetInt("SelectedLevelId");
@@ -101,6 +157,14 @@ public static class VideoPathManager
                 return level5;
             case 6:
                 return level6;
+            case 7:
+                return level7;
+            case 8:
+                return level8;
+            case 9:
+                return level9;
+            case 10:
+                return level10;
             default:
                 return level1;
         }

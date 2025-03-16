@@ -33,7 +33,8 @@ public class ProgressPage : MonoBehaviour
     {
         Debug.Log("Session Coins: " + PlayerPrefs.GetInt("Coins", 0));
         Debug.Log("Session Diamonds: " + PlayerPrefs.GetInt("Diamond", 0));
-        Debug.Log("Session Score: " + PlayerPrefs.GetInt("Score", 0));
+        int score = PlayerPrefs.GetInt("AllScore", 0);
+        Debug.Log("Session Score: " + score.ToString());
         Debug.Log("Time Spent: " + PlayerPrefs.GetFloat("TimeSpent", 0f));
 
         originalCoinFontSize = coinsText.fontSize;
@@ -42,7 +43,7 @@ public class ProgressPage : MonoBehaviour
 
         int sessionCoins = PlayerPrefs.GetInt("Coins", 0);
         int sessionDiamonds = PlayerPrefs.GetInt("Diamond", 0);
-        int sessionScore = PlayerPrefs.GetInt("Score", 0);
+        int sessionScore = PlayerPrefs.GetInt("AllScore", 0);
         float savedTime = PlayerPrefs.GetFloat("TimeSpent", 0f);
 
         PlayerPrefs.Save();
@@ -56,7 +57,9 @@ public class ProgressPage : MonoBehaviour
 
         StartCoroutine(AnimateCount(PlayerPrefs.GetInt("AllCoins", 0), coinsText, originalCoinFontSize, true));
         StartCoroutine(AnimateCount(PlayerPrefs.GetInt("AllDiamonds", 0), diamondsText, originalDiamondFontSize, false));
-        StartCoroutine(AnimateCount(PlayerPrefs.GetInt("AllScores", 0), scoreText, originalScoreFontSize, false));
+        StartCoroutine(AnimateCount(PlayerPrefs.GetInt("AllScore", 0), scoreText, originalScoreFontSize, false));
+        int totalScore = PlayerPrefs.GetInt("AllScore", 0);
+        Debug.Log("Total score is " + totalScore.ToString());
     }
 
     void UpdateTimeDisplay(float elapsedTime)

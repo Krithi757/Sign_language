@@ -64,8 +64,20 @@ public class LevelData : MonoBehaviour
         PlayerPrefs.SetInt("SelectedLevelId", levelId);
         PlayerPrefs.Save();
 
-        // Show the buttons with sequential pop animations.
-        StartCoroutine(ShowButtonsCoroutine());
+        // Check if the level ID is greater than 5, and if so, skip showing the buttons.
+        if (levelId <= 10)
+        {
+            // Show the buttons with sequential pop animations.
+            StartCoroutine(ShowButtonsCoroutine());
+        }
+        else
+        {
+            // Hide buttons for levels above 5
+            foreach (GameObject btn in levelButtons)
+            {
+                btn.SetActive(false); // Hide the buttons for higher levels
+            }
+        }
 
         // Only move the camera if tapping a level different from the current one.
         if (currentCameraLevelId == levelId)
@@ -81,6 +93,7 @@ public class LevelData : MonoBehaviour
         // Move camera towards the tapped level.
         StartCoroutine(MoveCameraToPosition(transform.position));
     }
+
 
     public void DeactivateOtherLevels(bool deactivate)
     {
