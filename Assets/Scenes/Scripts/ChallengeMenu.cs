@@ -118,6 +118,15 @@ public class ChallengeMenu : MonoBehaviour
         }
     }
 
+    public void gotoLevel()
+    {
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
+        }
+        StartCoroutine(LoadSceneAfterSound(7));
+    }
+
 
     private IEnumerator LoadSceneAfterSound(int sceneId)
     {

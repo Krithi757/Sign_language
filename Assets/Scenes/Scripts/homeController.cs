@@ -32,7 +32,7 @@ public class homeController : MonoBehaviour
     {
         int totalCoins = PlayerPrefs.GetInt("AllCoins", 0);
         int totalDiamonds = PlayerPrefs.GetInt("AllDiamonds", 0);
-        int score = PlayerPrefs.GetInt("Score", 0);
+        int score = PlayerPrefs.GetInt("AllScore", 0);
 
         coinText.text = totalCoins.ToString();
         diamondText.text = totalDiamonds.ToString();

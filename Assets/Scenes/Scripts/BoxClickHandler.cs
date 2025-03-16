@@ -396,8 +396,8 @@ public class BoxClickHandler : MonoBehaviour
                 Random.Range(2356.097f, 2400f),  // Farther away on the Y-axis (screen height + extra)
                 0); // Keep the Z-axis unchanged
 
-            coins += 2;
-            score += 1;
+            coins += 20;
+            score += 30;
             coinText.text = "Coins: " + coins;
             scoreText.text = "Score: " + score;
         }
@@ -576,9 +576,9 @@ public class BoxClickHandler : MonoBehaviour
                 {
                     FindObjectOfType<AudioManager>().PlaySound("Error"); // Play sound only once
                 }
-                if (coins >= 2)
+                if (coins >= 20)
                 {
-                    coins -= 2;
+                    coins -= 20;
                 }
                 coinText.text = "Coins: " + coins;
             }
@@ -592,13 +592,17 @@ public class BoxClickHandler : MonoBehaviour
     public void endThisGame()
     {
         isGameOver = true;
-        int isCompleted = (score == 8) ? 1 : 0;
+        int isCompleted = (score == 240) ? 1 : 0;
         PlayerPrefs.SetInt("Coins", coins);
         PlayerPrefs.SetInt("Score", score);
         PlayerPrefs.SetInt("IsCompleted", isCompleted);
 
         int totalCoins = PlayerPrefs.GetInt("AllCoins", 0) + coins;
         PlayerPrefs.SetInt("AllCoins", totalCoins);
+
+
+        int totalScore = PlayerPrefs.GetInt("AllScore", 0) + score;
+        PlayerPrefs.SetInt("AllScore", totalScore);
         Debug.Log("Game Over! IsCompleted: " + isCompleted);
     }
 
@@ -606,13 +610,16 @@ public class BoxClickHandler : MonoBehaviour
     {
         isGameOver = true;
         FindObjectOfType<AudioManager>().PlaySound("GameOver");
-        int isCompleted = (score == 8) ? 1 : 0;
+        int isCompleted = (score == 240) ? 1 : 0;
         PlayerPrefs.SetInt("Coins", coins);
         PlayerPrefs.SetInt("Score", score);
         PlayerPrefs.SetInt("IsCompleted", isCompleted);
 
         int totalCoins = PlayerPrefs.GetInt("AllCoins", 0) + coins;
         PlayerPrefs.SetInt("AllCoins", totalCoins);
+
+        int totalScore = PlayerPrefs.GetInt("AllScore", 0) + score;
+        PlayerPrefs.SetInt("AllScore", totalScore);
         PlayerPrefs.Save();
 
 
