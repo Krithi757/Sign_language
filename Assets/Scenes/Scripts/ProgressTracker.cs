@@ -55,6 +55,12 @@ public class ProgressPage : MonoBehaviour
 
         UpdateStreak();
 
+        if (streakProgressBar != null)
+        {
+            streakProgressBar.fillAmount = 1.0f;
+            streakProgressBar.color = Color.Lerp(startColor, midColor, 1.0f); // Update color based on progress
+        }
+
         StartCoroutine(AnimateCount(PlayerPrefs.GetInt("AllCoins", 0), coinsText, originalCoinFontSize, true));
         StartCoroutine(AnimateCount(PlayerPrefs.GetInt("AllDiamonds", 0), diamondsText, originalDiamondFontSize, false));
         StartCoroutine(AnimateCount(PlayerPrefs.GetInt("AllScore", 0), scoreText, originalScoreFontSize, false));
