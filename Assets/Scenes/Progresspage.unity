@@ -325,7 +325,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.64557993, y: 0.5}
   m_AnchorMax: {x: 0.671, y: 0.5}
-  m_AnchoredPosition: {x: -355.6067, y: -877}
+  m_AnchoredPosition: {x: 142.54, y: -745}
   m_SizeDelta: {x: 1549.6228, y: 729.327}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &113667276
@@ -1489,8 +1489,8 @@ RectTransform:
   - {fileID: 313899828}
   - {fileID: 285619787}
   - {fileID: 927059438}
-  - {fileID: 113667275}
   - {fileID: 480136321}
+  - {fileID: 113667275}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -1607,7 +1607,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -185, y: -877}
+  m_AnchoredPosition: {x: 313.49, y: -745}
   m_SizeDelta: {x: 1577.77, y: 729.327}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &480136322
@@ -1623,7 +1623,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.94716984, g: 0.89176935, b: 0.89176935, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -4650,7 +4650,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -194.25668, y: -855}
+  m_AnchoredPosition: {x: -257, y: -723}
   m_SizeDelta: {x: 149.69, y: 144.7761}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1234563408
@@ -4727,7 +4727,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 277.84, y: -384}
+  m_AnchoredPosition: {x: 254.95, y: -1084.5}
   m_SizeDelta: {x: 708.35, y: 171.0957}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1270120201
@@ -5896,7 +5896,10 @@ MonoBehaviour:
   timeSpentText: {fileID: 1195365611}
   dateText: {fileID: 1589106407}
   streakText: {fileID: 968370619}
-  name: {fileID: 1194118959}
+  streakProgressBar: {fileID: 480136322}
+  startColor: {r: 0, g: 1, b: 0, a: 1}
+  midColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  endColor: {r: 1, g: 0, b: 0, a: 1}
   animationDuration: 2
   zoomDuration: 0.5
   zoomScale: 1.5
