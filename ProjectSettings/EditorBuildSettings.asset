@@ -36,10 +36,10 @@ EditorBuildSettings:
     path: Assets/Scenes/PlayerId.unity
     guid: e7cd65bb18e29e94dbe5278892cdc270
   - enabled: 1
-    path: Assets/Scenes/Shop_Store1.unity
+    path: Assets/Scenes/Shop_Store2.unity
     guid: bd061d0f9a9ffb447ab9b7380403f81f
   - enabled: 1
-    path: Assets/Scenes/Shop_Store2.unity
+    path: Assets/Scenes/Shop_Store1.unity
     guid: f189ca7151991c2438e859797f430c48
   - enabled: 1
     path: Assets/Scenes/Shop_Store3.unity
@@ -47,6 +47,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Shop_Store3.unity
     guid: a6478bb1d00cecc4ca3d7a6cd3df1407
+  - enabled: 1
+    path: Assets/Scenes/Alphabet.unity
+    guid: 4ad3809654620fe44a10e15330398634
   m_configObjects:
     com.unity.adaptiveperformance.google.android.provider_settings: {fileID: 11400000,
       guid: e5b4fae91efc8e6418030e66d3c36f58, type: 2}

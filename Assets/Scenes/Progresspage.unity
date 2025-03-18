@@ -4698,8 +4698,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1790358391}
-        m_TargetAssemblyTypeName: ProgressTracker, Assembly-CSharp
-        m_MethodName: goToHome
+        m_TargetAssemblyTypeName: ProgressPage, Assembly-CSharp
+        m_MethodName: gotoHome
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -5828,6 +5828,7 @@ MonoBehaviour:
   zoomScale: 1.5
   audioSource: {fileID: 812818162}
   coinSound: {fileID: 8300000, guid: 5315e61e03a8dc444a2518b876e65a1f, type: 3}
+  playerNameText: {fileID: 1194118959}
 --- !u!4 &1790358392
 Transform:
   m_ObjectHideFlags: 0
