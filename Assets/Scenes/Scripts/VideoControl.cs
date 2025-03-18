@@ -4,24 +4,49 @@ using UnityEngine.Video;
 public class VideoControl : MonoBehaviour
 {
     public VideoPlayer videoPlayer; // Drag your VideoPlayer component here in the Inspector
+    public AudioSource audioSource;
 
-    // Call this when you click the Pause button
     public void PauseVideo()
     {
-        if (videoPlayer != null && videoPlayer.isPlaying)
+        Debug.Log("PauseVideo() method called"); // Check if this logs when you click the button
+
+        if (videoPlayer == null)
+        {
+            Debug.LogError("VideoPlayer is not assigned!");
+            return;
+        }
+
+        if (videoPlayer.isPlaying)
         {
             videoPlayer.Pause();
-            Debug.Log("Video Paused");
+            audioSource.Pause();
+            Debug.Log("Video Paused!");
+        }
+        else
+        {
+            Debug.Log("Video is already paused!");
         }
     }
 
-    // Call this when you click the Resume button
     public void ResumeVideo()
     {
-        if (videoPlayer != null && !videoPlayer.isPlaying)
+        Debug.Log("ResumeVideo() method called"); // Check if this logs when you click the button
+
+        if (videoPlayer == null)
+        {
+            Debug.LogError("VideoPlayer is not assigned!");
+            return;
+        }
+
+        if (!videoPlayer.isPlaying)
         {
             videoPlayer.Play();
-            Debug.Log("Video Resumed");
+            audioSource.Play();
+            Debug.Log("Video Resumed!");
+        }
+        else
+        {
+            Debug.Log("Video is already playing!");
         }
     }
 }

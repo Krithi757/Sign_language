@@ -1068,6 +1068,7 @@ GameObject:
   - component: {fileID: 813831497}
   - component: {fileID: 813831496}
   - component: {fileID: 813831495}
+  - component: {fileID: 813831498}
   m_Layer: 5
   m_Name: 'Resume '
   m_TagString: Untagged
@@ -1151,6 +1152,18 @@ MonoBehaviour:
           m_StringArgument: ResumeVideo()
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 1585476074}
+        m_TargetAssemblyTypeName: UnityEngine.AudioSource, UnityEngine
+        m_MethodName: Play
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &813831496
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1189,6 +1202,22 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 813831493}
   m_CullTransparentMesh: 1
+--- !u!114 &813831498
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 813831493}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: facbeb2f5cb13fd4c9aad159c907e1e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  videoPlayer: {fileID: 136118491}
+  audioSource: {fileID: 1585476074}
+  pauseButton: {fileID: 1653962694}
+  resumeButton: {fileID: 813831495}
 --- !u!1 &859277951
 GameObject:
   m_ObjectHideFlags: 0
@@ -1234,6 +1263,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   videoPlayer: {fileID: 136118491}
+  audioSource: {fileID: 0}
+  pauseButton: {fileID: 0}
+  resumeButton: {fileID: 0}
 --- !u!1 &1069623165
 GameObject:
   m_ObjectHideFlags: 0
@@ -1982,6 +2014,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 1585476074}
+        m_TargetAssemblyTypeName: UnityEngine.AudioSource, UnityEngine
+        m_MethodName: Pause
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1653962695
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2033,6 +2077,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   videoPlayer: {fileID: 136118491}
+  audioSource: {fileID: 1585476074}
+  pauseButton: {fileID: 1653962694}
+  resumeButton: {fileID: 813831495}
 --- !u!1 &1961124226
 GameObject:
   m_ObjectHideFlags: 0
