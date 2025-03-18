@@ -284,7 +284,7 @@ public class homeController : MonoBehaviour
 
     public void gotoShopStore()
     {
-        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1) 
         {
             FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
         }
