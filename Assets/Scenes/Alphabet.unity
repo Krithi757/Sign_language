@@ -1141,7 +1141,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 11500000, guid: facbeb2f5cb13fd4c9aad159c907e1e3, type: 3}
         m_TargetAssemblyTypeName: UnityEngine.Object, UnityEngine
-        m_MethodName: 
+        m_MethodName: set_name
         m_Mode: 5
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1407,8 +1407,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -6.52771, y: 6.52417}
-  m_SizeDelta: {x: 1061.3369, y: 2346.3047}
+  m_AnchoredPosition: {x: 1.4019, y: 1.6859}
+  m_SizeDelta: {x: 1077.2, y: 2336.6}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1105733311
 MonoBehaviour:
@@ -1430,7 +1430,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 8f1069cb05b60684288709d8bda9b1b6, type: 3}
+  m_Sprite: {fileID: 21300000, guid: eb4084f55508ab94daeb39f6727ef0f1, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1898,6 +1898,7 @@ GameObject:
   - component: {fileID: 1653962696}
   - component: {fileID: 1653962695}
   - component: {fileID: 1653962694}
+  - component: {fileID: 1653962698}
   m_Layer: 5
   m_Name: Pause
   m_TagString: Untagged
@@ -2019,6 +2020,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1653962692}
   m_CullTransparentMesh: 1
+--- !u!114 &1653962698
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1653962692}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: facbeb2f5cb13fd4c9aad159c907e1e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  videoPlayer: {fileID: 136118491}
 --- !u!1 &1961124226
 GameObject:
   m_ObjectHideFlags: 0
