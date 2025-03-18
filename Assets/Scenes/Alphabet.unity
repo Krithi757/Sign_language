@@ -228,8 +228,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.000030517, y: 835}
-  m_SizeDelta: {x: 461.91, y: 286.8588}
+  m_AnchoredPosition: {x: -0.00001812, y: 884}
+  m_SizeDelta: {x: 856.9817, y: 319.88}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &274281120
 MonoBehaviour:
@@ -569,7 +569,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   helpPanel: {fileID: 0}
-  pauseButton: {fileID: 0}
+  pauseButton: {fileID: 1653962692}
   helpButton: {fileID: 0}
   score: 0
   lives: 3
@@ -577,7 +577,7 @@ MonoBehaviour:
   tapText: {fileID: 0}
   scoreText: {fileID: 0}
   livesText: {fileID: 0}
-  pausePanel: {fileID: 0}
+  pausePanel: {fileID: 1653962692}
   gameOverPanel: {fileID: 0}
 --- !u!4 &494740187
 Transform:
@@ -1148,7 +1148,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 316.38, y: -882}
+  m_AnchoredPosition: {x: 10.13, y: -927}
   m_SizeDelta: {x: 170.85, y: 171.0955}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &813831495
@@ -1195,16 +1195,16 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: Running_challenge, Assembly-CSharp
-        m_MethodName: resumeGame
-        m_Mode: 1
+      - m_Target: {fileID: 11500000, guid: facbeb2f5cb13fd4c9aad159c907e1e3, type: 3}
+        m_TargetAssemblyTypeName: UnityEngine.Object, UnityEngine
+        m_MethodName: set_name
+        m_Mode: 5
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: 
+          m_StringArgument: ResumeVideo()
           m_BoolArgument: 0
         m_CallState: 2
 --- !u!114 &813831496
@@ -1326,8 +1326,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.000012398, y: 0}
-  m_SizeDelta: {x: 316.0427, y: 71.9975}
+  m_AnchoredPosition: {x: 25, y: 0}
+  m_SizeDelta: {x: 657.74, y: 101.1345}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1069623167
 MonoBehaviour:
@@ -1349,7 +1349,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'NEW TEXT
+  m_text: 'SSL ALPHABET
+
 
 '
   m_isRightToLeft: 0
@@ -1379,8 +1380,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 50.5
-  m_fontSizeBase: 50.5
+  m_fontSize: 70
+  m_fontSizeBase: 70
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -1538,8 +1539,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -2.3296, y: -23}
-  m_SizeDelta: {x: 195.7693, y: 234.1317}
+  m_AnchoredPosition: {x: -6.5277, y: 6.5242}
+  m_SizeDelta: {x: 198.2746, y: 226.2625}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1197910376
 MonoBehaviour:
@@ -1811,8 +1812,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -77, y: -331}
-  m_SizeDelta: {x: 619.6763, y: 81.319}
+  m_AnchoredPosition: {x: 10.13, y: -543}
+  m_SizeDelta: {x: 664.5171, y: 148.5802}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1614997117
 MonoBehaviour:
@@ -1834,7 +1835,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\xA9 Jellybean Foundation - All rights reserved.\nUsed with permission."
+  m_text: "\xA9 Jellybean Foundation - All rights reserved.\n"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -1897,7 +1898,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: -153.46368, w: 0}
+  m_margin: {x: 0, y: 0, z: 14.690491, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -1911,6 +1912,37 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1614997115}
   m_CullTransparentMesh: 1
+--- !u!1 &1630459062
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1630459063}
+  m_Layer: 0
+  m_Name: VideoController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1630459063
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1630459062}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 677.2537, y: 1053.1805, z: -7.7830744}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1653962692
 GameObject:
   m_ObjectHideFlags: 0
@@ -1947,7 +1979,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 31, y: -862.3}
+  m_AnchoredPosition: {x: 10.129997, y: -927}
   m_SizeDelta: {x: 170.85, y: 171.0955}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1653962694
@@ -1994,16 +2026,16 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: Running_challenge, Assembly-CSharp
-        m_MethodName: pause
-        m_Mode: 1
+      - m_Target: {fileID: 11500000, guid: facbeb2f5cb13fd4c9aad159c907e1e3, type: 3}
+        m_TargetAssemblyTypeName: UnityEngine.Object, UnityEngine
+        m_MethodName: set_name
+        m_Mode: 5
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: 
+          m_StringArgument: PauseVideo()
           m_BoolArgument: 0
         m_CallState: 2
 --- !u!114 &1653962695
@@ -2216,3 +2248,4 @@ SceneRoots:
   - {fileID: 592516240}
   - {fileID: 136118492}
   - {fileID: 1585476075}
+  - {fileID: 1630459063}
