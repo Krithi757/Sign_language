@@ -3,6 +3,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
+using System.Globalization;
+
 
 public class ProgressPage : MonoBehaviour
 {
@@ -28,9 +30,21 @@ public class ProgressPage : MonoBehaviour
 
     public AudioSource audioSource;
     public AudioClip coinSound;
+    public TextMeshProUGUI playerNameText;
 
     void Start()
     {
+        if (PlayerPrefs.HasKey("PlayerName") && !string.IsNullOrEmpty(PlayerPrefs.GetString("PlayerName")))
+        {
+            string playerName = PlayerPrefs.GetString("PlayerName", "DefaultName");
+
+            Debug.Log("Player Name: " + playerName);
+            playerNameText.text = "Welcome back, " + playerName;
+        }
+        else
+        {
+            playerNameText.gameObject.SetActive(false);
+        }
         Debug.Log("Session Coins: " + PlayerPrefs.GetInt("Coins", 0));
         Debug.Log("Session Diamonds: " + PlayerPrefs.GetInt("Diamond", 0));
         int score = PlayerPrefs.GetInt("AllScore", 0);
@@ -226,5 +240,24 @@ public class ProgressPage : MonoBehaviour
         }
 
         textElement.fontSize = originalFontSize;
+    }
+
+    public void gotoHome()
+    {
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
+        }
+        StartCoroutine(LoadSceneAfterSound(1));
+    }
+
+    private IEnumerator LoadSceneAfterSound(int sceneId)
+    {
+        // Wait for the sound to finish playing (assuming "TapSound" has a defined duration)
+
+        yield return new WaitForSeconds(0.3f);
+
+        // Load the scene after the sound has finished
+        SceneManager.LoadScene(sceneId);
     }
 }
