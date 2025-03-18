@@ -54,10 +54,11 @@ public class GameManager : MonoBehaviour
     // Method to toggle help panel visibility
     public void ToggleHelpPanel()
     {
+        // Toggle the visibility of the help panel
         helpPanel.SetActive(!helpPanel.activeSelf);
     }
 
-    // Method to hide the help panel manually
+    // Method to hide the help panel manually (optional)
     public void HideHelpPanel()
     {
         helpPanel.SetActive(false);
