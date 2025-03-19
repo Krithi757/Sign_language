@@ -1,9 +1,11 @@
 using UnityEngine;
+using TMPro;  // Import TextMeshPro namespace
 
-public class Pipes : MonoBehaviour
+public class Pipe : MonoBehaviour
 {
+    public TMP_Text answerText; // Reference to the floating text
+    public string answer;
     public float speed = 5f;
-
     private float leftEdge;
 
     private void Start()
@@ -21,4 +23,12 @@ public class Pipes : MonoBehaviour
         }
     }
 
+    public void SetAnswer(string newAnswer)
+    {
+        answer = newAnswer;
+        if (answerText != null)
+        {
+            answerText.text = newAnswer;
+        }
+    }
 }
