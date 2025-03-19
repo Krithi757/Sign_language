@@ -2,6 +2,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Video;
 using System.Collections;
+using UnityEngine.SceneManagement;
+using System.Globalization;
 
 public class VideoTogglePlayPause : MonoBehaviour
 {
@@ -79,5 +81,34 @@ public class VideoTogglePlayPause : MonoBehaviour
 
         // Toggle the paused state
         isPaused = !isPaused;
+    }
+
+    public void gotoHome()
+    {
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
+        }
+        StartCoroutine(LoadSceneAfterSound(1));
+    }
+
+    public void gotoProgress()
+    {
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
+        }
+        StartCoroutine(LoadSceneAfterSound(6));
+    }
+
+
+    private IEnumerator LoadSceneAfterSound(int sceneId)
+    {
+        // Wait for the sound to finish playing (assuming "TapSound" has a defined duration)
+
+        yield return new WaitForSeconds(0.3f);
+
+        // Load the scene after the sound has finished
+        SceneManager.LoadScene(sceneId);
     }
 }
