@@ -11,7 +11,7 @@ public class ChallengeMenu : MonoBehaviour
     public TextMeshProUGUI timerText; // Assign the UI Text for countdown
 
     private const string Challenge1Key = "LastChallenge1Time"; // Key for PlayerPrefs
-    private const int cooldownDuration = 3; // 3 days in seconds
+    private const int cooldownDuration = 259200; // 3 days in seconds
 
     //private const int cooldownDuration = 3; // 3 days in seconds
     public Transform draggedPrefab;
@@ -70,16 +70,6 @@ public class ChallengeMenu : MonoBehaviour
     //     StartCoroutine(LoadSceneAfterSound(3));
     // }
 
-    // public void goToChallenge2(){
-    //     if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
-    //     {
-    //         FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
-    //     }
-
-    //     // Start the coroutine to wait for the sound to finish before loading the scene
-    //     StartCoroutine(LoadSceneAfterSound(3));
-    // }
-
 
 
     private IEnumerator UpdateChallenge1Status()
@@ -114,8 +104,17 @@ public class ChallengeMenu : MonoBehaviour
                 shimmerPlayed = false; // Reset when locked again
             }
 
-            yield return new WaitForSeconds(1);
+            yield return new WaitForSeconds(0.3f);
         }
+    }
+
+    public void gotoLevel()
+    {
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
+        }
+        StartCoroutine(LoadSceneAfterSound(7));
     }
 
 

@@ -11,9 +11,7 @@ TagManager:
   - Ground
   - Obstacle
   - Coin
-  - Pipe
-  - Answer
-  - Pip
+  - Word
   layers:
   - Default
   - TransparentFX
