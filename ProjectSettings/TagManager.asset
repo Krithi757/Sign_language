@@ -11,6 +11,9 @@ TagManager:
   - Ground
   - Obstacle
   - Coin
+  - Pipe
+  - Answer
+  - Pip
   layers:
   - Default
   - TransparentFX

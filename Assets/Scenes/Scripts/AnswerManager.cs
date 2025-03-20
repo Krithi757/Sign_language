@@ -36,6 +36,6 @@ public class AnswerManager : MonoBehaviour
     private void SpawnPipe(string answerText, Vector3 position)
     {
         GameObject pipe = Instantiate(pipePrefab, position, Quaternion.identity);
-        pipe.GetComponent<Pipe>().SetAnswer(answerText);
+        pipe.GetComponent<Pipes>().SetAnswer(answerText);
     }
 }

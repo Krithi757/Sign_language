@@ -11,7 +11,7 @@ public class RandomVideoPlayer : MonoBehaviour
 {
     public VideoPlayer videoPlayer;
     public RawImage rawImage;
-    public TextMeshProUGUI videoInfoText; // UI text to display video info
+     // UI text to display video info
 
     // Lists to hold video paths and corresponding text
     private List<string> videoPaths;
@@ -20,10 +20,7 @@ public class RandomVideoPlayer : MonoBehaviour
 
     void Start()
     {
-        // Retrieve the dictionary containing video paths as keys and corresponding text as values
         Dictionary<string, string> videoData = VideoPathManager.GetVideoPaths();
-
-        // Convert dictionary keys and values into lists
         videoPaths = videoData.Keys.ToList();
         videoTexts = videoData.Values.ToList();
 
@@ -33,18 +30,17 @@ public class RandomVideoPlayer : MonoBehaviour
             return;
         }
 
-        // Shuffle both lists in parallel to preserve the mapping between video path and text
         ShuffleVideos();
-
-        // Ensure the RawImage displays the VideoPlayer's RenderTexture
         rawImage.texture = videoPlayer.targetTexture;
 
-        // Subscribe to the event to know when the video ends
-        videoPlayer.loopPointReached += OnVideoEnd;
+        // Remove auto-play when video ends
+        // videoPlayer.loopPointReached += OnVideoEnd;
 
-        // Play the first video
         PlayVideo();
     }
+
+    // Remove OnVideoEnd() since we don't want auto-change
+    // void OnVideoEnd(VideoPlayer vp) { PlayVideo(); } <-- DELETE THIS
 
     void ShuffleVideos()
     {
@@ -82,13 +78,11 @@ public class RandomVideoPlayer : MonoBehaviour
 
         // Set the VideoPlayer's clip and start playback
         videoPlayer.clip = videoClip;
+        videoPlayer.isLooping = true; // ✅ Keep looping the video
         videoPlayer.Play();
 
         // Update the UI text with the corresponding text for the video
-        if (videoInfoText != null)
-        {
-            videoInfoText.text = selectedText;
-        }
+        
     }
 
     void OnVideoEnd(VideoPlayer vp)
@@ -97,4 +91,27 @@ public class RandomVideoPlayer : MonoBehaviour
         currentVideoIndex = (currentVideoIndex + 1) % videoPaths.Count;
         PlayVideo();
     }
+
+    public string GetCurrentAnswer()
+    {
+        return videoTexts[currentVideoIndex]; // Return the correct answer
+    }
+
+    public void CheckAnswer(string selectedAnswer)
+    {
+        if (selectedAnswer == GetCurrentAnswer())
+        {
+            Debug.Log("Correct answer! Moving to next video.");
+
+            // Move to the next video
+            currentVideoIndex = (currentVideoIndex + 1) % videoPaths.Count;
+            PlayVideo();
+        }
+        else
+        {
+            Debug.Log("Wrong answer! Video stays the same.");
+        }
+    }
+
+
 }

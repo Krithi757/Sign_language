@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 1945998205491600621}
   m_Layer: 0
   m_Name: Top
-  m_TagString: Untagged
+  m_TagString: Pip
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -114,7 +114,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
@@ -128,7 +128,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 0.26, y: 1.6}
+  m_Size: {x: 0.12, y: 1.42}
   m_EdgeRadius: 0
 --- !u!1 &4454900450847217898
 GameObject:
@@ -141,9 +141,11 @@ GameObject:
   - component: {fileID: 5898737619495238593}
   - component: {fileID: 1956032943381486751}
   - component: {fileID: 174114829370611260}
+  - component: {fileID: 6258286027042148519}
+  - component: {fileID: 3919384191911882012}
   m_Layer: 0
   m_Name: AnswerText
-  m_TagString: Untagged
+  m_TagString: Pipe
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -164,8 +166,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 364, y: 846}
-  m_SizeDelta: {x: 20, y: 5}
+  m_AnchoredPosition: {x: 355, y: 974.8978}
+  m_SizeDelta: {x: 31.5096, y: 5.5902}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!23 &1956032943381486751
 MeshRenderer:
@@ -263,7 +265,7 @@ MonoBehaviour:
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
-  m_HorizontalAlignment: 1
+  m_HorizontalAlignment: 2
   m_VerticalAlignment: 256
   m_textAlignment: 65535
   m_characterSpacing: 0
@@ -301,45 +303,13 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_renderer: {fileID: 1956032943381486751}
   m_maskType: 0
---- !u!1 &5482131737488008322
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1036978660911456117}
-  - component: {fileID: 8988162862417420193}
-  m_Layer: 0
-  m_Name: Scoring
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1036978660911456117
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5482131737488008322}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 355, y: 1000, z: 0}
-  m_LocalScale: {x: 71.1, y: 505.6, z: 73.18248}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 5680924734525626376}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!61 &8988162862417420193
+--- !u!61 &6258286027042148519
 BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5482131737488008322}
+  m_GameObject: {fileID: 4454900450847217898}
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
@@ -365,7 +335,7 @@ BoxCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0, y: 0.29}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -376,8 +346,22 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 20.33, y: 4}
   m_EdgeRadius: 0
+--- !u!114 &3919384191911882012
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4454900450847217898}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b80dab7ab62c7b4da74943742a2185f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  answerText: {fileID: 174114829370611260}
+  speed: 200
 --- !u!1 &6426714933307771735
 GameObject:
   m_ObjectHideFlags: 0
@@ -389,7 +373,7 @@ GameObject:
   - component: {fileID: 5680924734525626376}
   - component: {fileID: 395549377596655022}
   m_Layer: 0
-  m_Name: Pipes
+  m_Name: Pipe
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -410,7 +394,6 @@ Transform:
   m_Children:
   - {fileID: 2697937490134673953}
   - {fileID: 1788425691443518707}
-  - {fileID: 1036978660911456117}
   - {fileID: 5898737619495238593}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -427,7 +410,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   answerText: {fileID: 174114829370611260}
-  answer: 
   speed: 200
 --- !u!1 &6849118909075798182
 GameObject:
@@ -442,7 +424,7 @@ GameObject:
   - component: {fileID: 72329790794004632}
   m_Layer: 0
   m_Name: Bottom
-  m_TagString: Untagged
+  m_TagString: Pip
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -546,7 +528,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0, y: 0.01}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -557,5 +539,5 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 0.26, y: 1.6}
+  m_Size: {x: 0.17, y: 1.48}
   m_EdgeRadius: 0

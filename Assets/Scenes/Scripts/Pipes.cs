@@ -1,10 +1,10 @@
 using UnityEngine;
 using TMPro;  // Import TextMeshPro namespace
 
-public class Pipe : MonoBehaviour
+public class Pipes : MonoBehaviour
 {
     public TMP_Text answerText; // Reference to the floating text
-    public string answer;
+    private string answer;
     public float speed = 5f;
     private float leftEdge;
 
@@ -29,6 +29,17 @@ public class Pipe : MonoBehaviour
         if (answerText != null)
         {
             answerText.text = newAnswer;
+            Debug.Log("Pipe answer set to: " + newAnswer); //Debug to check if it's working
         }
+        else
+        {
+            Debug.LogError("answerText is NULL! Ensure the TMP_Text component is assigned.");
+        }
+    }
+
+
+    public string GetAnswer()
+    {
+        return answerText.text;
     }
 }
