@@ -100,26 +100,27 @@ public class FlyComp : MonoBehaviour
         rb.velocity = Vector2.zero;
 
         // Freeze pipes' movement by stopping their movement scripts or freezing their Rigidbody2D
-        foreach (var pipe in pipes)
-        {
-            Rigidbody2D pipeRb = pipe.GetComponent<Rigidbody2D>();
-            if (pipeRb != null)
-            {
-                pipeRb.velocity = Vector2.zero; // Stop the pipe's movement
-            }
-        }
+        // foreach (var pipe in pipes)
+        // {
+        //     Rigidbody2D pipeRb = pipe.GetComponent<Rigidbody2D>();
+        //     if (pipeRb != null)
+        //     {
+        //         pipeRb.velocity = Vector2.zero; // Stop the pipe's movement
+        //     }
+        // }
 
-        // Stop moving text (if any)
-        if (movingText != null)
-        {
-            // You can either disable the script controlling text movement or stop its position change logic
-            // Example: Disable the script (assuming you have a script controlling the movement)
-            movingText.gameObject.SetActive(false); // If you just want to hide it, you can use this line
-        }
+        // // Stop moving text (if any)
+        // if (movingText != null)
+        // {
+        //     // You can either disable the script controlling text movement or stop its position change logic
+        //     // Example: Disable the script (assuming you have a script controlling the movement)
+        //     movingText.gameObject.SetActive(false); // If you just want to hide it, you can use this line
+        // }
 
-        // Optionally, pause the entire game
-        Time.timeScale = 0; // Pause the game entirely (all physics and scripts will stop)
+        // // Optionally, pause the entire game
+        // Time.timeScale = 0; // Pause the game entirely (all physics and scripts will stop)
         EndGame();
+        SceneManager.LoadScene(5);
     }
 
 
@@ -130,7 +131,7 @@ public class FlyComp : MonoBehaviour
         // Only stop the game if we collide with a pipe (not with answer text)
         if (collision.collider.CompareTag("Pip"))
         {
-            StopGame(); 
+            StopGame();
         }
     }
     // End the game, display the raw image, and wait for 2 seconds before going to the next scene
@@ -146,7 +147,6 @@ public class FlyComp : MonoBehaviour
 
         // Wait for 2 seconds before changing the scene
         //StartCoroutine(WaitAndLoadNextScene());
-        SceneManager.LoadScene(5);
     }
 
     // Coroutine to handle the waiting time before transitioning to the next scene
@@ -157,5 +157,5 @@ public class FlyComp : MonoBehaviour
 
     }
 
-    
+
 }
