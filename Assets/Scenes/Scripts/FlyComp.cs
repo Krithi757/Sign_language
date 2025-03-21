@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 using TMPro;
 using UnityEngine.SceneManagement;
+using UnityEngine.Video;
 
 public class FlyComp : MonoBehaviour
 {
@@ -12,6 +13,7 @@ public class FlyComp : MonoBehaviour
 
     // UI elements to display score and coins
     public TextMeshProUGUI scoreText;
+    public VideoPlayer videoPlayer;
     public TextMeshProUGUI coinsText;
 
     // Image to display at the end of the game (raw image)
@@ -20,9 +22,17 @@ public class FlyComp : MonoBehaviour
     // Reference to all pipes and moving text
     public GameObject[] pipes;
     public TextMeshProUGUI movingText; // if text is moving or animated
+    public GameObject mainMenuPanel;
+    public GameObject resume;
+    public GameObject paus;
+    public GameObject helpPanel;
+    public GameObject closeButton;
 
     private void Start()
     {
+        mainMenuPanel.SetActive(false);
+        helpPanel.SetActive(false);
+        closeButton.SetActive(false);
         endGameImage.SetActive(false);
         score = 0;
         coins = 0;
@@ -95,6 +105,10 @@ public class FlyComp : MonoBehaviour
     private void StopGame()
     {
         endGameImage.SetActive(true);
+        if (videoPlayer != null)
+        {
+            videoPlayer.Pause(); // Resume video
+        }
         FindObjectOfType<AudioManager>().PlaySound("GameOver");
         EndGame();
     }
@@ -125,12 +139,125 @@ public class FlyComp : MonoBehaviour
         StartCoroutine(WaitAndLoadNextScene());
     }
 
+    private void enddGame()
+    {
+        PlayerPrefs.SetInt("Coins", coins);
+        PlayerPrefs.SetInt("Score", score);
+        PlayerPrefs.SetInt("IsCompleted", 1);
+        if (videoPlayer != null)
+        {
+            videoPlayer.Pause(); // Resume video
+        }
+
+        int totalCoins = PlayerPrefs.GetInt("AllCoins", 0) + coins;
+        PlayerPrefs.SetInt("AllCoins", totalCoins);
+        PlayerPrefs.Save();
+    }
+
     // Coroutine to handle the waiting time before transitioning to the next scene
     private IEnumerator WaitAndLoadNextScene()
     {
         yield return new WaitForSeconds(2f); // Wait for 2 seconds
         SceneManager.LoadScene(5);
 
+    }
+
+    public void pause()
+    {
+        mainMenuPanel.SetActive(true);
+        paus.SetActive(false);
+        resume.SetActive(true);
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
+        }
+        StartCoroutine(WaitForTapSound());
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PauseAllSounds(); // Play sound only once
+        }
+
+        if (videoPlayer != null)
+        {
+            videoPlayer.Pause(); // Resume video
+        }
+
+        Time.timeScale = 0f; // Pause the entire game
+    }
+
+    public void giveUp()
+    {
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("TapSound");
+        }
+        Time.timeScale = 1f; // Ensure normal time scale 
+        stoppGame();
+        SceneManager.LoadScene(5);
+    }
+
+    public void ShowHelp()
+    {
+        helpPanel.SetActive(true);
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
+        }
+        StartCoroutine(WaitForTapSound());
+        FindObjectOfType<AudioManager>().PauseAllSounds(); // Play sound only once
+        closeButton.SetActive(true);
+
+        if (videoPlayer != null)
+        {
+            videoPlayer.Pause(); // Resume video
+        }
+
+        Time.timeScale = 0f; // Pause the entire game
+    }
+
+    private void stoppGame()
+    {
+        EndGame();
+        WaitForTapSound();
+    }
+
+
+    public void resumeGame()
+    {
+        paus.SetActive(true);
+        mainMenuPanel.SetActive(false);
+        resume.SetActive(false);
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().ResumeAllSounds(); // Play sound only once
+        }
+        if (videoPlayer != null)
+        {
+            videoPlayer.Play(); // Resume video
+        }
+        Time.timeScale = 1f; // Resume the game
+    }
+
+    public void HideHelp()
+    {
+        helpPanel.SetActive(false);
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().ResumeAllSounds(); // Play sound only once
+        }
+        closeButton.SetActive(false);
+        if (videoPlayer != null)
+        {
+            videoPlayer.Play(); // Resume video
+        }
+        Time.timeScale = 1f; // Resume the game
+    }
+
+
+    private IEnumerator WaitForTapSound()
+    {
+        // Wait for 0.3 seconds to allow the sound to be heard
+        yield return new WaitForSeconds(0.3f);
     }
 
 
