@@ -50,6 +50,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Alphabet.unity
     guid: 4ad3809654620fe44a10e15330398634
+  - enabled: 1
+    path: Assets/Scenes/ChallengeFalppy.unity
+    guid: 97437e5b17454be42b424ab275399eed
   m_configObjects:
     com.unity.adaptiveperformance.google.android.provider_settings: {fileID: 11400000,
       guid: e5b4fae91efc8e6418030e66d3c36f58, type: 2}
