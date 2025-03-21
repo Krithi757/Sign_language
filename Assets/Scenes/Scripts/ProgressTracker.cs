@@ -183,7 +183,10 @@ public class ProgressPage : MonoBehaviour
 
         if (isCoin && audioSource != null && coinSound != null)
         {
-            PlayScaledCoinSound(targetValue);
+            if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+            {
+                PlayScaledCoinSound(targetValue);
+            }
         }
 
         while (elapsedTime < animationDuration)
@@ -205,15 +208,23 @@ public class ProgressPage : MonoBehaviour
 
     void PlayScaledCoinSound(int coinAmount)
     {
-        float baseDuration = coinSound.length;
-        float adjustedDuration = Mathf.Clamp(baseDuration * (coinAmount / 10f), 0.2f, 5f);
-        float pitchFactor = Mathf.Clamp(1.0f - (coinAmount / 100f), 0.5f, 1.2f);
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)  // Mute condition check
+        {
+            float baseDuration = coinSound.length;
+            float adjustedDuration = Mathf.Clamp(baseDuration * (coinAmount / 10f), 0.2f, 5f);
+            float pitchFactor = Mathf.Clamp(1.0f - (coinAmount / 100f), 0.5f, 1.2f);
 
-        audioSource.pitch = pitchFactor;
-        audioSource.Play();
+            audioSource.pitch = pitchFactor;
+            audioSource.Play();
 
-        StartCoroutine(StopSoundAfterDuration(adjustedDuration));
+            StartCoroutine(StopSoundAfterDuration(adjustedDuration));
+        }
+        else
+        {
+            Debug.Log("Sound is muted. Coin sound will not play.");
+        }
     }
+
 
     IEnumerator StopSoundAfterDuration(float duration)
     {
