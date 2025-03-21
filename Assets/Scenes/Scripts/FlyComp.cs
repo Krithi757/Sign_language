@@ -32,7 +32,7 @@ public class FlyComp : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
         {
             rb.velocity = Vector2.up * velocity;
         }
@@ -60,21 +60,21 @@ public class FlyComp : MonoBehaviour
             string selectedAnswer = pipe.GetAnswer();
             string correctAnswer = FindObjectOfType<RandomVideoPlayer>().GetCurrentAnswer();
 
-            Debug.Log("🔤 Selected Answer: " + selectedAnswer);
-            Debug.Log("🎯 Correct Answer: " + correctAnswer);
+            Debug.Log("Selected Answer: " + selectedAnswer);
+            Debug.Log("Correct Answer: " + correctAnswer);
 
             // Check if the answer is correct or not
             if (selectedAnswer == correctAnswer)
             {
                 score += 20; // Correct answer: +20 points
                 coins += 10; // Correct answer: +10 coins
-                Debug.Log("✅ Correct! Score: " + score);
+                Debug.Log("Correct! Score: " + score);
                 FindObjectOfType<RandomVideoPlayer>().CheckAnswer(selectedAnswer);
             }
             else
             {
                 score = Mathf.Max(0, score - 10); // Incorrect answer: -10 points (score can't go below 0)
-                Debug.Log("❌ Wrong! Score: " + score);
+                Debug.Log("Wrong! Score: " + score);
             }
 
             UpdateUI(); // Update the UI after the collision
@@ -88,36 +88,14 @@ public class FlyComp : MonoBehaviour
             scoreText.text = "Score: " + score;
 
         if (coinsText != null)
-            coinsText.text = "Coins: " + coins;
+            coinsText.text = coins.ToString();
     }
 
     // Method to freeze pipes and stop text movement
     private void StopGame()
     {
         endGameImage.SetActive(true);
-        // Freeze the velocity of the player's Rigidbody2D (stop the bird's movement)
-        rb.velocity = Vector2.zero;
-
-        // Freeze pipes' movement by stopping their movement scripts or freezing their Rigidbody2D
-        foreach (var pipe in pipes)
-        {
-            Rigidbody2D pipeRb = pipe.GetComponent<Rigidbody2D>();
-            if (pipeRb != null)
-            {
-                pipeRb.velocity = Vector2.zero; // Stop the pipe's movement
-            }
-        }
-
-        // Stop moving text (if any)
-        if (movingText != null)
-        {
-            // You can either disable the script controlling text movement or stop its position change logic
-            // Example: Disable the script (assuming you have a script controlling the movement)
-            movingText.gameObject.SetActive(false); // If you just want to hide it, you can use this line
-        }
-
-        // Optionally, pause the entire game
-        Time.timeScale = 0; // Pause the game entirely (all physics and scripts will stop)
+        FindObjectOfType<AudioManager>().PlaySound("GameOver");
         EndGame();
     }
 
@@ -129,7 +107,7 @@ public class FlyComp : MonoBehaviour
         // Only stop the game if we collide with a pipe (not with answer text)
         if (collision.collider.CompareTag("Pip"))
         {
-            StopGame(); 
+            StopGame();
         }
     }
     // End the game, display the raw image, and wait for 2 seconds before going to the next scene
@@ -144,17 +122,16 @@ public class FlyComp : MonoBehaviour
         PlayerPrefs.Save();
 
         // Wait for 2 seconds before changing the scene
-        //StartCoroutine(WaitAndLoadNextScene());
-        SceneManager.LoadScene(5);
+        StartCoroutine(WaitAndLoadNextScene());
     }
 
     // Coroutine to handle the waiting time before transitioning to the next scene
     private IEnumerator WaitAndLoadNextScene()
     {
-        yield return new WaitForSeconds(0.3f); // Wait for 2 seconds
+        yield return new WaitForSeconds(2f); // Wait for 2 seconds
         SceneManager.LoadScene(5);
 
     }
 
-    
+
 }
