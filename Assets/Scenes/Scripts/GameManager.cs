@@ -1,77 +1,125 @@
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-    public Text scoreText, coinsText, livesText, wordText;
-    public GameObject helpPanel;
-    public Button helpButton, hideHelpButton, pauseButton;
-    public Sprite pauseIcon, resumeIcon; // Assign icons in Inspector
+    public GameObject helpPanel;  // Reference to your help panel
+    public GameObject pauseButton; // Reference to the pause button
+    public GameObject helpButton;  // Reference to the help button
 
-    private int score = 0;
-    private int coins = 0;
-    private int lives = 3;
-    private bool isPaused = false;
+    // Singleton instance
+    public static GameManager instance;
+
+    // Score and lives variables
+    public int score = 0;
+    public int lives = 3;
+
+    // Game state variables
+    public bool gameStarted = false;
+    public GameObject tapText;
+    public Text scoreText;
+    public Text livesText;
+
+    // UI Panels for Pause and Game Over
+    public GameObject pausePanel;
+    public GameObject gameOverPanel;
+
+    void Awake()
+    {
+        if (instance == null)
+            instance = this;
+        else
+            Destroy(gameObject);
+    }
 
     void Start()
     {
-        UpdateUI();
+        // Initially hide the help panel
         helpPanel.SetActive(false);
-        pauseButton.image.sprite = pauseIcon;
 
-        helpButton.onClick.AddListener(ShowHelp);
-        hideHelpButton.onClick.AddListener(HideHelp);
-        pauseButton.onClick.AddListener(TogglePause);
+        // Ensure buttons are visible during gameplay
+        pauseButton.SetActive(true);
+        helpButton.SetActive(true);
+
+        // Set initial states for UI components
+        UpdateUI();
+
+        if (pausePanel != null)
+            pausePanel.SetActive(false);
+
+        if (gameOverPanel != null)
+            gameOverPanel.SetActive(false);
+    }
+
+    // Method to toggle help panel visibility
+    public void ToggleHelpPanel()
+    {
+        // Toggle the visibility of the help panel
+        helpPanel.SetActive(!helpPanel.activeSelf);
+    }
+
+    // Method to hide the help panel manually (optional)
+    public void HideHelpPanel()
+    {
+        helpPanel.SetActive(false);
+    }
+
+    void Update()
+    {
+        // Start the game when the player taps the screen
+        if (Input.GetMouseButtonDown(0) && !gameStarted)
+        {
+            gameStarted = true;
+            tapText.SetActive(false);
+        }
+    }
+
+    public void CorrectAnswer()
+    {
+        score += 10;
+        UpdateUI();
+        Debug.Log("Correct Answer! Score: " + score);
+    }
+
+    public void WrongAnswer()
+    {
+        lives--;
+        UpdateUI();
+        Debug.Log("Wrong Answer! Lives left: " + lives);
+
+        if (lives <= 0)
+            GameOver();
     }
 
     void UpdateUI()
     {
-        scoreText.text = "Score: " + score;
-        coinsText.text = "Coins: " + coins;
-        livesText.text = "Lives: " + lives;
+        if (scoreText != null)
+            scoreText.text = "Score: " + score;
+
+        if (livesText != null)
+            livesText.text = "Lives: " + lives;
     }
 
-    public void CheckMatch(bool isCorrect)
+    public void PauseGame()
     {
-        if (isCorrect)
-        {
-            score += 10;
-            coins += 1;
-        }
-        else
-        {
-            score -= 5;
-            lives--;
+        Time.timeScale = 0;
+        if (pausePanel != null)
+            pausePanel.SetActive(true);
+    }
 
-            if (lives <= 0)
-            {
-                GameOver();
-            }
-        }
-        UpdateUI();
+    public void ResumeGame()
+    {
+        Time.timeScale = 1;
+        if (pausePanel != null)
+            pausePanel.SetActive(false);
     }
 
     void GameOver()
     {
         Debug.Log("Game Over!");
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name); // Restart game
-    }
+        Time.timeScale = 0;
 
-    void ShowHelp()
-    {
-        helpPanel.SetActive(true);
-    }
-
-    void HideHelp()
-    {
-        helpPanel.SetActive(false);
-    }
-
-    void TogglePause()
-    {
-        isPaused = !isPaused;
-        Time.timeScale = isPaused ? 0 : 1;
-        pauseButton.image.sprite = isPaused ? resumeIcon : pauseIcon;
+        if (gameOverPanel != null)
+            gameOverPanel.SetActive(true);
     }
 }

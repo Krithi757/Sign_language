@@ -23,7 +23,7 @@ public class AudioManager : MonoBehaviour
         int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
 
         // Play main theme only if NOT Scene 10
-        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1 && currentSceneIndex != 0 && currentSceneIndex != 9 && currentSceneIndex != 5)
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1 && currentSceneIndex != 0 && currentSceneIndex != 9 && currentSceneIndex != 5 && currentSceneIndex != 14)
         {
             PlaySound("MainTheme ");
         }
