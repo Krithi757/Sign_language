@@ -49,6 +49,17 @@ public class ChallengeMenu : MonoBehaviour
         return timePassed.TotalSeconds >= cooldownDuration;
     }
 
+    public void goToChallengefRun()
+    {
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
+        }
+
+        // Start the coroutine to wait for the sound to finish before loading the scene
+        StartCoroutine(LoadSceneAfterSound(3));
+    }
+
     public void goToChallengefLAP()
     {
         if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
