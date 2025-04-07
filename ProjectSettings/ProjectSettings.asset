@@ -162,7 +162,7 @@ PlayerSettings:
   androidSupportedAspectRatio: 1
   androidMaxAspectRatio: 2.1
   applicationIdentifier:
-    Android: com.PalmingoGame.SSLGame
+    Android: com.PalmingoGame.Palmingo
     Standalone: com.Palmingo-Game.SSL-Game
   buildNumber:
     Standalone: 0
