@@ -49,7 +49,7 @@ public class ChallengeMenu : MonoBehaviour
         return timePassed.TotalSeconds >= cooldownDuration;
     }
 
-    public void goToChallenge2()
+    public void goToChallengefRun()
     {
         if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
         {
@@ -60,25 +60,16 @@ public class ChallengeMenu : MonoBehaviour
         StartCoroutine(LoadSceneAfterSound(3));
     }
 
-    // public void goToChallenge2(){
-    //     if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
-    //     {
-    //         FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
-    //     }
+    public void goToChallengefLAP()
+    {
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
+        }
 
-    //     // Start the coroutine to wait for the sound to finish before loading the scene
-    //     StartCoroutine(LoadSceneAfterSound(3));
-    // }
-
-    // public void goToChallenge2(){
-    //     if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
-    //     {
-    //         FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
-    //     }
-
-    //     // Start the coroutine to wait for the sound to finish before loading the scene
-    //     StartCoroutine(LoadSceneAfterSound(3));
-    // }
+        // Start the coroutine to wait for the sound to finish before loading the scene
+        StartCoroutine(LoadSceneAfterSound(15));
+    }
 
 
 
@@ -114,7 +105,7 @@ public class ChallengeMenu : MonoBehaviour
                 shimmerPlayed = false; // Reset when locked again
             }
 
-            yield return new WaitForSeconds(1);
+            yield return new WaitForSeconds(0.3f);
         }
     }
 

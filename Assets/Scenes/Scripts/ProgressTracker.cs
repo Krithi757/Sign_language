@@ -3,6 +3,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
+using System.Globalization;
+
 
 public class ProgressPage : MonoBehaviour
 {
@@ -28,9 +30,21 @@ public class ProgressPage : MonoBehaviour
 
     public AudioSource audioSource;
     public AudioClip coinSound;
+    public TextMeshProUGUI playerNameText;
 
     void Start()
     {
+        if (PlayerPrefs.HasKey("PlayerName") && !string.IsNullOrEmpty(PlayerPrefs.GetString("PlayerName")))
+        {
+            string playerName = PlayerPrefs.GetString("PlayerName", "DefaultName");
+
+            Debug.Log("Player Name: " + playerName);
+            playerNameText.text = "Welcome back, " + playerName;
+        }
+        else
+        {
+            playerNameText.gameObject.SetActive(false);
+        }
         Debug.Log("Session Coins: " + PlayerPrefs.GetInt("Coins", 0));
         Debug.Log("Session Diamonds: " + PlayerPrefs.GetInt("Diamond", 0));
         int score = PlayerPrefs.GetInt("AllScore", 0);
@@ -169,7 +183,10 @@ public class ProgressPage : MonoBehaviour
 
         if (isCoin && audioSource != null && coinSound != null)
         {
-            PlayScaledCoinSound(targetValue);
+            if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+            {
+                PlayScaledCoinSound(targetValue);
+            }
         }
 
         while (elapsedTime < animationDuration)
@@ -191,15 +208,23 @@ public class ProgressPage : MonoBehaviour
 
     void PlayScaledCoinSound(int coinAmount)
     {
-        float baseDuration = coinSound.length;
-        float adjustedDuration = Mathf.Clamp(baseDuration * (coinAmount / 10f), 0.2f, 5f);
-        float pitchFactor = Mathf.Clamp(1.0f - (coinAmount / 100f), 0.5f, 1.2f);
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)  // Mute condition check
+        {
+            float baseDuration = coinSound.length;
+            float adjustedDuration = Mathf.Clamp(baseDuration * (coinAmount / 10f), 0.2f, 5f);
+            float pitchFactor = Mathf.Clamp(1.0f - (coinAmount / 100f), 0.5f, 1.2f);
 
-        audioSource.pitch = pitchFactor;
-        audioSource.Play();
+            audioSource.pitch = pitchFactor;
+            audioSource.Play();
 
-        StartCoroutine(StopSoundAfterDuration(adjustedDuration));
+            StartCoroutine(StopSoundAfterDuration(adjustedDuration));
+        }
+        else
+        {
+            Debug.Log("Sound is muted. Coin sound will not play.");
+        }
     }
+
 
     IEnumerator StopSoundAfterDuration(float duration)
     {
@@ -226,5 +251,24 @@ public class ProgressPage : MonoBehaviour
         }
 
         textElement.fontSize = originalFontSize;
+    }
+
+    public void gotoHome()
+    {
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
+        }
+        StartCoroutine(LoadSceneAfterSound(1));
+    }
+
+    private IEnumerator LoadSceneAfterSound(int sceneId)
+    {
+        // Wait for the sound to finish playing (assuming "TapSound" has a defined duration)
+
+        yield return new WaitForSeconds(0.3f);
+
+        // Load the scene after the sound has finished
+        SceneManager.LoadScene(sceneId);
     }
 }

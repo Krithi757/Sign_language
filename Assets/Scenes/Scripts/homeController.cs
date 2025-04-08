@@ -284,12 +284,22 @@ public class homeController : MonoBehaviour
 
     public void gotoShopStore()
     {
-        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1) 
         {
             FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
         }
         StartCoroutine(LoadSceneAfterSound(10));
     }
+
+    public void gotoAlphabet()
+    {
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
+        }
+        StartCoroutine(LoadSceneAfterSound(14));
+    }
+
 
     private IEnumerator LoadSceneAfterSound(int sceneId)
     {
