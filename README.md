@@ -30,5 +30,5 @@ https://drive.google.com/file/d/1paHky0RabENoxlCRbz4AqjzCNmq_T8Zu/view
 
 ## Screenshots
 
-![App Screenshot](https://via.placeholder.com/468x300?text=App+Screenshot+Here)
+![App Screenshot](Assets/img1.JPG)
 
