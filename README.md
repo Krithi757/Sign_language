@@ -42,8 +42,8 @@ https://drive.google.com/file/d/1paHky0RabENoxlCRbz4AqjzCNmq_T8Zu/view
 
 ## If you have already downloaded the app, you can update it
 
-![App Screenshot](Assets/img4.JPG)
+![App Screenshot](Assets/img5.JPG)
 
 ## App will install in your device
 
-![App Screenshot](Assets/img5.JPG)
+![App Screenshot](Assets/img4.JPG)
