@@ -28,7 +28,22 @@ Step 01 - Click the following link
 https://drive.google.com/file/d/1paHky0RabENoxlCRbz4AqjzCNmq_T8Zu/view
 
 
-## Screenshots
+## Select Package Installer
 
 ![App Screenshot](Assets/img1.JPG)
 
+## The .apk file will start running now
+
+![App Screenshot](Assets/img2.JPG)
+
+## If there are any permissions required, allow it
+
+![App Screenshot](Assets/img3.JPG)
+
+## If you have already downloaded the app, you can update it
+
+![App Screenshot](Assets/img4.JPG)
+
+## App will install in your device
+
+![App Screenshot](Assets/img5.JPG)
