@@ -138,18 +138,3 @@ public class VideoController : MonoBehaviour
         SceneManager.LoadScene(sceneId);
     }
 }
-void OnVideoFinished(VideoPlayer vp)
-{
-    if (autoProgressToggle != null && autoProgressToggle.isOn)
-    {
-        if (currentVideoIndex < videoPaths.Count - 1)
-        {
-            currentVideoIndex++;
-            PlayVideo(currentVideoIndex);
-        }
-        else
-        {
-            Debug.Log("Reached the last video.");
-        }
-    }
-}
