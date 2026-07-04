@@ -1,18 +1,20 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-// Lives on "VideoScreen" (same object as TapToChangeVideo and the Raw Image).
+// Lives on "VideoScreen" alongside TapToChangeVideo and the Raw Image.
 //
-// Catches a word chip when it's dropped onto the video, checks it against the
-// correct word for the video that's currently playing, logs the result, then
-// moves on to the next video either way.
-//
-// Later: this is where the fox cooking animation / correct-or-wrong food /
-// customer reaction / scoring will get triggered, in the isCorrect / else branches below.
+// When a word chip is dropped:
+//  - The chip is destroyed immediately (so it doesn't float around during animation).
+//  - The fox plays its correct or wrong sequence.
+//  - NextVideo() fires only AFTER the fox finishes — passed as a callback.
+//  - If no fox is assigned, NextVideo fires right away (safe fallback).
 public class VideoDropTarget : MonoBehaviour, IDropHandler
 {
     [Tooltip("Drag the WordRoundManager GameObject here.")]
     public WordRoundManager wordRoundManager;
+
+    [Tooltip("Drag the Fox GameObject (the one with FoxAnimationController) here.")]
+    public FoxAnimationController foxController;
 
     public void OnDrop(PointerEventData eventData)
     {
@@ -24,30 +26,37 @@ public class VideoDropTarget : MonoBehaviour, IDropHandler
 
         if (wordRoundManager == null)
         {
-            Debug.LogError("❌ VideoDropTarget: Word Round Manager is not assigned in the Inspector.");
+            Debug.LogError("❌ VideoDropTarget: Word Round Manager is not assigned.");
             return;
         }
 
         dragged.MarkAsDropped();
+        Destroy(droppedObj); // remove chip immediately — no floating during animation
 
         string correctWord = wordRoundManager.currentCorrectWord;
         bool isCorrect = string.Equals(dragged.Word, correctWord, System.StringComparison.OrdinalIgnoreCase);
 
+        // NextVideo is a deferred callback — fires AFTER the fox finishes animating.
+        // If there's no fox, it fires right now as a safe fallback.
+        System.Action advanceVideo = () => wordRoundManager.videoController.NextVideo();
+
         if (isCorrect)
         {
             Debug.Log("✅ Yay! '" + dragged.Word + "' is correct!");
-            // TODO next step: fox cooking animation + serve correct food + customer happy
+            if (foxController != null)
+                foxController.PlayCorrectSequence(advanceVideo);
+            else
+                advanceVideo();
+            // TODO next step: customer happy + score up
         }
         else
         {
-            Debug.Log("❌ Wrong! You dropped '" + dragged.Word + "', the correct answer was '" + correctWord + "'.");
-            // TODO next step: fox serves wrong ingredients + customer angry + lower score
+            Debug.Log("❌ Wrong! '" + dragged.Word + "' — correct was '" + correctWord + "'.");
+            if (foxController != null)
+                foxController.PlayWrongSequence(advanceVideo);
+            else
+                advanceVideo();
+            // TODO next step: customer angry + score down
         }
-
-        Destroy(droppedObj);
-
-        // Either way, move on to the next video. This also makes WordRoundManager
-        // spawn a fresh set of word options (it's listening for OnVideoChanged).
-        wordRoundManager.videoController.NextVideo();
     }
 }
