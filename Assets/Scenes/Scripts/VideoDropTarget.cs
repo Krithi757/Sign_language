@@ -1,20 +1,15 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-// Lives on "VideoScreen" alongside TapToChangeVideo and the Raw Image.
-//
-// When a word chip is dropped:
-//  - The chip is destroyed immediately (so it doesn't float around during animation).
-//  - The fox plays its correct or wrong sequence.
-//  - NextVideo() fires only AFTER the fox finishes — passed as a callback.
-//  - If no fox is assigned, NextVideo fires right away (safe fallback).
+// Lives on "VideoScreen" alongside the Raw Image.
+// Detects word chip drops, checks correctness, routes through OrderManager.
 public class VideoDropTarget : MonoBehaviour, IDropHandler
 {
-    [Tooltip("Drag the WordRoundManager GameObject here.")]
+    [Tooltip("Drag the WordRoundManager here.")]
     public WordRoundManager wordRoundManager;
 
-    [Tooltip("Drag the Fox GameObject (the one with FoxAnimationController) here.")]
-    public FoxAnimationController foxController;
+    [Tooltip("Drag the OrderManager GameObject here.")]
+    public OrderManager orderManager;
 
     public void OnDrop(PointerEventData eventData)
     {
@@ -26,37 +21,31 @@ public class VideoDropTarget : MonoBehaviour, IDropHandler
 
         if (wordRoundManager == null)
         {
-            Debug.LogError("❌ VideoDropTarget: Word Round Manager is not assigned.");
+            Debug.LogError("❌ VideoDropTarget: WordRoundManager not assigned.");
             return;
         }
 
         dragged.MarkAsDropped();
-        Destroy(droppedObj); // remove chip immediately — no floating during animation
+        Destroy(droppedObj);
 
         string correctWord = wordRoundManager.currentCorrectWord;
         bool isCorrect = string.Equals(dragged.Word, correctWord, System.StringComparison.OrdinalIgnoreCase);
 
-        // NextVideo is a deferred callback — fires AFTER the fox finishes animating.
-        // If there's no fox, it fires right now as a safe fallback.
-        System.Action advanceVideo = () => wordRoundManager.videoController.NextVideo();
-
         if (isCorrect)
         {
-            Debug.Log("✅ Yay! '" + dragged.Word + "' is correct!");
-            if (foxController != null)
-                foxController.PlayCorrectSequence(advanceVideo);
+            Debug.Log("✅ Correct word: '" + dragged.Word + "'");
+            if (orderManager != null)
+                orderManager.OnCorrectAnswer();
             else
-                advanceVideo();
-            // TODO next step: customer happy + score up
+                wordRoundManager.videoController.NextVideo(); // safe fallback if no OrderManager
         }
         else
         {
-            Debug.Log("❌ Wrong! '" + dragged.Word + "' — correct was '" + correctWord + "'.");
-            if (foxController != null)
-                foxController.PlayWrongSequence(advanceVideo);
+            Debug.Log("❌ Wrong: '" + dragged.Word + "' — correct was '" + correctWord + "'");
+            if (orderManager != null)
+                orderManager.OnWrongAnswer();
             else
-                advanceVideo();
-            // TODO next step: customer angry + score down
+                wordRoundManager.videoController.NextVideo(); // safe fallback
         }
     }
 }

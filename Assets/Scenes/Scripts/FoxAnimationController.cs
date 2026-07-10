@@ -13,7 +13,7 @@ public class FoxAnimationController : MonoBehaviour
     [Tooltip("Sum of wrong sequence clip lengths.")]
     public float wrongSequenceDuration = 2.5f;
 
-    [Header("VFX — drag particle systems here, leave empty if not ready")]
+    [Header("Base VFX — always play on any correct answer")]
     public ParticleSystem steamEffect;
     public ParticleSystem fireEffect;
     public ParticleSystem foodDebrisEffect;
@@ -25,57 +25,70 @@ public class FoxAnimationController : MonoBehaviour
         if (animator == null) animator = GetComponent<Animator>();
         if (animator == null)
             Debug.LogError("❌ FoxAnimationController: No Animator found on " + gameObject.name + "!");
-
         StopAllVFX();
     }
 
-    public void PlayCorrectSequence(System.Action onComplete = null)
+    // Called by OrderManager. Accepts an optional unique end VFX and meal per recipe.
+    public void PlayCorrectSequence(
+        System.Action onComplete   = null,
+        ParticleSystem uniqueEndVFX = null,
+        MealAppearEffect mealToShow = null)
     {
         if (sequenceCoroutine != null) StopCoroutine(sequenceCoroutine);
         StopAllVFX();
         animator.ResetTrigger("PlayWrong");
         animator.SetTrigger("PlayCorrect");
         Debug.Log("🦊 Fox starts cooking!");
-        sequenceCoroutine = StartCoroutine(CorrectSequenceRoutine(onComplete));
+        sequenceCoroutine = StartCoroutine(CorrectSequenceRoutine(onComplete, uniqueEndVFX, mealToShow));
     }
 
+    // Called by OrderManager on wrong answer.
     public void PlayWrongSequence(System.Action onComplete = null)
     {
         if (sequenceCoroutine != null) StopCoroutine(sequenceCoroutine);
-        StopAllVFX(); // no effects on wrong answer
+        StopAllVFX();
         animator.ResetTrigger("PlayCorrect");
         animator.SetTrigger("PlayWrong");
         Debug.Log("😔 Fox defeated.");
         sequenceCoroutine = StartCoroutine(WaitThenCallback(wrongSequenceDuration, onComplete));
     }
 
-    private IEnumerator CorrectSequenceRoutine(System.Action onComplete)
+    private IEnumerator CorrectSequenceRoutine(
+        System.Action onComplete,
+        ParticleSystem uniqueEndVFX,
+        MealAppearEffect mealToShow)
     {
-        // Wait 0.5s — fox has started moving
+        // 0.5s — fox has started moving
         yield return new WaitForSeconds(0.5f);
 
-        // Steam starts first
-        if (steamEffect != null) { steamEffect.Play(); Debug.Log("💨 Steam!"); }
-
-        // Fire starts 0.03s after steam
+        // Base effects — always play
+        if (steamEffect     != null) { steamEffect.Play();     Debug.Log("💨 Steam!"); }
         yield return new WaitForSeconds(0.03f);
-        if (fireEffect != null) { fireEffect.Play(); Debug.Log("🔥 Fire!"); }
+        if (fireEffect      != null) { fireEffect.Play();      Debug.Log("🔥 Fire!"); }
+        if (foodDebrisEffect != null)  foodDebrisEffect.Play();
 
-        // Food debris burst immediately after fire
-        if (foodDebrisEffect != null) { foodDebrisEffect.Play(); Debug.Log("🥕 Food flying!"); }
+        // Wait until 0.6s before the sequence ends, then play the recipe's unique effect
+        float waitBeforeEnd = correctSequenceDuration - 0.5f - 0.03f - 0.6f;
+        if (waitBeforeEnd > 0f) yield return new WaitForSeconds(waitBeforeEnd);
 
-        // Wait out the rest of the sequence
-        // (0.5 + 0.03 already waited, subtract from total)
-        float remaining = correctSequenceDuration - 0.5f - 0.03f;
-        yield return new WaitForSeconds(remaining);
+        // Unique per-recipe VFX (cheese sparkle, big flame, egg sizzle, etc.)
+        if (uniqueEndVFX != null) { uniqueEndVFX.Play(); Debug.Log("✨ Unique recipe VFX!"); }
 
-        // Sequence done — stop everything, advance video
+        // Final 0.6s
+        yield return new WaitForSeconds(0.6f);
+
+        // Sequence done
         StopAllVFX();
+        if (uniqueEndVFX != null) uniqueEndVFX.Stop();
+
+        // Show the recipe's finished meal with drop + ping effect
+        if (mealToShow != null) mealToShow.Show();
+
         animator.ResetTrigger("PlayCorrect");
         animator.ResetTrigger("PlayWrong");
         sequenceCoroutine = null;
         onComplete?.Invoke();
-        Debug.Log("✅ Sequence done — video should now advance.");
+        Debug.Log("✅ Sequence done — order complete.");
     }
 
     private IEnumerator WaitThenCallback(float duration, System.Action onComplete)
@@ -85,19 +98,26 @@ public class FoxAnimationController : MonoBehaviour
         animator.ResetTrigger("PlayWrong");
         sequenceCoroutine = null;
         onComplete?.Invoke();
-        Debug.Log("✅ Sequence done — video should now advance.");
+        Debug.Log("✅ Wrong sequence done.");
     }
 
     private void StopAllVFX()
     {
-        if (steamEffect != null) steamEffect.Stop();
-        if (fireEffect != null) fireEffect.Stop();
-        if (foodDebrisEffect != null) foodDebrisEffect.Stop();
+        StopPS(steamEffect);
+        StopPS(fireEffect);
+        StopPS(foodDebrisEffect);
+    }
+
+    private void StopPS(ParticleSystem ps)
+    {
+        // StopEmittingAndClear removes all existing particles instantly
+        // so cooking steam vanishes immediately when the meal appears
+        if (ps != null)
+            ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
     }
 
     public void OnChopFrame()
     {
-        // Optionally trigger an extra food burst on a specific animation frame
         if (foodDebrisEffect != null) foodDebrisEffect.Play();
     }
 
