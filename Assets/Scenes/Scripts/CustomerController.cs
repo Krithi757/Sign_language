@@ -86,6 +86,16 @@ public class CustomerController : MonoBehaviour
         StartCoroutine(DisappearAfter(happyDuration, mealToHide));
     }
 
+    /// <summary>
+    /// Called by CustomerManager when the queue shuffles forward.
+    /// Customer walks to the new slot without resetting state or UI.
+    /// </summary>
+    public void ShuffleForward(Transform newSlot)
+    {
+        stationPoint = newSlot;
+        StartCoroutine(ShuffleWalk(newSlot.position));
+    }
+
     // ── Private ───────────────────────────────────────────────────────────
 
     private void OnPatienceOut()
@@ -95,6 +105,26 @@ public class CustomerController : MonoBehaviour
         thoughtBubble?.Hide();
         patienceStars?.Stop();
         StartCoroutine(DisappearAfter(0.3f, null));
+    }
+
+    // Walks to new slot without changing state — used for queue shuffle
+    private IEnumerator ShuffleWalk(Vector3 target)
+    {
+        SetWalking(true);
+        while (Vector3.Distance(transform.position, target) > 0.05f)
+        {
+            Vector3 dir = target - transform.position;
+            dir.y = 0f;
+            if (dir.sqrMagnitude > 0.001f)
+                transform.rotation = Quaternion.Slerp(transform.rotation,
+                    Quaternion.LookRotation(dir.normalized), 12f * Time.deltaTime);
+            transform.position = Vector3.MoveTowards(
+                transform.position, target, walkSpeed * Time.deltaTime);
+            yield return null;
+        }
+        transform.position = target;
+        SetWalking(false);
+        transform.rotation = Quaternion.Euler(0f, counterFacingYaw, 0f);
     }
 
     private IEnumerator WalkTo(Vector3 target, System.Action onArrived)

@@ -1,47 +1,60 @@
-using System.Collections;
 using UnityEngine;
 using TMPro;
 
+// Place on an empty GameObject called "OrderManager".
+// CustomerManager now controls spawning and recipe assignment.
 public class OrderManager : MonoBehaviour
 {
-    [Header("Recipes")]
+    [Header("All Kottu Recipes")]
     public KottuRecipe[] recipes;
 
     [Header("References")]
     public FoxAnimationController foxController;
-    public WordRoundManager wordRoundManager;
-    public CoinPopup coinPopup;
-    public TextMeshProUGUI coinCounterLabel;
+    public WordRoundManager       wordRoundManager;
+    public CoinPopup              coinPopup;
+    public TextMeshProUGUI        coinCounterLabel;
 
-    [Header("Customer")]
-    public CustomerController customer;
-    [Tooltip("Seconds after pig disappears before next pig walks in.")]
-    public float customerArriveDelay = 1f;
+    [Header("Customer System")]
+    [Tooltip("Drag the CustomerManager GameObject here.")]
+    public CustomerManager customerManager;
 
     [Header("Debug — read only")]
-    public int    totalCoins         = 0;
-    public int    currentRecipeIndex = 0;
-    public string currentRecipeName  = "";
+    public int    totalCoins        = 0;
+    public string currentRecipeName = "";
 
+    // Set by CustomerManager whenever the active customer changes
     private KottuRecipe currentRecipe;
     private float       orderStartTime;
+
+    // ══════════════════════════════════════════════════════════════════════════
 
     void Start()
     {
         if (recipes == null || recipes.Length == 0)
-        {
             Debug.LogError("❌ OrderManager: No recipes assigned!");
-            return;
-        }
-        PickRecipe(0);
+
         UpdateCoinLabel();
-        SpawnCustomer();
+        // CustomerManager handles spawning and calls SetCurrentRecipe when first customer arrives
     }
 
+    // ── Called by CustomerManager when the active customer changes ────────────
+    public void SetCurrentRecipe(KottuRecipe recipe)
+    {
+        currentRecipe    = recipe;
+        currentRecipeName = recipe != null ? recipe.displayName : "(none)";
+        orderStartTime   = Time.time;
+        Debug.Log("📋 Active order: " + currentRecipeName);
+    }
+
+    // ── Called by VideoDropTarget on correct word drop ────────────────────────
     public void OnCorrectAnswer()
     {
-        if (currentRecipe == null) { Debug.LogError("❌ No current recipe!"); return; }
-        if (foxController  == null) { Debug.LogError("❌ Fox not assigned!"); return; }
+        if (currentRecipe == null)
+        {
+            Debug.LogWarning("⚠️ Correct answer but no active recipe — waiting for a customer.");
+            return;
+        }
+        if (foxController == null) { Debug.LogError("❌ Fox not assigned!"); return; }
 
         Debug.Log("✅ Correct! Cooking: " + currentRecipe.displayName);
 
@@ -56,6 +69,7 @@ public class OrderManager : MonoBehaviour
         );
     }
 
+    // ── Called by VideoDropTarget on wrong word drop ──────────────────────────
     public void OnWrongAnswer()
     {
         if (foxController == null) return;
@@ -63,6 +77,7 @@ public class OrderManager : MonoBehaviour
             wordRoundManager.videoController.NextVideo());
     }
 
+    // ── Fires when the fox finishes the full cooking sequence ─────────────────
     private void OnOrderComplete(KottuRecipe recipe, float startTime)
     {
         // Coins
@@ -76,47 +91,17 @@ public class OrderManager : MonoBehaviour
         if (coinPopup != null) coinPopup.Show(popup);
         UpdateCoinLabel();
 
-        // Meal is now on the counter → trigger pig happy.
-        // Pig will hide the meal when it disappears.
-        if (customer != null)
-        {
-            customer.onLeave = () => StartCoroutine(DelayedSpawn(customerArriveDelay));
-            customer.Serve(recipe.mealObject);  // <-- passes the meal so pig hides it
-        }
-        else
-        {
-            // No customer assigned — just auto-hide the meal after 3 seconds
-            if (recipe.mealObject != null)
-                recipe.mealObject.autoHideDelay = 3f;
-        }
+        // CustomerManager serves the front customer and pushes the next recipe to us
+        if (customerManager != null)
+            customerManager.ServeCurrentCustomer(recipe.mealObject);
 
-        // Move to next recipe and next video immediately
-        int next = (currentRecipeIndex + 1) % recipes.Length;
-        PickRecipe(next);
+        // Advance to next sign language video
         wordRoundManager.videoController.NextVideo();
+
+        Debug.Log($"💰 +{earned} coins | Total: {totalCoins}");
     }
 
-    private IEnumerator DelayedSpawn(float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        SpawnCustomer();
-    }
-
-    private void SpawnCustomer()
-    {
-        if (customer == null || currentRecipe == null) return;
-        customer.Arrive(currentRecipe);
-        Debug.Log("🐷 Customer arriving for: " + currentRecipe.displayName);
-    }
-
-    private void PickRecipe(int index)
-    {
-        currentRecipeIndex = index;
-        currentRecipe      = recipes[index];
-        currentRecipeName  = currentRecipe.displayName;
-        orderStartTime     = Time.time;
-        Debug.Log("📋 Order: " + currentRecipe.displayName);
-    }
+    // ── Helpers ───────────────────────────────────────────────────────────────
 
     private void UpdateCoinLabel()
     {
