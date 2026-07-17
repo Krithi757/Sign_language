@@ -49,7 +49,7 @@ public class Running_challenge : MonoBehaviour
     private bool isCompleted;
     public static int numberOfDiamonds;
     public GameObject resume;
-    private static bool isPause = false;
+
 
     public GameObject closeButton; // Reference to the close (X) button
 

@@ -1,108 +1,121 @@
+using System.Collections;
 using UnityEngine;
 using TMPro;
 
-// The brain of the restaurant system.
-// Place this on an empty GameObject in the scene called "OrderManager".
-// Wire everything up in the Inspector.
 public class OrderManager : MonoBehaviour
 {
-    [Header("All Kottu Recipes — add 5 entries here")]
+    [Header("Recipes")]
     public KottuRecipe[] recipes;
 
     [Header("References")]
-    [Tooltip("Drag the Fox GameObject here.")]
     public FoxAnimationController foxController;
-
-    [Tooltip("Drag the WordRoundManager here.")]
     public WordRoundManager wordRoundManager;
-
-    [Tooltip("Drag the CoinPopup TextMeshProUGUI here.")]
     public CoinPopup coinPopup;
-
-    [Tooltip("Optional: a TextMeshProUGUI that always shows total coins on screen.")]
     public TextMeshProUGUI coinCounterLabel;
 
-    [Header("State — read-only, visible for debugging")]
-    public int totalCoins = 0;
-    public int currentRecipeIndex = 0;
-    public string currentRecipeName = "";
+    [Header("Customer")]
+    public CustomerController customer;
+    [Tooltip("Seconds after pig disappears before next pig walks in.")]
+    public float customerArriveDelay = 1f;
+
+    [Header("Debug — read only")]
+    public int    totalCoins         = 0;
+    public int    currentRecipeIndex = 0;
+    public string currentRecipeName  = "";
 
     private KottuRecipe currentRecipe;
-    private float orderStartTime;
+    private float       orderStartTime;
 
     void Start()
     {
         if (recipes == null || recipes.Length == 0)
         {
-            Debug.LogError("❌ OrderManager: No recipes assigned! Add them in the Inspector.");
+            Debug.LogError("❌ OrderManager: No recipes assigned!");
             return;
         }
         PickRecipe(0);
         UpdateCoinLabel();
+        SpawnCustomer();
     }
 
-    // ── Called by VideoDropTarget when the correct word is dropped ─────────
     public void OnCorrectAnswer()
     {
-        if (currentRecipe == null) { Debug.LogError("❌ OrderManager: No current recipe!"); return; }
-        if (foxController == null) { Debug.LogError("❌ OrderManager: Fox Controller not assigned!"); return; }
+        if (currentRecipe == null) { Debug.LogError("❌ No current recipe!"); return; }
+        if (foxController  == null) { Debug.LogError("❌ Fox not assigned!"); return; }
 
         Debug.Log("✅ Correct! Cooking: " + currentRecipe.displayName);
 
-        // Capture these NOW before the coroutine runs (avoids closure issues)
-        KottuRecipe recipe = currentRecipe;
-        float startTime = orderStartTime;
+        KottuRecipe recipe    = currentRecipe;
+        float       startTime = orderStartTime;
 
         foxController.PlayCorrectSequence(
-            uniqueEndVFX:  recipe.uniqueEndVFX,
-            mealToShow:    recipe.mealObject,
-            onComplete:    () => OnOrderComplete(recipe, startTime)
+            uniqueVFX:   recipe.uniqueVFX,
+            effectDelay: recipe.uniqueEffectDelay,
+            mealToShow:  recipe.mealObject,
+            onComplete:  () => OnOrderComplete(recipe, startTime)
         );
     }
 
-    // ── Called by VideoDropTarget when the wrong word is dropped ───────────
     public void OnWrongAnswer()
     {
         if (foxController == null) return;
-
-        // Wrong answer — fox plays sad animation, then video advances. No coins, no meal.
         foxController.PlayWrongSequence(onComplete: () =>
-        {
-            wordRoundManager.videoController.NextVideo();
-        });
+            wordRoundManager.videoController.NextVideo());
     }
 
-    // ── Fired after the fox finishes the full cooking sequence ─────────────
     private void OnOrderComplete(KottuRecipe recipe, float startTime)
     {
+        // Coins
         float timeTaken = Time.time - startTime;
-        bool wasFast = timeTaken <= recipe.speedBonusSeconds;
-
-        int earned = recipe.coinReward + (wasFast ? recipe.speedBonusCoins : 0);
+        bool  wasFast   = timeTaken <= recipe.speedBonusSeconds;
+        int   earned    = recipe.coinReward + (wasFast ? recipe.speedBonusCoins : 0);
         totalCoins += earned;
 
         string popup = recipe.emoji + " " + recipe.displayName + "!\n+" + earned + " coins";
         if (wasFast) popup += " ⚡ Speed bonus!";
-
         if (coinPopup != null) coinPopup.Show(popup);
         UpdateCoinLabel();
 
-        Debug.Log("💰 Earned " + earned + " coins. Total: " + totalCoins);
+        // Meal is now on the counter → trigger pig happy.
+        // Pig will hide the meal when it disappears.
+        if (customer != null)
+        {
+            customer.onLeave = () => StartCoroutine(DelayedSpawn(customerArriveDelay));
+            customer.Serve(recipe.mealObject);  // <-- passes the meal so pig hides it
+        }
+        else
+        {
+            // No customer assigned — just auto-hide the meal after 3 seconds
+            if (recipe.mealObject != null)
+                recipe.mealObject.autoHideDelay = 3f;
+        }
 
-        // Move to the next recipe and the next video
+        // Move to next recipe and next video immediately
         int next = (currentRecipeIndex + 1) % recipes.Length;
         PickRecipe(next);
         wordRoundManager.videoController.NextVideo();
     }
 
-    // ── Helpers ────────────────────────────────────────────────────────────
+    private IEnumerator DelayedSpawn(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        SpawnCustomer();
+    }
+
+    private void SpawnCustomer()
+    {
+        if (customer == null || currentRecipe == null) return;
+        customer.Arrive(currentRecipe);
+        Debug.Log("🐷 Customer arriving for: " + currentRecipe.displayName);
+    }
+
     private void PickRecipe(int index)
     {
         currentRecipeIndex = index;
-        currentRecipe = recipes[index];
-        currentRecipeName = currentRecipe.displayName;
-        orderStartTime = Time.time;
-        Debug.Log("📋 Next order: " + currentRecipe.displayName + " (" + currentRecipe.coinReward + " coins)");
+        currentRecipe      = recipes[index];
+        currentRecipeName  = currentRecipe.displayName;
+        orderStartTime     = Time.time;
+        Debug.Log("📋 Order: " + currentRecipe.displayName);
     }
 
     private void UpdateCoinLabel()

@@ -1,29 +1,35 @@
 using UnityEngine;
 
-// One entry per kottu type. Configure all 5 recipes in the OrderManager Inspector.
 [System.Serializable]
 public class KottuRecipe
 {
-    [Tooltip("What shows in the coin popup. E.g. 'Egg Kottu'")]
+    [Tooltip("E.g. 'Egg Kottu'")]
     public string displayName;
 
-    [Tooltip("Emoji shown in the popup. E.g. 🥚")]
+    [Tooltip("Emoji shown in the coin popup and thought bubble. E.g. 🥚")]
     public string emoji;
 
-    [Tooltip("Base coins awarded for completing this order.")]
+    [Tooltip("Base coins earned for completing this order.")]
     public int coinReward = 10;
 
     [Tooltip("Extra coins if the player answers within speedBonusSeconds.")]
     public int speedBonusCoins = 5;
 
-    [Tooltip("How many seconds counts as 'fast'. Default 5.")]
+    [Tooltip("Time window (seconds) to qualify for the speed bonus.")]
     public float speedBonusSeconds = 5f;
 
-    [Header("Visuals")]
-    [Tooltip("The finished meal GameObject (with MealAppearEffect). One per recipe.")]
+    [Header("Finished Dish")]
+    [Tooltip("Drag the meal's MealAppearEffect component here.")]
     public MealAppearEffect mealObject;
 
-    [Tooltip("Optional unique VFX that plays near the END of the cooking sequence. " +
-             "E.g. cheese sparkle, big flame burst, egg sizzle.")]
-    public ParticleSystem uniqueEndVFX;
+    [Header("Thought Bubble")]
+    [Tooltip("Photo/sprite of this dish shown in the customer thought bubble.")]
+    public Sprite orderSprite;
+
+    [Header("Optional Unique VFX (leave empty if not needed)")]
+    [Tooltip("Seconds from cooking start to fire this effect. 0 = disabled.")]
+    public float uniqueEffectDelay = 0f;
+
+    [Tooltip("Particle system for a special mid-cook effect (e.g. cheese sparkle).")]
+    public ParticleSystem uniqueVFX;
 }

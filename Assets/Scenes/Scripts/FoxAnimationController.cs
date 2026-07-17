@@ -28,21 +28,20 @@ public class FoxAnimationController : MonoBehaviour
         StopAllVFX();
     }
 
-    // Called by OrderManager. Accepts an optional unique end VFX and meal per recipe.
     public void PlayCorrectSequence(
-        System.Action onComplete   = null,
-        ParticleSystem uniqueEndVFX = null,
-        MealAppearEffect mealToShow = null)
+        System.Action    onComplete  = null,
+        ParticleSystem   uniqueVFX   = null,
+        float            effectDelay = 0f,
+        MealAppearEffect mealToShow  = null)
     {
         if (sequenceCoroutine != null) StopCoroutine(sequenceCoroutine);
         StopAllVFX();
         animator.ResetTrigger("PlayWrong");
         animator.SetTrigger("PlayCorrect");
         Debug.Log("🦊 Fox starts cooking!");
-        sequenceCoroutine = StartCoroutine(CorrectSequenceRoutine(onComplete, uniqueEndVFX, mealToShow));
+        sequenceCoroutine = StartCoroutine(CorrectSequenceRoutine(onComplete, uniqueVFX, effectDelay, mealToShow));
     }
 
-    // Called by OrderManager on wrong answer.
     public void PlayWrongSequence(System.Action onComplete = null)
     {
         if (sequenceCoroutine != null) StopCoroutine(sequenceCoroutine);
@@ -54,34 +53,40 @@ public class FoxAnimationController : MonoBehaviour
     }
 
     private IEnumerator CorrectSequenceRoutine(
-        System.Action onComplete,
-        ParticleSystem uniqueEndVFX,
+        System.Action    onComplete,
+        ParticleSystem   uniqueVFX,
+        float            effectDelay,
         MealAppearEffect mealToShow)
     {
-        // 0.5s — fox has started moving
+        float elapsed = 0f;
+
+        // 0.5s — fox has started moving, base VFX kick in
         yield return new WaitForSeconds(0.5f);
+        elapsed += 0.5f;
 
-        // Base effects — always play
-        if (steamEffect     != null) { steamEffect.Play();     Debug.Log("💨 Steam!"); }
+        if (steamEffect      != null) steamEffect.Play();
         yield return new WaitForSeconds(0.03f);
-        if (fireEffect      != null) { fireEffect.Play();      Debug.Log("🔥 Fire!"); }
-        if (foodDebrisEffect != null)  foodDebrisEffect.Play();
+        elapsed += 0.03f;
+        if (fireEffect       != null) fireEffect.Play();
+        if (foodDebrisEffect != null) foodDebrisEffect.Play();
 
-        // Wait until 0.6s before the sequence ends, then play the recipe's unique effect
-        float waitBeforeEnd = correctSequenceDuration - 0.5f - 0.03f - 0.6f;
-        if (waitBeforeEnd > 0f) yield return new WaitForSeconds(waitBeforeEnd);
+        // Fire the recipe's unique VFX at the configured delay (optional)
+        if (effectDelay > 0f && uniqueVFX != null)
+        {
+            float waitForEffect = effectDelay - elapsed;
+            if (waitForEffect > 0f) yield return new WaitForSeconds(waitForEffect);
+            elapsed = effectDelay;
+            uniqueVFX.Play();
+            Debug.Log("✨ Unique VFX!");
+        }
 
-        // Unique per-recipe VFX (cheese sparkle, big flame, egg sizzle, etc.)
-        if (uniqueEndVFX != null) { uniqueEndVFX.Play(); Debug.Log("✨ Unique recipe VFX!"); }
+        // Wait out the rest of the sequence
+        float remaining = correctSequenceDuration - elapsed;
+        if (remaining > 0f) yield return new WaitForSeconds(remaining);
 
-        // Final 0.6s
-        yield return new WaitForSeconds(0.6f);
-
-        // Sequence done
+        // Done — clear cooking VFX and show finished meal
         StopAllVFX();
-        if (uniqueEndVFX != null) uniqueEndVFX.Stop();
-
-        // Show the recipe's finished meal with drop + ping effect
+        if (uniqueVFX != null) StopPS(uniqueVFX);
         if (mealToShow != null) mealToShow.Show();
 
         animator.ResetTrigger("PlayCorrect");
@@ -110,8 +115,6 @@ public class FoxAnimationController : MonoBehaviour
 
     private void StopPS(ParticleSystem ps)
     {
-        // StopEmittingAndClear removes all existing particles instantly
-        // so cooking steam vanishes immediately when the meal appears
         if (ps != null)
             ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
     }
