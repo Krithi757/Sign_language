@@ -41,6 +41,8 @@ public class CustomerController : MonoBehaviour
 
     public void Arrive(KottuRecipe recipe)
     {
+        ValidateUIWiring();
+
         StopAllCoroutines();
         thoughtBubble?.Hide();
         patienceStars?.Stop();
@@ -97,6 +99,48 @@ public class CustomerController : MonoBehaviour
     }
 
     // ── Private ───────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Catches the exact bug that causes "both thought bubbles show up next
+    /// to the wrong character": thoughtBubble / patienceStars dragged into
+    /// the Inspector from a DIFFERENT customer's hierarchy instead of this
+    /// one's own child. Both scripts position themselves relative to their
+    /// own transform.parent, so if this reference points at someone else's
+    /// bubble, it will faithfully render at THEIR position, not yours — with
+    /// no error, just a visually confusing result. This check makes that
+    /// mistake loud and immediate instead of silent.
+    /// </summary>
+    private void ValidateUIWiring()
+    {
+        if (thoughtBubble != null && thoughtBubble.transform.parent != transform)
+        {
+            Debug.LogError(
+                $"❌ {name}: 'Thought Bubble' is wired to '{thoughtBubble.name}' " +
+                $"which is a child of '{thoughtBubble.transform.parent?.name}', not '{name}'. " +
+                $"Expand {name} in the Hierarchy, drag ITS OWN ThoughtBubble child into the " +
+                $"Thought Bubble field on this CustomerController, and fix the other " +
+                $"customer's field the same way if it was pointing here instead.",
+                this);
+        }
+
+        if (patienceStars != null && patienceStars.transform.parent != transform)
+        {
+            Debug.LogError(
+                $"❌ {name}: 'Patience Stars' is wired to '{patienceStars.name}' " +
+                $"which is a child of '{patienceStars.transform.parent?.name}', not '{name}'. " +
+                $"Expand {name} in the Hierarchy and drag ITS OWN PatienceStars child into the " +
+                $"Patience Stars field on this CustomerController.",
+                this);
+        }
+
+        // Not an error — these fields are intentionally optional while testing —
+        // but a nudge here saves you from silently missing a customer's meter
+        // and having to spot it by eye in Play mode.
+        if (thoughtBubble == null)
+            Debug.LogWarning($"⚠️ {name}: 'Thought Bubble' is unassigned — no bubble will show for this customer.", this);
+        if (patienceStars == null)
+            Debug.LogWarning($"⚠️ {name}: 'Patience Stars' is unassigned — no patience meter will show for this customer.", this);
+    }
 
     private void OnPatienceOut()
     {

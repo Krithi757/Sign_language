@@ -23,8 +23,13 @@ public class KottuRecipe
     public MealAppearEffect mealObject;
 
     [Header("Thought Bubble")]
-    [Tooltip("Photo/sprite of this dish shown in the customer thought bubble.")]
+    [Tooltip("Base kottu image shown in the thought bubble (left side, always shown).")]
     public Sprite orderSprite;
+
+    [Tooltip("Add-on ingredient image (cheese / egg / chicken). " +
+             "LEAVE EMPTY for plain Vegetable Kottu. " +
+             "When set, the bubble shows: [orderSprite] + [addOnSprite].")]
+    public Sprite addOnSprite;
 
     [Header("Optional Unique VFX (leave empty if not needed)")]
     [Tooltip("Seconds from cooking start to fire this effect. 0 = disabled.")]
