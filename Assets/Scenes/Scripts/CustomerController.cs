@@ -21,21 +21,46 @@ public class CustomerController : MonoBehaviour
     public Animator animator;
     public string walkBool       = "Walk";
     public string happyTrig      = "Happy";
+    [Tooltip("Must match the Trigger parameter name you add in the Animator Controller " +
+             "for the angry animation (played when a customer leaves from a patience timeout).")]
+    public string angryTrig      = "Angry";
     public string animSpeedParam = "AnimSpeed";
     [Tooltip("How long the happy animation plays before pig + meal disappear.")]
     public float happyDuration = 2f;
+    [Tooltip("How long the angry animation plays before the customer disappears unserved.")]
+    public float angryDuration = 1f;
 
     [Header("UI (leave empty while testing)")]
     public ThoughtBubble thoughtBubble;
+    [Tooltip("Optional visual only — the actual patience countdown lives in " +
+             "THIS script now (see StartPatienceTimer/PatienceCountdown below), " +
+             "so leaving this unassigned still means customers correctly leave " +
+             "when they run out of patience.")]
     public PatienceStars patienceStars;
 
     [Header("Patience")]
-    public float patienceDuration = 18f;
+    [Tooltip("How long (seconds) this customer waits at the station before leaving " +
+             "unserved. Set a DIFFERENT value per character prefab — e.g. Pig should " +
+             "be the least patient (lower, ~12–15s), Dog the most patient (higher, " +
+             "~30–35s). Timer starts the moment this customer actually reaches the " +
+             "counter (State becomes AtStation), whether that's their first arrival " +
+             "or after shuffling forward.")]
+    public float patienceDuration = 25f;
+
+    // Fires when this customer physically arrives at the counter and their
+    // thought bubble is shown — i.e. the moment they're actually "stationed."
+    // CustomerManager listens for this to know when it's safe to treat this
+    // customer as the active order (see SyncActiveRecipe in CustomerManager).
+    public System.Action<KottuRecipe> onArrivedAtStation;
 
     // Fires when pig disappears so OrderManager can send the next customer
     public System.Action onLeave;
 
     public State CurrentState { get; private set; } = State.Hidden;
+
+    private Coroutine   patienceCoroutine;
+    private Coroutine   moveCoroutine;   // the ONE movement coroutine currently driving transform
+    private KottuRecipe pendingRecipe;   // recipe this customer is walking toward — needed if ShuffleForward redirects them mid-walk
 
     // ── Public API ────────────────────────────────────────────────────────
 
@@ -44,21 +69,48 @@ public class CustomerController : MonoBehaviour
         ValidateUIWiring();
 
         StopAllCoroutines();
+        moveCoroutine = null;
         thoughtBubble?.Hide();
         patienceStars?.Stop();
+
+        if (animator != null)
+        {
+            // This script drives position/rotation entirely by hand (WalkTo /
+            // ShuffleWalk below). If the Animator's "Apply Root Motion" is
+            // enabled, it fights that every frame. Force it off so the
+            // Animator only ever plays clips in place and never touches
+            // transform itself.
+            animator.applyRootMotion = false;
+            // Leftover "Happy"/"Angry" triggers from a previous life of this
+            // pooled object shouldn't carry over into the new walk-in.
+            animator.ResetTrigger(happyTrig);
+            animator.ResetTrigger(angryTrig);
+        }
 
         gameObject.SetActive(true);
         if (spawnPoint != null) transform.position = spawnPoint.position;
         CurrentState = State.Walking;
+        pendingRecipe = recipe;
 
-        StartCoroutine(WalkTo(stationPoint.position, () =>
-        {
-            CurrentState = State.AtStation;
-            SetWalking(false);
-            transform.rotation = Quaternion.Euler(0f, counterFacingYaw, 0f);
-            thoughtBubble?.Show(recipe);
-            patienceStars?.StartCounting(patienceDuration, OnPatienceOut);
-        }));
+        Debug.Log($"🚶 {name}: Arrive() called for '{recipe?.displayName}' — walking from {transform.position:F2} to {stationPoint.position:F2}");
+
+        moveCoroutine = StartCoroutine(WalkTo(stationPoint.position, HandleArrivedAtStation));
+    }
+
+    /// <summary>
+    /// The actual "I've reached the counter" logic — shared by a normal
+    /// Arrive() walk-in and by ShuffleForward when it has to redirect a
+    /// customer who was still mid-walk-in (see ShuffleForward below).
+    /// </summary>
+    private void HandleArrivedAtStation()
+    {
+        CurrentState = State.AtStation;
+        SetWalking(false);
+        transform.rotation = Quaternion.Euler(0f, counterFacingYaw, 0f);
+        thoughtBubble?.Show(pendingRecipe);
+        StartPatienceTimer();
+        onArrivedAtStation?.Invoke(pendingRecipe);
+        Debug.Log($"✅ {name}: reached station, bubble shown, order active.");
     }
 
     /// <summary>
@@ -75,7 +127,7 @@ public class CustomerController : MonoBehaviour
         }
 
         CurrentState = State.Served;
-        patienceStars?.Stop();
+        StopPatienceTimer();
         thoughtBubble?.Hide();
         SetWalking(false);
 
@@ -90,12 +142,38 @@ public class CustomerController : MonoBehaviour
 
     /// <summary>
     /// Called by CustomerManager when the queue shuffles forward.
-    /// Customer walks to the new slot without resetting state or UI.
     /// </summary>
     public void ShuffleForward(Transform newSlot)
     {
         stationPoint = newSlot;
-        StartCoroutine(ShuffleWalk(newSlot.position));
+
+        // Always stop whatever movement coroutine is currently running before
+        // starting a new one. THIS was the actual bug you hit: if a customer
+        // gets shuffled while still walking in from their original spawn (an
+        // earlier customer left before this one finished arriving), the old
+        // code started a SECOND movement coroutine without stopping the
+        // first — two coroutines fighting over transform.position toward two
+        // different targets, forever. That's exactly what your Console log
+        // showed: distance stuck at 0.24, not shrinking, 5+ seconds in.
+        if (moveCoroutine != null) StopCoroutine(moveCoroutine);
+
+        if (CurrentState == State.Walking)
+        {
+            // Still on the original walk-in (hasn't reached AtStation yet) —
+            // redirect toward the updated slot instead of losing the arrival
+            // behaviour. If we switched to ShuffleWalk here instead, the
+            // bubble/patience-timer/active-order logic in
+            // HandleArrivedAtStation would simply never run for this
+            // customer, since that logic only lives on WalkTo's callback.
+            Debug.Log($"↪️ {name}: shuffled to a new slot mid-walk-in, redirecting.");
+            moveCoroutine = StartCoroutine(WalkTo(newSlot.position, HandleArrivedAtStation));
+        }
+        else
+        {
+            // Already stationed — this is just a cosmetic reposition, don't
+            // re-show the bubble or restart the patience timer.
+            moveCoroutine = StartCoroutine(ShuffleWalk(newSlot.position));
+        }
     }
 
     // ── Private ───────────────────────────────────────────────────────────
@@ -142,13 +220,51 @@ public class CustomerController : MonoBehaviour
             Debug.LogWarning($"⚠️ {name}: 'Patience Stars' is unassigned — no patience meter will show for this customer.", this);
     }
 
+    /// <summary>
+    /// The actual game-affecting patience countdown. Lives here (not in
+    /// PatienceStars) so that customers correctly leave when impatient even
+    /// if you don't wire up a PatienceStars visual at all. If a PatienceStars
+    /// IS assigned, it's kicked off purely for show — its own onOut callback
+    /// is intentionally left null so it can never double-trigger this.
+    /// </summary>
+    private void StartPatienceTimer()
+    {
+        StopPatienceTimer();
+        patienceCoroutine = StartCoroutine(PatienceCountdown(patienceDuration));
+        patienceStars?.StartCounting(patienceDuration, null); // visual only
+    }
+
+    private void StopPatienceTimer()
+    {
+        if (patienceCoroutine != null)
+        {
+            StopCoroutine(patienceCoroutine);
+            patienceCoroutine = null;
+        }
+        patienceStars?.Stop();
+    }
+
+    private IEnumerator PatienceCountdown(float duration)
+    {
+        yield return new WaitForSeconds(duration);
+        OnPatienceOut();
+    }
+
     private void OnPatienceOut()
     {
         if (CurrentState != State.AtStation) return;
+        patienceCoroutine = null;
         CurrentState = State.Served; // reuse Served to prevent double-trigger
         thoughtBubble?.Hide();
         patienceStars?.Stop();
-        StartCoroutine(DisappearAfter(0.3f, null));
+
+        if (animator != null)
+            animator.SetTrigger(angryTrig);
+        else
+            Debug.LogWarning("🐷 Animator is null on CustomerController!");
+
+        Debug.Log("😠 Customer ran out of patience! Disappearing in " + angryDuration + "s");
+        StartCoroutine(DisappearAfter(angryDuration, null));
     }
 
     // Walks to new slot without changing state — used for queue shuffle
@@ -174,6 +290,8 @@ public class CustomerController : MonoBehaviour
     private IEnumerator WalkTo(Vector3 target, System.Action onArrived)
     {
         SetWalking(true);
+        float elapsed = 0f;
+        bool  warned  = false;
         while (Vector3.Distance(transform.position, target) > 0.05f)
         {
             Vector3 dir = target - transform.position;
@@ -183,6 +301,20 @@ public class CustomerController : MonoBehaviour
                     Quaternion.LookRotation(dir.normalized), 12f * Time.deltaTime);
             transform.position = Vector3.MoveTowards(
                 transform.position, target, walkSpeed * Time.deltaTime);
+
+            // Watchdog: a normal walk should take a couple of seconds at most.
+            // If it's still going after 5s, something (most likely Animator
+            // root motion fighting this manual movement) is preventing the
+            // distance from ever closing. Log it once so it's obvious in the
+            // Console instead of just looking like a silent hang.
+            elapsed += Time.deltaTime;
+            if (!warned && elapsed > 5f)
+            {
+                warned = true;
+                Debug.LogWarning($"⚠️ {name}: WalkTo has been running for {elapsed:F1}s without reaching target. " +
+                    $"pos={transform.position:F2} target={target:F2} dist={Vector3.Distance(transform.position, target):F2}. " +
+                    $"If this keeps climbing instead of shrinking, Animator root motion (or something else) is fighting the manual movement.");
+            }
             yield return null;
         }
         transform.position = target;

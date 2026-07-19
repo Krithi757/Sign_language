@@ -47,6 +47,9 @@ public class CustomerManager : MonoBehaviour
 
     void Start()
     {
+        // No active order yet — makes sure the video starts frozen/blank
+        // rather than whatever OrderManager's default state happens to be.
+        SyncActiveRecipe();
         StartCoroutine(SpawnLoop());
     }
 
@@ -88,16 +91,20 @@ public class CustomerManager : MonoBehaviour
 
         var entry = new QueueEntry { customer = c, recipe = recipe };
 
-        c.spawnPoint    = spawnPoint;
-        c.stationPoint  = counterSlots[queue.Count];
-        c.onLeave       = () => OnCustomerLeft(entry);
+        c.spawnPoint         = spawnPoint;
+        c.stationPoint       = counterSlots[queue.Count];
+        c.onLeave            = () => OnCustomerLeft(entry);
+        // Don't push the recipe to OrderManager here — that would start the
+        // video while this customer is still walking in from off-screen.
+        // Instead, wait until they've actually reached the counter and their
+        // bubble is showing (CustomerController fires onArrivedAtStation the
+        // moment State becomes AtStation), then re-sync. This keeps the video
+        // frozen/blank until a customer is genuinely stationed, and only acts
+        // on it if that customer is the one actually at the front of the queue.
+        c.onArrivedAtStation = (_) => SyncActiveRecipe();
 
         queue.Add(entry);
         c.Arrive(recipe);
-
-        // If this is the first customer, tell OrderManager their recipe is now active
-        if (queue.Count == 1)
-            orderManager.SetCurrentRecipe(recipe);
 
         Debug.Log($"🐾 {c.name} → {recipe.displayName} (slot {queue.Count - 1})");
     }
@@ -119,10 +126,16 @@ public class CustomerManager : MonoBehaviour
         // Serve the front customer
         queue[0].customer.Serve(meal);
 
-        // Immediately push the NEXT customer's recipe to OrderManager
-        // (don't wait for the animation — the video advances right away)
-        KottuRecipe nextRecipe = queue.Count > 1 ? queue[1].recipe : null;
-        orderManager.SetCurrentRecipe(nextRecipe);
+        // Immediately push the NEXT customer's recipe to OrderManager — don't
+        // wait for the leave/disappear animation, the video should advance
+        // right away. But only if that next customer is actually stationed
+        // (bubble showing) already; if they're still mid-walk (e.g. they were
+        // *just* spawned a moment ago), freeze/blank instead and let their own
+        // onArrivedAtStation callback pick it up the instant they arrive.
+        if (queue.Count > 1 && queue[1].customer.CurrentState == CustomerController.State.AtStation)
+            orderManager.SetCurrentRecipe(queue[1].recipe);
+        else
+            orderManager.SetCurrentRecipe(null);
     }
 
     // ── Queue management ──────────────────────────────────────────────────────
@@ -138,6 +151,31 @@ public class CustomerManager : MonoBehaviour
                 queue[i].customer.ShuffleForward(counterSlots[i]);
         }
 
+        // Re-sync in case the customer who just left was the active order
+        // (this is what happens when a customer leaves from a patience
+        // timeout rather than being served) — without this, OrderManager
+        // would keep pointing at the departed customer's recipe, and the
+        // next correct answer would serve the wrong meal to whoever is now
+        // actually at the front.
+        SyncActiveRecipe();
+
         Debug.Log($"Queue after leave: {queue.Count} customer(s).");
+    }
+
+    /// <summary>
+    /// Makes OrderManager's active recipe match reality: whoever is actually
+    /// at the front of the queue AND fully stationed (bubble shown). If
+    /// nobody qualifies right now — queue empty, or the front customer is
+    /// still walking in — the active recipe is cleared so the video can
+    /// freeze/blank instead of showing a stale or premature order.
+    /// </summary>
+    private void SyncActiveRecipe()
+    {
+        if (orderManager == null) return;
+
+        if (queue.Count > 0 && queue[0].customer.CurrentState == CustomerController.State.AtStation)
+            orderManager.SetCurrentRecipe(queue[0].recipe);
+        else
+            orderManager.SetCurrentRecipe(null);
     }
 }
