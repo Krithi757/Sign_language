@@ -21,6 +21,8 @@ public class OrderManager : MonoBehaviour
     public AudioSource uiAudioSource;
     [Tooltip("Plays once, right when the coin popup appears.")]
     public AudioClip   coinSound;
+    [Tooltip("Plays once, the instant the player drops the WRONG word onto the video.")]
+    public AudioClip   wrongSound;
 
     [Header("Customer System")]
     [Tooltip("Drag the CustomerManager GameObject here.")]
@@ -70,21 +72,17 @@ public class OrderManager : MonoBehaviour
         orderStartTime     = Time.time;
 
         // ── Video freeze/blank hook ─────────────────────────────────────────
-        // Requirement: the sign-language video should stay frozen/blank until
-        // a customer is actually stationed at the counter, then play; and it
-        // should go back to frozen/blank whenever there's no stationed
-        // customer to serve (empty queue, or the front customer only just
-        // started walking in). This is the single place that transition
-        // happens, but I don't have WordRoundManager/VideoController's actual
-        // API yet, so this is left as a clearly-marked TODO rather than a
-        // guess that might not compile. Share that script and I'll wire the
-        // real calls in on the next pass. Likely shape:
-        //
-        //   if (becameActive) wordRoundManager.videoController.Play();   // unfreeze
-        //   if (becameIdle)   wordRoundManager.videoController.Pause();  // freeze/blank
-        //
-        if (becameActive) Debug.Log("▶️ TODO: unfreeze/play video — customer now stationed.");
-        if (becameIdle)   Debug.Log("⏸️ TODO: freeze/blank video — no stationed customer.");
+        // The sign-language video stays frozen/blank until a customer is
+        // actually stationed at the counter, then plays; and goes back to
+        // frozen/blank whenever there's no stationed customer (empty queue,
+        // or the front customer only just started walking in). This is the
+        // single place that transition happens — see
+        // TapToChangeVideo.ResumeVideo()/PauseVideo() for the actual
+        // VideoPlayer.Play()/Pause() calls (that script also starts frozen
+        // by default on scene load, so the very first customer's arrival is
+        // covered too, not just subsequent ones).
+        if (becameActive) wordRoundManager.videoController.ResumeVideo();
+        if (becameIdle)   wordRoundManager.videoController.PauseVideo();
 
         Debug.Log("📋 Active order: " + currentRecipeName);
     }
@@ -115,9 +113,23 @@ public class OrderManager : MonoBehaviour
     // ── Called by VideoDropTarget on wrong word drop ──────────────────────────
     public void OnWrongAnswer()
     {
+        Debug.Log("❌ Wrong word — customer is getting angry and leaving.");
+
+        // Error sound plays immediately, same instant the wrong drop happens.
+        if (uiAudioSource != null && wrongSound != null) uiAudioSource.PlayOneShot(wrongSound);
+
+        // The active (front-of-queue) customer gets angry and leaves unserved
+        // right away — their own Angry animation + disappear timing is driven
+        // by CustomerController.LeaveAngry(). Once they actually disappear,
+        // CustomerManager shuffles the queue forward and re-syncs the active
+        // recipe on its own (same path as a patience timeout), so
+        // currentRecipe will correctly move on to whoever's next (or go idle
+        // if the queue's now empty) without anything more needed here.
+        if (customerManager != null) customerManager.CurrentCustomerGotWrongAnswer();
+
         if (foxController == null) return;
-        // Wrong answer doesn't fail the order or touch currentRecipe/orderStartTime —
-        // the player just tries again with a new video for the same active order.
+        // Fox still plays its "defeated" animation in parallel, then the
+        // sign-language video advances so the player gets a fresh word.
         foxController.PlayWrongSequence(onComplete: () =>
             wordRoundManager.videoController.NextVideo());
     }

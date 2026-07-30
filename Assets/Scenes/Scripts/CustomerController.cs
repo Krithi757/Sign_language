@@ -22,21 +22,40 @@ public class CustomerController : MonoBehaviour
     public string walkBool       = "Walk";
     public string happyTrig      = "Happy";
     [Tooltip("Must match the Trigger parameter name you add in the Animator Controller " +
-             "for the angry animation (played when a customer leaves from a patience timeout).")]
+             "for the angry animation (played when a customer leaves from a patience timeout " +
+             "or a wrong answer).")]
     public string angryTrig      = "Angry";
     public string animSpeedParam = "AnimSpeed";
     [Tooltip("How long the happy animation plays before pig + meal disappear.")]
     public float happyDuration = 2f;
-    [Tooltip("How long the angry animation plays before the customer disappears unserved.")]
-    public float angryDuration = 1f;
+    [Tooltip("How long the angry animation plays before the customer disappears unserved. " +
+             "IMPORTANT: this must be at least as long as your Angry animation clip's " +
+             "actual length, or the customer will vanish mid-animation. Select the Angry " +
+             "clip asset and check its length in the Inspector preview, then set this a " +
+             "little longer (add ~0.3-0.5s buffer). This is a per-prefab value — bumping " +
+             "the default here in code does NOT change it on Pig/Dog prefabs that were " +
+             "already set up; update the Inspector field on both directly.")]
+    public float angryDuration = 2f;
 
     [Header("UI (leave empty while testing)")]
     public ThoughtBubble thoughtBubble;
-    [Tooltip("Optional visual only — the actual patience countdown lives in " +
-             "THIS script now (see StartPatienceTimer/PatienceCountdown below), " +
-             "so leaving this unassigned still means customers correctly leave " +
-             "when they run out of patience.")]
-    public PatienceStars patienceStars;
+
+    [Header("Angry Shake")]
+    [Tooltip("If true, the whole customer briefly jitters side to side the instant " +
+             "they get angry (wrong answer or patience timeout).")]
+    public bool enableAngryShake = true;
+    public float shakeDuration   = 0.35f;
+    public float shakeMagnitude  = 0.04f;
+
+    [Header("Audio")]
+    [Tooltip("Add an AudioSource component to this customer (uncheck 'Play On Awake') " +
+             "and drag it here, or just leave this empty — Awake() will auto-grab an " +
+             "AudioSource on this same GameObject if one exists.")]
+    public AudioSource audioSource;
+    [Tooltip("Short angry yell/grunt — plays once, the instant this customer gets " +
+             "angry (wrong answer or patience timeout), at the same moment as the " +
+             "Angry animation trigger and the shake.")]
+    public AudioClip angryYellSound;
 
     [Header("Patience")]
     [Tooltip("How long (seconds) this customer waits at the station before leaving " +
@@ -62,6 +81,11 @@ public class CustomerController : MonoBehaviour
     private Coroutine   moveCoroutine;   // the ONE movement coroutine currently driving transform
     private KottuRecipe pendingRecipe;   // recipe this customer is walking toward — needed if ShuffleForward redirects them mid-walk
 
+    void Awake()
+    {
+        if (audioSource == null) audioSource = GetComponent<AudioSource>();
+    }
+
     // ── Public API ────────────────────────────────────────────────────────
 
     public void Arrive(KottuRecipe recipe)
@@ -71,7 +95,6 @@ public class CustomerController : MonoBehaviour
         StopAllCoroutines();
         moveCoroutine = null;
         thoughtBubble?.Hide();
-        patienceStars?.Stop();
 
         if (animator != null)
         {
@@ -179,14 +202,14 @@ public class CustomerController : MonoBehaviour
     // ── Private ───────────────────────────────────────────────────────────
 
     /// <summary>
-    /// Catches the exact bug that causes "both thought bubbles show up next
-    /// to the wrong character": thoughtBubble / patienceStars dragged into
-    /// the Inspector from a DIFFERENT customer's hierarchy instead of this
-    /// one's own child. Both scripts position themselves relative to their
-    /// own transform.parent, so if this reference points at someone else's
-    /// bubble, it will faithfully render at THEIR position, not yours — with
-    /// no error, just a visually confusing result. This check makes that
-    /// mistake loud and immediate instead of silent.
+    /// Catches the exact bug that causes "the thought bubble shows up next to
+    /// the wrong character": thoughtBubble dragged into the Inspector from a
+    /// DIFFERENT customer's hierarchy instead of this one's own child.
+    /// ThoughtBubble positions itself relative to its own transform.parent, so
+    /// if this reference points at someone else's bubble, it will faithfully
+    /// render at THEIR position, not yours — with no error, just a visually
+    /// confusing result. This check makes that mistake loud and immediate
+    /// instead of silent.
     /// </summary>
     private void ValidateUIWiring()
     {
@@ -201,37 +224,22 @@ public class CustomerController : MonoBehaviour
                 this);
         }
 
-        if (patienceStars != null && patienceStars.transform.parent != transform)
-        {
-            Debug.LogError(
-                $"❌ {name}: 'Patience Stars' is wired to '{patienceStars.name}' " +
-                $"which is a child of '{patienceStars.transform.parent?.name}', not '{name}'. " +
-                $"Expand {name} in the Hierarchy and drag ITS OWN PatienceStars child into the " +
-                $"Patience Stars field on this CustomerController.",
-                this);
-        }
-
-        // Not an error — these fields are intentionally optional while testing —
-        // but a nudge here saves you from silently missing a customer's meter
+        // Not an error — this field is intentionally optional while testing —
+        // but a nudge here saves you from silently missing a customer's bubble
         // and having to spot it by eye in Play mode.
         if (thoughtBubble == null)
             Debug.LogWarning($"⚠️ {name}: 'Thought Bubble' is unassigned — no bubble will show for this customer.", this);
-        if (patienceStars == null)
-            Debug.LogWarning($"⚠️ {name}: 'Patience Stars' is unassigned — no patience meter will show for this customer.", this);
     }
 
     /// <summary>
-    /// The actual game-affecting patience countdown. Lives here (not in
-    /// PatienceStars) so that customers correctly leave when impatient even
-    /// if you don't wire up a PatienceStars visual at all. If a PatienceStars
-    /// IS assigned, it's kicked off purely for show — its own onOut callback
-    /// is intentionally left null so it can never double-trigger this.
+    /// The actual game-affecting patience countdown, entirely independent of
+    /// any visual meter — customers correctly leave when impatient with
+    /// nothing more than this coroutine running.
     /// </summary>
     private void StartPatienceTimer()
     {
         StopPatienceTimer();
         patienceCoroutine = StartCoroutine(PatienceCountdown(patienceDuration));
-        patienceStars?.StartCounting(patienceDuration, null); // visual only
     }
 
     private void StopPatienceTimer()
@@ -241,7 +249,6 @@ public class CustomerController : MonoBehaviour
             StopCoroutine(patienceCoroutine);
             patienceCoroutine = null;
         }
-        patienceStars?.Stop();
     }
 
     private IEnumerator PatienceCountdown(float duration)
@@ -254,17 +261,63 @@ public class CustomerController : MonoBehaviour
     {
         if (CurrentState != State.AtStation) return;
         patienceCoroutine = null;
+        Debug.Log("😠 " + name + ": ran out of patience!");
+        TriggerAngryLeave();
+    }
+
+    /// <summary>
+    /// Call this when the player drops the WRONG word for this customer's
+    /// order. Plays the exact same angry/leave sequence as a patience
+    /// timeout (Angry trigger, hide bubble, disappear after angryDuration,
+    /// then fire onLeave so CustomerManager shuffles the queue forward and
+    /// re-syncs the active recipe to whoever's next). Safe to call even if
+    /// this customer isn't currently the active one — it no-ops unless
+    /// they're actually AtStation.
+    /// </summary>
+    public void LeaveAngry()
+    {
+        if (CurrentState != State.AtStation) return;
+        StopPatienceTimer(); // cancel the running patience countdown — they're leaving early, not from a timeout
+        Debug.Log("😠 " + name + ": got the wrong answer!");
+        TriggerAngryLeave();
+    }
+
+    /// <summary>
+    /// Shared "customer gets angry and leaves unserved" sequence — used by
+    /// both a patience timeout (OnPatienceOut) and a wrong word drop
+    /// (LeaveAngry). Kept deliberately simple: animation + yell + shake.
+    /// </summary>
+    private void TriggerAngryLeave()
+    {
         CurrentState = State.Served; // reuse Served to prevent double-trigger
         thoughtBubble?.Hide();
-        patienceStars?.Stop();
 
         if (animator != null)
             animator.SetTrigger(angryTrig);
         else
             Debug.LogWarning("🐷 Animator is null on CustomerController!");
 
-        Debug.Log("😠 Customer ran out of patience! Disappearing in " + angryDuration + "s");
+        if (audioSource != null && angryYellSound != null) audioSource.PlayOneShot(angryYellSound);
+
+        if (enableAngryShake) StartCoroutine(ShakeRoutine());
+
+        Debug.Log("😠 Disappearing in " + angryDuration + "s");
         StartCoroutine(DisappearAfter(angryDuration, null));
+    }
+
+    private IEnumerator ShakeRoutine()
+    {
+        Vector3 originalLocalPos = transform.localPosition;
+        float elapsed = 0f;
+        while (elapsed < shakeDuration)
+        {
+            float offsetX = Random.Range(-shakeMagnitude, shakeMagnitude);
+            float offsetZ = Random.Range(-shakeMagnitude, shakeMagnitude);
+            transform.localPosition = originalLocalPos + new Vector3(offsetX, 0f, offsetZ);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+        transform.localPosition = originalLocalPos;
     }
 
     // Walks to new slot without changing state — used for queue shuffle

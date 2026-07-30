@@ -138,6 +138,23 @@ public class CustomerManager : MonoBehaviour
             orderManager.SetCurrentRecipe(null);
     }
 
+    /// <summary>
+    /// Called by OrderManager the instant the player drops the WRONG word.
+    /// The front-of-queue (active) customer gets angry and leaves unserved —
+    /// their own LeaveAngry() plays the Angry animation, waits angryDuration,
+    /// then fires onLeave, which routes back into OnCustomerLeft below to
+    /// shuffle the queue forward and re-sync the active recipe automatically.
+    /// </summary>
+    public void CurrentCustomerGotWrongAnswer()
+    {
+        if (queue.Count == 0)
+        {
+            Debug.LogWarning("⚠️ CurrentCustomerGotWrongAnswer: nobody in queue!");
+            return;
+        }
+        queue[0].customer.LeaveAngry();
+    }
+
     // ── Queue management ──────────────────────────────────────────────────────
 
     private void OnCustomerLeft(QueueEntry entry)

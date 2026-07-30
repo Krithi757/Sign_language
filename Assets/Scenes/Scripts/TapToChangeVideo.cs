@@ -28,6 +28,11 @@ public class TapToChangeVideo : MonoBehaviour
     // WordRoundManager subscribes to this to know when to put up a fresh set of words.
     public event System.Action<VideoClip> OnVideoChanged;
 
+    // True whenever OrderManager currently wants the video frozen/blank
+    // (no customer stationed yet, or nobody currently active). Starts true
+    // so the very first video never auto-plays before anyone's arrived.
+    private bool isFrozen = true;
+
     void Start()
     {
         if (videoPlayer == null)
@@ -63,6 +68,8 @@ public class TapToChangeVideo : MonoBehaviour
 
         videoPlayer.isLooping = true;
         PlayVideoAt(0);
+        // PlayVideoAt() above already leaves it frozen (see isFrozen default
+        // and the check at the end of PlayVideoAt) — nothing else needed here.
     }
 
     // Call this to advance to the next video. Wraps back to the first after the last.
@@ -75,6 +82,29 @@ public class TapToChangeVideo : MonoBehaviour
         if (currentIndex >= videoClips.Length) currentIndex = 0;
 
         PlayVideoAt(currentIndex);
+    }
+
+    /// <summary>
+    /// Called by OrderManager the instant a customer becomes the active,
+    /// fully-stationed order — unfreezes the video so the player can start
+    /// matching signs.
+    /// </summary>
+    public void ResumeVideo()
+    {
+        isFrozen = false;
+        if (videoPlayer != null) videoPlayer.Play();
+    }
+
+    /// <summary>
+    /// Called by OrderManager whenever there's no active stationed customer
+    /// (queue empty, or the front customer is still walking in) — freezes
+    /// the video on its current frame instead of letting it keep playing
+    /// with nobody there to answer it.
+    /// </summary>
+    public void PauseVideo()
+    {
+        isFrozen = true;
+        if (videoPlayer != null) videoPlayer.Pause();
     }
 
     private string GetFolderPath(int levelId)
@@ -102,6 +132,14 @@ public class TapToChangeVideo : MonoBehaviour
         videoPlayer.Stop();
         videoPlayer.clip = videoClips[index];
         videoPlayer.Play();
+
+        // If we're currently supposed to be frozen (no stationed customer —
+        // e.g. this got called via NextVideo() right as the last customer
+        // left), immediately re-pause on this new clip's first frame instead
+        // of letting it play unattended. Play() then Pause() (rather than
+        // skipping Play() entirely) still lets the VideoPlayer decode/prepare
+        // the frame so ResumeVideo() can resume instantly later with no delay.
+        if (isFrozen) videoPlayer.Pause();
 
         OnVideoChanged?.Invoke(videoClips[index]);
     }
