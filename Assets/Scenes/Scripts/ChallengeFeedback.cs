@@ -40,6 +40,25 @@ public class ChallengeFeedback : MonoBehaviour
         Debug.Log("Dimonds: " + diamonds);
         int isCompleted = PlayerPrefs.GetInt("IsCompleted", 0);
 
+        Debug.Log("Coins collected this game: " + finalCoins + " | Score collected this game: " + finalScore);
+
+        // ── Accumulate THIS run's earnings into the running totals ──────────
+        // Previously this was the actual bug: AllCoins/AllDiamonds/AllScore were
+        // only ever READ here (for the incrementer-to-total animation below),
+        // never actually increased by finalCoins/diamonds/finalScore first — so
+        // a run's coins/diamonds/score showed correctly on THIS screen but never
+        // persisted into the running totals, only AllFire (streak) did. Fixed by
+        // adding this run's amounts to the saved totals BEFORE anything below
+        // reads "AllCoins"/"AllDiamonds"/"AllScore" back out again.
+        int newAllCoins = PlayerPrefs.GetInt("AllCoins", 0) + finalCoins;
+        int newAllDiamonds = PlayerPrefs.GetInt("AllDiamonds", 0) + diamonds;
+        int newAllScore = PlayerPrefs.GetInt("AllScore", 0) + finalScore;
+        PlayerPrefs.SetInt("AllCoins", newAllCoins);
+        PlayerPrefs.SetInt("AllDiamonds", newAllDiamonds);
+        PlayerPrefs.SetInt("AllScore", newAllScore);
+
+        Debug.Log("Total Coins after adding: " + newAllCoins + " | Total Score after adding: " + newAllScore);
+
         // Calculate dynamic fire number based on Coins and Score
         // int firNumber = (finalCoins / 10) + (finalScore / 20); // Adjust formula as needed
         int firNumber = finalCoins + (finalScore % 7 + 2) * 3;

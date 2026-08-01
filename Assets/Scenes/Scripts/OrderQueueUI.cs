@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 // Lives on the 2D "Order Queue" panel GameObject — purely a Canvas UI
 // element, nothing in the 3D scene. Adds one row per customer, but ONLY
@@ -57,9 +58,26 @@ public class OrderQueueUI : MonoBehaviour
         if (customer == null) return;
         if (activeRows.TryGetValue(customer, out OrderQueueRow row))
         {
-            if (row != null) Destroy(row.gameObject);
+            if (row != null)
+            {
+                // Destroy() alone doesn't actually remove the GameObject from the
+                // hierarchy until the end of THIS frame — but the Vertical Layout
+                // Group on rowContainer recalculates positions the moment it's
+                // asked to, so for that one frame it still counts this row as
+                // present and leaves the remaining row(s) sitting in their old
+                // slot, with a gap where this one used to be (exactly the bug
+                // you saw — the survivor stuck in "slot 2" instead of sliding
+                // up to "slot 1"). Deactivating it FIRST removes it from the
+                // layout group's active-children count immediately, so the
+                // reflow happens the same frame instead of one frame late.
+                row.gameObject.SetActive(false);
+                Destroy(row.gameObject);
+            }
             activeRows.Remove(customer);
         }
+
+        if (rowContainer != null)
+            LayoutRebuilder.ForceRebuildLayoutImmediate(rowContainer as RectTransform);
 
         if (panelSizer != null) panelSizer.SetRowCount(activeRows.Count);
     }

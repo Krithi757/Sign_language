@@ -71,6 +71,17 @@ public class ChallengeMenu : MonoBehaviour
         StartCoroutine(LoadSceneAfterSound(15));
     }
 
+    public void goToChallengeCooking()
+    {
+        if (PlayerPrefs.GetInt("SoundEffectsMuted", 1) == 1)
+        {
+            FindObjectOfType<AudioManager>().PlaySound("TapSound"); // Play sound only once
+        }
+
+        // Start the coroutine to wait for the sound to finish before loading the scene
+        StartCoroutine(LoadSceneAfterSound(16));
+    }
+
 
 
     private IEnumerator UpdateChallenge1Status()

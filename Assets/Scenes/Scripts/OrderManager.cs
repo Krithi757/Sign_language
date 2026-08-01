@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using TMPro;
 
 // Place on an empty GameObject called "OrderManager".
@@ -10,32 +11,45 @@ public class OrderManager : MonoBehaviour
 
     [Header("References")]
     public FoxAnimationController foxController;
-    public WordRoundManager       wordRoundManager;
-    public CoinPopup              coinPopup;
-    public TextMeshProUGUI        coinCounterLabel;
+    public WordRoundManager wordRoundManager;
+    public CoinPopup coinPopup;
+    public TextMeshProUGUI coinCounterLabel;
     [Tooltip("Optional — wire this up when you build the score UI. Safe to leave empty for now.")]
-    public TextMeshProUGUI        scoreCounterLabel;
+    public TextMeshProUGUI scoreCounterLabel;
 
     [Header("Audio")]
     [Tooltip("Add an AudioSource component to this GameObject (uncheck 'Play On Awake') and drag it here.")]
     public AudioSource uiAudioSource;
     [Tooltip("Plays once, right when the coin popup appears.")]
-    public AudioClip   coinSound;
+    public AudioClip coinSound;
     [Tooltip("Plays once, the instant the player drops the WRONG word onto the video.")]
-    public AudioClip   wrongSound;
+    public AudioClip wrongSound;
 
     [Header("Customer System")]
     [Tooltip("Drag the CustomerManager GameObject here.")]
     public CustomerManager customerManager;
 
+    [Header("Play Gate (optional)")]
+    [Tooltip("Optional — gates the video + word buttons behind an explicit Play tap " +
+             "instead of the video auto-starting the instant a customer is stationed. " +
+             "Leave empty to keep the old auto-play behavior.")]
+    public VideoPlayGate videoPlayGate;
+
+    [Header("Level End -> ChallengeFeedback")]
+    [Tooltip("No diamond-earning mechanic exists in this game yet — this stays 0 " +
+             "until you add one.")]
+    public int diamondsEarned = 0;
+    [Tooltip("Scene build index for ChallengeFeedback.")]
+    public int challengeFeedbackSceneIndex = 5;
+
     [Header("Debug — read only")]
-    public int    totalCoins        = 0;
-    public int    totalScore        = 0;
+    public int totalCoins = 0;
+    public int totalScore = 0;
     public string currentRecipeName = "";
 
     // Set by CustomerManager whenever the active customer changes
     private KottuRecipe currentRecipe;
-    private float       orderStartTime;
+    private float orderStartTime;
 
     // ══════════════════════════════════════════════════════════════════════════
 
@@ -48,6 +62,24 @@ public class OrderManager : MonoBehaviour
         UpdateScoreLabel();
         // CustomerManager handles spawning and calls SetCurrentRecipe when
         // a customer is actually stationed at the counter.
+    }
+
+    /// <summary>
+    /// Saves this run's Coins/Score/Diamonds/IsCompleted to PlayerPrefs and loads
+    /// ChallengeFeedback — called by PauseMenu's Give Up button (completed = false).
+    /// Whatever was earned so far still gets recorded and shown, nothing is lost.
+    /// </summary>
+    public void EndLevelAndGoToFeedback(bool completed)
+    {
+        PlayerPrefs.SetInt("Coins", totalCoins);
+        PlayerPrefs.SetInt("Score", totalScore);
+        PlayerPrefs.SetInt("Diamonds", diamondsEarned);
+        PlayerPrefs.SetInt("IsCompleted", completed ? 1 : 0);
+        PlayerPrefs.Save();
+
+        Time.timeScale = 1f; // in case we're leaving from a paused state
+        Debug.Log("🎬 OrderManager.EndLevelAndGoToFeedback -> loading scene index: " + challengeFeedbackSceneIndex);
+        SceneManager.LoadScene(challengeFeedbackSceneIndex);
     }
 
     // ── Called by CustomerManager whenever the active (front-of-queue,
@@ -65,11 +97,11 @@ public class OrderManager : MonoBehaviour
         if (recipe == currentRecipe) return;
 
         bool becameActive = currentRecipe == null && recipe != null;
-        bool becameIdle    = currentRecipe != null && recipe == null;
+        bool becameIdle = currentRecipe != null && recipe == null;
 
-        currentRecipe      = recipe;
-        currentRecipeName  = recipe != null ? recipe.displayName : "(none)";
-        orderStartTime     = Time.time;
+        currentRecipe = recipe;
+        currentRecipeName = recipe != null ? recipe.displayName : "(none)";
+        orderStartTime = Time.time;
 
         // ── Video freeze/blank hook ─────────────────────────────────────────
         // The sign-language video stays frozen/blank until a customer is
@@ -81,8 +113,21 @@ public class OrderManager : MonoBehaviour
         // VideoPlayer.Play()/Pause() calls (that script also starts frozen
         // by default on scene load, so the very first customer's arrival is
         // covered too, not just subsequent ones).
-        if (becameActive) wordRoundManager.videoController.ResumeVideo();
-        if (becameIdle)   wordRoundManager.videoController.PauseVideo();
+        // If a VideoPlayGate is wired up, it owns the actual Resume/Pause calls —
+        // SetPlaying()/SetPaused() are pure automatic state mirrors (Play icon +
+        // greyed words track whether the video is paused or playing, no click
+        // required — see VideoPlayGate.cs). Without one wired up, falls back to
+        // the old direct auto-play behavior.
+        if (becameActive)
+        {
+            if (videoPlayGate != null) videoPlayGate.SetPlaying();
+            else wordRoundManager.videoController.ResumeVideo();
+        }
+        if (becameIdle)
+        {
+            if (videoPlayGate != null) videoPlayGate.SetPaused();
+            else wordRoundManager.videoController.PauseVideo();
+        }
 
         Debug.Log("📋 Active order: " + currentRecipeName);
     }
@@ -99,14 +144,14 @@ public class OrderManager : MonoBehaviour
 
         Debug.Log("✅ Correct! Cooking: " + currentRecipe.displayName);
 
-        KottuRecipe recipe    = currentRecipe;
-        float       startTime = orderStartTime;
+        KottuRecipe recipe = currentRecipe;
+        float startTime = orderStartTime;
 
         foxController.PlayCorrectSequence(
-            uniqueVFX:   recipe.uniqueVFX,
+            uniqueVFX: recipe.uniqueVFX,
             effectDelay: recipe.uniqueEffectDelay,
-            mealToShow:  recipe.mealObject,
-            onComplete:  () => OnOrderComplete(recipe, startTime)
+            mealToShow: recipe.mealObject,
+            onComplete: () => OnOrderComplete(recipe, startTime)
         );
     }
 
@@ -139,8 +184,8 @@ public class OrderManager : MonoBehaviour
     {
         // Coins
         float timeTaken = Time.time - startTime;
-        bool  wasFast   = timeTaken <= recipe.speedBonusSeconds;
-        int   earned    = recipe.coinReward + (wasFast ? recipe.speedBonusCoins : 0);
+        bool wasFast = timeTaken <= recipe.speedBonusSeconds;
+        int earned = recipe.coinReward + (wasFast ? recipe.speedBonusCoins : 0);
         totalCoins += earned;
 
         // Score — one point per completed order. Tune the value/formula once
