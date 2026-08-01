@@ -20,8 +20,24 @@ public class CustomerManager : MonoBehaviour
 
     [Header("Wiring")]
     public OrderManager orderManager;
+    [Tooltip("Optional — the 2D 'Order Queue' side panel. A row is added for a customer " +
+             "the instant they reach the counter (never while still walking in), and " +
+             "removed the instant they leave (served or angry). Leave empty to skip.")]
+    public OrderQueueUI orderQueueUI;
+    [Tooltip("ONE shared Patience Meter for the whole scene. When multiple customers are " +
+             "stationed at once, it shows their portraits side-by-side (auto-centered via " +
+             "a Horizontal Layout Group on the icon slots) but the bar/fill/color/blink/" +
+             "fire escalation only ever track the front-most (queue[0]) customer. The " +
+             "background customer's own countdown still runs for real underneath — it's " +
+             "just not separately visualized. To keep that from feeling unfair, give Dog " +
+             "(or whichever character tends to end up waiting) a much higher " +
+             "patienceDuration than Pig.")]
+    public ActivePatienceUI patienceMeter;
 
     [Header("Spawn timing")]
+    [Tooltip("Base random range for how long between customer spawns. If a LevelTimer " +
+             "exists in the scene, its SpawnIntervalMultiplier scales this each time — " +
+             "starts slower (bigger multiplier), ramps down to faster later in the level.")]
     public float minSpawnInterval = 5f;
     public float maxSpawnInterval = 12f;
 
@@ -66,10 +82,15 @@ public class CustomerManager : MonoBehaviour
         if (queue.Count < counterSlots.Length)
             TrySpawn();
 
-        // After that, new customers arrive at random intervals
+        // After that, new customers arrive at random intervals — scaled by
+        // LevelTimer's SpawnIntervalMultiplier if one exists in the scene, so
+        // spawns start slower and ramp up to faster as the level goes on. No
+        // LevelTimer at all just means a multiplier of 1 (unchanged pacing).
         while (true)
         {
-            yield return new WaitForSeconds(Random.Range(minSpawnInterval, maxSpawnInterval));
+            float interval = Random.Range(minSpawnInterval, maxSpawnInterval);
+            if (LevelTimer.Instance != null) interval *= LevelTimer.Instance.SpawnIntervalMultiplier;
+            yield return new WaitForSeconds(interval);
             if (queue.Count < counterSlots.Length)
                 TrySpawn();
         }
@@ -101,7 +122,19 @@ public class CustomerManager : MonoBehaviour
         // moment State becomes AtStation), then re-sync. This keeps the video
         // frozen/blank until a customer is genuinely stationed, and only acts
         // on it if that customer is the one actually at the front of the queue.
-        c.onArrivedAtStation = (_) => SyncActiveRecipe();
+        // Same timing is used for the 2D Order Queue panel — a row only
+        // appears once the customer has actually reached the counter, never
+        // while they're still walking in from off-screen.
+        c.onArrivedAtStation = (_) =>
+        {
+            SyncActiveRecipe();
+            if (orderQueueUI != null)
+                orderQueueUI.AddEntry(
+                    c,
+                    c.portraitIcon,
+                    entry.recipe != null ? entry.recipe.orderSprite : null,
+                    entry.recipe != null ? entry.recipe.addOnSprite : null);
+        };
 
         queue.Add(entry);
         c.Arrive(recipe);
@@ -160,6 +193,7 @@ public class CustomerManager : MonoBehaviour
     private void OnCustomerLeft(QueueEntry entry)
     {
         queue.Remove(entry);
+        if (orderQueueUI != null) orderQueueUI.RemoveEntry(entry.customer);
 
         // Shuffle remaining customers one slot forward
         for (int i = 0; i < queue.Count; i++)
@@ -188,11 +222,31 @@ public class CustomerManager : MonoBehaviour
     /// </summary>
     private void SyncActiveRecipe()
     {
-        if (orderManager == null) return;
+        bool active = queue.Count > 0 && queue[0].customer.CurrentState == CustomerController.State.AtStation;
 
-        if (queue.Count > 0 && queue[0].customer.CurrentState == CustomerController.State.AtStation)
-            orderManager.SetCurrentRecipe(queue[0].recipe);
-        else
-            orderManager.SetCurrentRecipe(null);
+        if (orderManager != null)
+            orderManager.SetCurrentRecipe(active ? queue[0].recipe : null);
+
+        SyncPatienceMeters();
+    }
+
+    /// <summary>
+    /// Builds the ordered (front-to-back) list of every currently-stationed
+    /// customer and hands it to the single shared Patience Meter in one call.
+    /// The meter itself decides how to display it: one icon per stationed
+    /// customer side-by-side, bar/fire/blink tracking only the front one.
+    /// </summary>
+    private void SyncPatienceMeters()
+    {
+        if (patienceMeter == null) return;
+
+        var stationed = new List<CustomerController>();
+        for (int i = 0; i < queue.Count; i++)
+        {
+            if (queue[i].customer.CurrentState == CustomerController.State.AtStation)
+                stationed.Add(queue[i].customer);
+        }
+
+        patienceMeter.SetStationedCustomers(stationed);
     }
 }

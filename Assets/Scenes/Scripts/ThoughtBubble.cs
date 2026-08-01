@@ -92,6 +92,8 @@ public class ThoughtBubble : MonoBehaviour
     private bool                 isVisible;
     private SkinnedMeshRenderer  smr;   // only used by the legacy fallback path
     private float                logTimer; // debug position logging (see LateUpdate)
+    private Coroutine            urgentCoroutine;
+    private bool                 isUrgent;
 
     void Awake()
     {
@@ -155,6 +157,8 @@ public class ThoughtBubble : MonoBehaviour
 
     public void Show(KottuRecipe recipe)
     {
+        SetUrgent(false); // fresh order, always start calm even if reused from the pool mid-blink
+
         // Force background fully opaque white.
         if (background != null)
         {
@@ -198,6 +202,64 @@ public class ThoughtBubble : MonoBehaviour
         isVisible = false;
         if (popCoroutine != null) StopCoroutine(popCoroutine);
         transform.localScale = Vector3.zero;
+        SetUrgent(false); // stop any blinking and restore full opacity for next time
+    }
+
+    /// <summary>
+    /// Called by CustomerController once remaining patience drops below its
+    /// lowPatienceThreshold — makes the bubble blink (fade in/out) to warn
+    /// the player this customer is about to leave. Call SetUrgent(false) to
+    /// stop (Hide() already does this automatically).
+    /// </summary>
+    public void SetUrgent(bool urgent)
+    {
+        if (isUrgent == urgent) return;
+        isUrgent = urgent;
+
+        if (urgentCoroutine != null) StopCoroutine(urgentCoroutine);
+
+        if (urgent)
+        {
+            urgentCoroutine = StartCoroutine(UrgentBlink());
+        }
+        else
+        {
+            urgentCoroutine = null;
+            SetContentAlpha(1f);
+        }
+    }
+
+    private IEnumerator UrgentBlink()
+    {
+        const float blinkInterval = 0.22f;
+        while (true)
+        {
+            SetContentAlpha(0.35f);
+            yield return new WaitForSeconds(blinkInterval);
+            SetContentAlpha(1f);
+            yield return new WaitForSeconds(blinkInterval);
+        }
+    }
+
+    private void SetContentAlpha(float a)
+    {
+        SetImageAlpha(background, a);
+        SetImageAlpha(dish1Image, a);
+        if (dish2Image != null && dish2Image.gameObject.activeSelf) SetImageAlpha(dish2Image, a);
+        if (plusLabel != null && plusLabel.gameObject.activeSelf)
+        {
+            Color c = plusLabel.color;
+            c.a = a;
+            plusLabel.color = c;
+        }
+    }
+
+    private static void SetImageAlpha(Image img, float a)
+    {
+        if (img == null) return;
+        Color c = img.color;
+        c.a = a;
+        img.color = c;
     }
 
     // ── Private ─────────────────────────────────────────────────────────────

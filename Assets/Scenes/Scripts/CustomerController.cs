@@ -39,6 +39,10 @@ public class CustomerController : MonoBehaviour
 
     [Header("UI (leave empty while testing)")]
     public ThoughtBubble thoughtBubble;
+    [Tooltip("Face icon used by the single shared Patience Meter (and later the Order " +
+             "Queue panel, if you add it) to represent this customer — e.g. a small Pig " +
+             "or Dog portrait. Optional, but needed for those to show the right icon.")]
+    public Sprite portraitIcon;
 
     [Header("Angry Shake")]
     [Tooltip("If true, the whole customer briefly jitters side to side the instant " +
@@ -56,6 +60,14 @@ public class CustomerController : MonoBehaviour
              "angry (wrong answer or patience timeout), at the same moment as the " +
              "Angry animation trigger and the shake.")]
     public AudioClip angryYellSound;
+    [Tooltip("Short happy sound — plays once, the instant this customer gets served " +
+             "(correct answer), at the same moment as the Happy animation trigger.")]
+    public AudioClip happySound;
+    [Tooltip("Playback speed for Happy Sound — 1 = normal, higher = faster/higher-pitched. " +
+             "Per-prefab, so e.g. Dog's slow-sounding clip can be sped up here without " +
+             "re-editing the audio file. Does not affect Angry Yell Sound, which always " +
+             "plays at normal speed regardless of this value.")]
+    public float happySoundSpeed = 1f;
 
     [Header("Patience")]
     [Tooltip("How long (seconds) this customer waits at the station before leaving " +
@@ -65,6 +77,18 @@ public class CustomerController : MonoBehaviour
              "counter (State becomes AtStation), whether that's their first arrival " +
              "or after shuffling forward.")]
     public float patienceDuration = 25f;
+    [Tooltip("When remaining patience drops to this fraction (0-1) of the total, the " +
+             "thought bubble starts blinking to warn the player this customer is " +
+             "running low. 0.35 = starts blinking with 35% of their patience left.")]
+    [Range(0f, 1f)] public float lowPatienceThreshold = 0.35f;
+
+    /// <summary>
+    /// Remaining patience as a 0-1 fraction, updated every frame while the
+    /// countdown is running (1 = just arrived, 0 = about to leave). Read by
+    /// OrderQueueUI to drive its own mood icons without needing to know
+    /// anything about how the countdown itself works.
+    /// </summary>
+    public float PatienceFraction { get; private set; } = 1f;
 
     // Fires when this customer physically arrives at the counter and their
     // thought bubble is shown — i.e. the moment they're actually "stationed."
@@ -159,6 +183,12 @@ public class CustomerController : MonoBehaviour
         else
             Debug.LogWarning("🐷 Animator is null on CustomerController!");
 
+        if (audioSource != null && happySound != null)
+        {
+            audioSource.pitch = happySoundSpeed;
+            audioSource.PlayOneShot(happySound);
+        }
+
         Debug.Log("🐷 Pig is happy! Disappearing in " + happyDuration + "s");
         StartCoroutine(DisappearAfter(happyDuration, mealToHide));
     }
@@ -239,7 +269,16 @@ public class CustomerController : MonoBehaviour
     private void StartPatienceTimer()
     {
         StopPatienceTimer();
-        patienceCoroutine = StartCoroutine(PatienceCountdown(patienceDuration));
+
+        // If a LevelTimer exists in the scene, its PatienceMultiplier (which
+        // ramps down over the course of the level — see LevelTimer.cs) scales
+        // this customer's actual countdown. No LevelTimer in the scene at all
+        // just means a multiplier of 1 (unchanged behavior).
+        float duration = patienceDuration;
+        if (LevelTimer.Instance != null) duration *= LevelTimer.Instance.PatienceMultiplier;
+
+        PatienceFraction = 1f;
+        patienceCoroutine = StartCoroutine(PatienceCountdown(duration));
     }
 
     private void StopPatienceTimer()
@@ -251,9 +290,33 @@ public class CustomerController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Runs frame-by-frame (instead of a single WaitForSeconds) so it can
+    /// continuously report PatienceFraction — the shared Patience Meter UI
+    /// (see ActivePatienceUI.cs, driven from CustomerManager) polls this
+    /// every frame for whichever customer is currently active, and the
+    /// thought bubble's low-patience blink also keys off it, in addition to
+    /// still being what makes the customer actually leave when it hits 0.
+    /// </summary>
     private IEnumerator PatienceCountdown(float duration)
     {
-        yield return new WaitForSeconds(duration);
+        float elapsed = 0f;
+        bool  urgentTriggered = false;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            PatienceFraction = duration > 0f ? Mathf.Clamp01(1f - elapsed / duration) : 0f;
+
+            if (!urgentTriggered && PatienceFraction <= lowPatienceThreshold)
+            {
+                urgentTriggered = true;
+                thoughtBubble?.SetUrgent(true);
+            }
+            yield return null;
+        }
+
+        PatienceFraction = 0f;
         OnPatienceOut();
     }
 
@@ -297,7 +360,16 @@ public class CustomerController : MonoBehaviour
         else
             Debug.LogWarning("🐷 Animator is null on CustomerController!");
 
-        if (audioSource != null && angryYellSound != null) audioSource.PlayOneShot(angryYellSound);
+        if (audioSource != null && angryYellSound != null)
+        {
+            // Reset pitch first — Happy Sound Speed above changes audioSource.pitch,
+            // and pitch persists on the AudioSource until something else changes it.
+            // Without this, a customer served with a sped-up happy sound and later
+            // reused from the pool for an angry sequence would yell at that same
+            // sped-up pitch instead of normal speed.
+            audioSource.pitch = 1f;
+            audioSource.PlayOneShot(angryYellSound);
+        }
 
         if (enableAngryShake) StartCoroutine(ShakeRoutine());
 
