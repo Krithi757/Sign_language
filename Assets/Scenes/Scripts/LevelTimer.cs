@@ -48,6 +48,15 @@ public class LevelTimer : MonoBehaviour
 
     private bool ended;
 
+    // Last mm:ss actually written to timerLabel — used to skip rebuilding
+    // the text (and allocating a new string) on frames where the displayed
+    // value hasn't changed. Previously this ran every single frame
+    // regardless, which was a continuous, avoidable source of GC churn +
+    // TMP mesh rebuilds (the Profiler's Memory module showed this as steady
+    // low-grade GC noise across the whole session, not just at big spikes).
+    private int lastMM = -1;
+    private int lastSS = -1;
+
     void Awake()
     {
         if (Instance != null && Instance != this)
@@ -70,7 +79,12 @@ public class LevelTimer : MonoBehaviour
         {
             int mm = Mathf.FloorToInt(remaining / 60f);
             int ss = Mathf.FloorToInt(remaining % 60f);
-            timerLabel.text = $"{mm:00}:{ss:00}";
+            if (mm != lastMM || ss != lastSS)
+            {
+                lastMM = mm;
+                lastSS = ss;
+                timerLabel.text = $"{mm:00}:{ss:00}";
+            }
         }
 
         if (remaining <= 0f)

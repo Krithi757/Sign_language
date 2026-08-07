@@ -91,7 +91,6 @@ public class ThoughtBubble : MonoBehaviour
     private Vector3              shownScale;
     private bool                 isVisible;
     private SkinnedMeshRenderer  smr;   // only used by the legacy fallback path
-    private float                logTimer; // debug position logging (see LateUpdate)
     private Coroutine            urgentCoroutine;
     private bool                 isUrgent;
 
@@ -106,7 +105,6 @@ public class ThoughtBubble : MonoBehaviour
         if (transform.parent == null) return;
 
         Vector3 p;
-        string  source;
 
         if (headAnchor != null)
         {
@@ -115,7 +113,6 @@ public class ThoughtBubble : MonoBehaviour
             // counter slot the character is standing in.
             p = headAnchor.position;
             p.y += extraAboveHead;
-            source = $"headAnchor='{headAnchor.name}' (headAnchor world pos={headAnchor.position:F2})";
         }
         else
         {
@@ -131,7 +128,6 @@ public class ThoughtBubble : MonoBehaviour
 
             p = transform.parent.position;      // correct X and Z
             p.y = smr.bounds.max.y + extraAboveHead;
-            source = $"SMR-fallback smr='{smr.name}' (bounds.max.y={smr.bounds.max.y:F2})";
         }
 
         transform.position = p;
@@ -141,16 +137,12 @@ public class ThoughtBubble : MonoBehaviour
             transform.rotation = Quaternion.LookRotation(
                 transform.position - mainCam.transform.position);
 
-        // Debug: print resolved position once a second so you can compare
-        // against where the character actually is and catch a mis-wired
-        // reference (wrong headAnchor, wrong SMR, wrong CustomerController
-        // field) without guessing. Remove this block once things line up.
-        logTimer += Time.deltaTime;
-        if (logTimer > 1f)
-        {
-            logTimer = 0f;
-            Debug.Log($"🗨️ ThoughtBubble GO='{gameObject.name}' parent='{transform.parent?.name}' visible={isVisible} using {source} -> world pos={transform.position:F2}");
-        }
+        // (Removed: the per-second Debug.Log position dump that used to live
+        // here. It was leftover setup-debugging that built an interpolated
+        // string every single frame — for every active thought bubble — even
+        // though it only ever printed once a second. Position/headAnchor
+        // wiring problems are still caught by the LogWarning above, which is
+        // the case that actually needs your attention.)
     }
 
     // ── Public API ──────────────────────────────────────────────────────────

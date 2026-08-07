@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
@@ -11,19 +12,19 @@ public class OrderManager : MonoBehaviour
 
     [Header("References")]
     public FoxAnimationController foxController;
-    public WordRoundManager wordRoundManager;
-    public CoinPopup coinPopup;
-    public TextMeshProUGUI coinCounterLabel;
+    public WordRoundManager       wordRoundManager;
+    public CoinPopup              coinPopup;
+    public TextMeshProUGUI        coinCounterLabel;
     [Tooltip("Optional — wire this up when you build the score UI. Safe to leave empty for now.")]
-    public TextMeshProUGUI scoreCounterLabel;
+    public TextMeshProUGUI        scoreCounterLabel;
 
     [Header("Audio")]
     [Tooltip("Add an AudioSource component to this GameObject (uncheck 'Play On Awake') and drag it here.")]
     public AudioSource uiAudioSource;
     [Tooltip("Plays once, right when the coin popup appears.")]
-    public AudioClip coinSound;
+    public AudioClip   coinSound;
     [Tooltip("Plays once, the instant the player drops the WRONG word onto the video.")]
-    public AudioClip wrongSound;
+    public AudioClip   wrongSound;
 
     [Header("Customer System")]
     [Tooltip("Drag the CustomerManager GameObject here.")]
@@ -42,14 +43,30 @@ public class OrderManager : MonoBehaviour
     [Tooltip("Scene build index for ChallengeFeedback.")]
     public int challengeFeedbackSceneIndex = 5;
 
+    [Header("Level Timer (optional)")]
+    [Tooltip("A TMP text showing 'Time's Up!' (or whatever wording you want) — shown " +
+             "briefly when LevelTimer's countdown hits 0, then ChallengeFeedback loads. " +
+             "The 'Time' + mm:ss countdown display itself is handled separately by " +
+             "LevelTimer's own Timer Label field — this is only the end-of-level message. " +
+             "Leave empty to skip straight to ChallengeFeedback with no message shown.")]
+    public TextMeshProUGUI timeUpText;
+    [Tooltip("The actual message set on Time Up Text in code — change the wording here, " +
+             "not by typing directly into the TMP object in the Editor (this overwrites it anyway).")]
+    public string timeUpMessage = "Time's Up!";
+    [Tooltip("How long Time Up Text stays on screen before loading ChallengeFeedback " +
+             "(this INCLUDES the pop-in time below, not added on top of it).")]
+    public float timeUpDisplaySeconds = 2f;
+    [Tooltip("How long the pop/bounce-in scale animation takes.")]
+    public float timeUpPopDuration = 0.3f;
+
     [Header("Debug — read only")]
-    public int totalCoins = 0;
-    public int totalScore = 0;
+    public int    totalCoins        = 0;
+    public int    totalScore        = 0;
     public string currentRecipeName = "";
 
     // Set by CustomerManager whenever the active customer changes
     private KottuRecipe currentRecipe;
-    private float orderStartTime;
+    private float       orderStartTime;
 
     // ══════════════════════════════════════════════════════════════════════════
 
@@ -62,6 +79,87 @@ public class OrderManager : MonoBehaviour
         UpdateScoreLabel();
         // CustomerManager handles spawning and calls SetCurrentRecipe when
         // a customer is actually stationed at the counter.
+
+        // If a LevelTimer exists in the scene (it's a singleton — see
+        // LevelTimer.Instance), subscribe so its countdown hitting 0
+        // automatically ends the level and routes to ChallengeFeedback.
+        // No LevelTimer in the scene at all just means levels never
+        // auto-end from a timer — Give Up (via PauseMenu) still works either way.
+        if (LevelTimer.Instance != null)
+            LevelTimer.Instance.onLevelEnd += HandleLevelEnd;
+    }
+
+    void OnDestroy()
+    {
+        if (LevelTimer.Instance != null)
+            LevelTimer.Instance.onLevelEnd -= HandleLevelEnd;
+    }
+
+    /// <summary>
+    /// Fired once by LevelTimer when its countdown reaches 0. Shows the
+    /// optional "Time's Up!" text for a moment, then ends the level exactly
+    /// like Give Up does — completed = whether the player actually scored
+    /// anything, which ChallengeFeedback.cs already uses to decide the
+    /// dance-vs-sad-animation branch, so no changes needed there.
+    /// </summary>
+    private void HandleLevelEnd()
+    {
+        Debug.Log("⏰ OrderManager: level time's up — totalScore=" + totalScore);
+        StartCoroutine(ShowTimeUpThenGoToFeedback());
+    }
+
+    private IEnumerator ShowTimeUpThenGoToFeedback()
+    {
+        // Freeze gameplay the instant time's up — no more spawning, serving,
+        // or patience ticking down during the brief "Time's Up!" display.
+        Time.timeScale = 0f;
+        if (timeUpText != null)
+        {
+            timeUpText.text = timeUpMessage;
+            timeUpText.transform.localScale = Vector3.zero;
+            timeUpText.gameObject.SetActive(true);
+            yield return PopIn(timeUpText.transform, timeUpPopDuration);
+        }
+
+        yield return WaitRealSeconds(timeUpDisplaySeconds);
+
+        if (timeUpText != null) timeUpText.gameObject.SetActive(false);
+
+        bool completed = totalScore > 0;
+        EndLevelAndGoToFeedback(completed);
+    }
+
+    // Elastic bounce-in scale animation (0 -> slight overshoot -> settles at 1),
+    // same easing shape ThoughtBubble.cs already uses for its pop-in, just
+    // applied to a plain Transform here so it works on any TMP text/RectTransform.
+    // Runs on unscaled time since Time.timeScale is 0 while this plays.
+    private IEnumerator PopIn(Transform t, float duration)
+    {
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            float p = Mathf.Clamp01(elapsed / duration);
+            const float c = 1.70158f;
+            float q = p - 1f;
+            float scale = q * q * ((c + 1f) * q + c) + 1f;
+            t.localScale = Vector3.one * Mathf.Max(0f, scale);
+            yield return null;
+        }
+        t.localScale = Vector3.one;
+    }
+
+    // Time.timeScale is 0 during the "Time's Up!" display, so a normal
+    // WaitForSeconds (itself scaled by Time.timeScale) would never advance.
+    // Wait on unscaled real time instead — same pattern as CountdownController.
+    private IEnumerator WaitRealSeconds(float seconds)
+    {
+        float elapsed = 0f;
+        while (elapsed < seconds)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            yield return null;
+        }
     }
 
     /// <summary>
@@ -71,9 +169,9 @@ public class OrderManager : MonoBehaviour
     /// </summary>
     public void EndLevelAndGoToFeedback(bool completed)
     {
-        PlayerPrefs.SetInt("Coins", totalCoins);
-        PlayerPrefs.SetInt("Score", totalScore);
-        PlayerPrefs.SetInt("Diamonds", diamondsEarned);
+        PlayerPrefs.SetInt("Coins",       totalCoins);
+        PlayerPrefs.SetInt("Score",       totalScore);
+        PlayerPrefs.SetInt("Diamonds",    diamondsEarned);
         PlayerPrefs.SetInt("IsCompleted", completed ? 1 : 0);
         PlayerPrefs.Save();
 
@@ -97,11 +195,11 @@ public class OrderManager : MonoBehaviour
         if (recipe == currentRecipe) return;
 
         bool becameActive = currentRecipe == null && recipe != null;
-        bool becameIdle = currentRecipe != null && recipe == null;
+        bool becameIdle    = currentRecipe != null && recipe == null;
 
-        currentRecipe = recipe;
-        currentRecipeName = recipe != null ? recipe.displayName : "(none)";
-        orderStartTime = Time.time;
+        currentRecipe      = recipe;
+        currentRecipeName  = recipe != null ? recipe.displayName : "(none)";
+        orderStartTime     = Time.time;
 
         // ── Video freeze/blank hook ─────────────────────────────────────────
         // The sign-language video stays frozen/blank until a customer is
@@ -144,14 +242,14 @@ public class OrderManager : MonoBehaviour
 
         Debug.Log("✅ Correct! Cooking: " + currentRecipe.displayName);
 
-        KottuRecipe recipe = currentRecipe;
-        float startTime = orderStartTime;
+        KottuRecipe recipe    = currentRecipe;
+        float       startTime = orderStartTime;
 
         foxController.PlayCorrectSequence(
-            uniqueVFX: recipe.uniqueVFX,
+            uniqueVFX:   recipe.uniqueVFX,
             effectDelay: recipe.uniqueEffectDelay,
-            mealToShow: recipe.mealObject,
-            onComplete: () => OnOrderComplete(recipe, startTime)
+            mealToShow:  recipe.mealObject,
+            onComplete:  () => OnOrderComplete(recipe, startTime)
         );
     }
 
@@ -184,8 +282,8 @@ public class OrderManager : MonoBehaviour
     {
         // Coins
         float timeTaken = Time.time - startTime;
-        bool wasFast = timeTaken <= recipe.speedBonusSeconds;
-        int earned = recipe.coinReward + (wasFast ? recipe.speedBonusCoins : 0);
+        bool  wasFast   = timeTaken <= recipe.speedBonusSeconds;
+        int   earned    = recipe.coinReward + (wasFast ? recipe.speedBonusCoins : 0);
         totalCoins += earned;
 
         // Score — one point per completed order. Tune the value/formula once
